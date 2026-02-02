@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent Reward Hub - 黑客松汇报</title>
+  <title>mskills - Monad Hackathon 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
@@ -187,76 +187,60 @@
       </div>
     </div>
 
-    <!-- Slide 5: Technology - 核心差异化 -->
+    <!-- Slide 5: 评测体系 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">🔬 科学评测体系</h2>
-      <div class="max-w-6xl w-full">
-        <div class="grid grid-cols-2 gap-8">
-          <div class="card-gradient rounded-2xl p-8">
-            <h3 class="text-2xl font-bold mb-6 gradient-text">三层 Grader 体系</h3>
-            <div class="space-y-4">
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <span class="text-green-400 font-bold">1</span>
+      <h2 class="text-5xl font-bold mb-12">🔬 评测体系</h2>
+      <div class="max-w-5xl w-full">
+        <div class="card-gradient rounded-3xl p-10 mb-8">
+          <h3 class="text-2xl font-bold mb-8 text-center gradient-text">两层 Grader 体系</h3>
+          <div class="grid grid-cols-2 gap-8">
+            <div class="bg-gray-900/50 rounded-xl p-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <span class="text-2xl text-green-400 font-bold">1</span>
                 </div>
-                <div class="flex-1">
-                  <p class="font-bold">Code Grader</p>
-                  <p class="text-xs text-gray-500">快速、客观、低成本</p>
-                </div>
+                <h4 class="text-xl font-bold">自动化评测</h4>
               </div>
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
-                  <span class="text-purple-400 font-bold">2</span>
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold">Model Grader</p>
-                  <p class="text-xs text-gray-500">灵活、理解上下文</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
-                  <span class="text-orange-400 font-bold">3</span>
-                </div>
-                <div class="flex-1">
-                  <p class="font-bold">Human Grader</p>
-                  <p class="text-xs text-gray-500">准确、金标准</p>
-                </div>
-              </div>
+              <ul class="text-sm text-gray-400 space-y-2">
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Docker 沙箱运行测试</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> 恶意代码检测</li>
+                <li class="flex items-center gap-2"><span class="text-green-400">✓</span> Token 消耗统计</li>
+              </ul>
             </div>
-          </div>
-          <div class="card-gradient rounded-2xl p-8">
-            <h3 class="text-2xl font-bold mb-6 gradient-text">六维能力评分</h3>
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
-                <p class="text-purple-400 font-bold">质量</p>
-                <p class="text-xs text-gray-600">Quality</p>
+            <div class="bg-gray-900/50 rounded-xl p-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span class="text-2xl text-purple-400 font-bold">2</span>
+                </div>
+                <h4 class="text-xl font-bold">社区验证</h4>
               </div>
-              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
-                <p class="text-pink-400 font-bold">相关性</p>
-                <p class="text-xs text-gray-600">Relevance</p>
-              </div>
-              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
-                <p class="text-orange-400 font-bold">可靠性</p>
-                <p class="text-xs text-gray-600">Reliability</p>
-              </div>
-              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
-                <p class="text-green-400 font-bold">效率</p>
-                <p class="text-xs text-gray-600">Efficiency</p>
-              </div>
-              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
-                <p class="text-blue-400 font-bold">准确性</p>
-                <p class="text-xs text-gray-600">Accuracy</p>
-              </div>
-              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
-                <p class="text-red-400 font-bold">安全性</p>
-                <p class="text-xs text-gray-600">Safety</p>
-              </div>
+              <ul class="text-sm text-gray-400 space-y-2">
+                <li class="flex items-center gap-2"><span class="text-purple-400">✓</span> Claude AI 辅助评分</li>
+                <li class="flex items-center gap-2"><span class="text-purple-400">✓</span> 用户点赞/点踩</li>
+                <li class="flex items-center gap-2"><span class="text-purple-400">✓</span> 打赏数统计</li>
+              </ul>
             </div>
           </div>
         </div>
-        <div class="mt-8 bg-gray-800/30 rounded-xl p-6 text-center">
-          <p class="text-sm text-gray-400 mb-2">对标 Anthropic Evals 方法论</p>
-          <p class="text-lg font-bold">pass@1 / pass@3 / pass@5 指标</p>
+        <div class="text-center">
+          <p class="text-gray-500 mb-4">三个核心指标</p>
+          <div class="flex gap-6 justify-center">
+            <div class="bg-gray-800/30 rounded-xl px-8 py-4">
+              <p class="text-3xl mb-1">⭐</p>
+              <p class="font-bold text-purple-400">质量分</p>
+              <p class="text-xs text-gray-600">输出质量 · 完成度</p>
+            </div>
+            <div class="bg-gray-800/30 rounded-xl px-8 py-4">
+              <p class="text-3xl mb-1">🛡️</p>
+              <p class="font-bold text-green-400">安全分</p>
+              <p class="text-xs text-gray-600">恶意代码 · 风险</p>
+            </div>
+            <div class="bg-gray-800/30 rounded-xl px-8 py-4">
+              <p class="text-3xl mb-1">💎</p>
+              <p class="font-bold text-pink-400">热度分</p>
+              <p class="text-xs text-gray-600">打赏 · 点赞 · 安装</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -315,9 +299,9 @@
           <p class="text-gray-400 text-center mb-8">让用户一键安装经过评测的高质量 Skills</p>
           <div class="bg-gray-900/70 rounded-xl p-6 font-mono text-sm">
             <p class="text-green-400 mb-2"># 搜索带评分的 Skills</p>
-            <p class="text-gray-300 mb-4">monad-skills search --platform openclaw</p>
+            <p class="text-gray-300 mb-4">mskills search --platform openclaw</p>
             <p class="text-green-400 mb-2"># 安装到 OpenClaw</p>
-            <p class="text-gray-300">monad-skills install ai-writer --target openclaw</p>
+            <p class="text-gray-300">mskills install ai-writer --target openclaw</p>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-6">
@@ -373,7 +357,7 @@
           <div class="bg-gray-800/30 rounded-xl p-6">
             <h4 class="font-bold mb-4 text-purple-400">智能合约</h4>
             <ul class="text-sm text-gray-400 space-y-2">
-              <li>• ERC20 $ASKL 代币</li>
+              <li>• ERC20 $MSKL 代币</li>
               <li>• Skill 注册表</li>
               <li>• 自动 98/2 分账</li>
               <li>• 评测记录链上存证</li>
@@ -449,56 +433,7 @@
       </div>
     </div>
 
-    <!-- Slide 10: 创作者代币 -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">🪙 创作者代币</h2>
-      <div class="max-w-5xl w-full">
-        <div class="card-gradient rounded-3xl p-10 mb-8">
-          <h3 class="text-2xl font-bold mb-6 text-center">让创作者发行自己的 meme 币</h3>
-          <div class="bg-gray-900/70 rounded-xl p-6 font-mono text-sm mb-6">
-            <p class="text-green-400 mb-2"># 创作者一键发币</p>
-            <p class="text-gray-300 mb-1">monad-skills launch-token my-skill \</p>
-            <p class="text-gray-300 mb-4">  --chain solana --supply 1000000</p>
-            <p class="text-green-400 mb-2"># 用户打赏获得创作者代币</p>
-            <p class="text-gray-300">monad-skills reward my-skill 10 ASKL</p>
-          </div>
-          <div class="grid grid-cols-3 gap-4 text-center text-sm">
-            <div>
-              <p class="font-bold gradient-text mb-2">用户</p>
-              <p class="text-gray-500">支持 = 投资<br/>代币升值获利</p>
-            </div>
-            <div>
-              <p class="font-bold gradient-text mb-2">创作者</p>
-              <p class="text-gray-500">发行 meme 币<br/>建立 DAO 社区</p>
-            </div>
-            <div>
-              <p class="font-bold gradient-text mb-2">平台</p>
-              <p class="text-gray-500">发币服务费<br/>交易手续费</p>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-4 gap-4">
-          <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-lg font-bold">Solana</p>
-            <p class="text-xs text-gray-500">SPL Token</p>
-          </div>
-          <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-lg font-bold">Base</p>
-            <p class="text-xs text-gray-500">ERC20 L2</p>
-          </div>
-          <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-lg font-bold">Monad</p>
-            <p class="text-xs text-gray-500">原生链</p>
-          </div>
-          <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-lg font-bold">BSC</p>
-            <p class="text-xs text-gray-500">BEP20</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 11: MVP 进展 -->
+    <!-- Slide 10: MVP 进展 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">✅ MVP 进展</h2>
       <div class="max-w-4xl w-full">
@@ -508,44 +443,44 @@
               <span class="text-2xl text-green-400">✓</span>
             </div>
             <p class="font-bold">智能合约</p>
-            <p class="text-xs text-gray-500">ASKLToken.sol</p>
+            <p class="text-xs text-gray-500">MSKLToken.sol 已部署</p>
           </div>
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
               <span class="text-2xl text-green-400">✓</span>
             </div>
             <p class="font-bold">前端页面</p>
-            <p class="text-xs text-gray-500">Next.js + Tailwind</p>
+            <p class="text-xs text-gray-500">Next.js + RainbowKit</p>
           </div>
           <div class="text-center">
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
               <span class="text-2xl text-green-400">✓</span>
             </div>
-            <p class="font-bold">数据库设计</p>
-            <p class="text-xs text-gray-500">评测数据 Schema</p>
+            <p class="font-bold">打赏功能</p>
+            <p class="text-xs text-gray-500">98% 直达创作者</p>
           </div>
         </div>
         <div class="card-gradient rounded-2xl p-8">
-          <h3 class="text-xl font-bold mb-6">当前功能</h3>
+          <h3 class="text-xl font-bold mb-6">功能进度</h3>
           <div class="grid grid-cols-2 gap-6 text-sm">
             <div class="space-y-2">
               <p class="flex items-center gap-2"><span class="text-green-400">✓</span> Skills 目录浏览</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 钱包连接 (RainbowKit)</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 评测数据库设计</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> GitHub 统计集成</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 钱包连接</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 打赏功能</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 数据库 Schema</p>
             </div>
             <div class="space-y-2">
-              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 评测执行引擎</p>
-              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 打赏功能</p>
-              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 排行榜页面</p>
-              <p class="flex items-center gap-2"><span class="text-purple-400">◐</span> 合约部署测试网</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 自动化评测引擎</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 评分排行榜</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> Skill 详情页</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 测试报告展示</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 12: 团队 -->
+    <!-- Slide 11: 团队 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">👥 团队介绍</h2>
       <div class="max-w-4xl w-full">
@@ -574,7 +509,7 @@
       </div>
     </div>
 
-    <!-- Slide 13: 结尾 -->
+    <!-- Slide 12: 结尾 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <div class="text-center">
         <div class="text-8xl mb-8">🎯</div>
@@ -614,7 +549,7 @@
 
   <!-- 页码 -->
   <div class="fixed bottom-8 right-8 text-gray-600 text-sm z-50">
-    <span id="currentSlide">1</span> / <span id="totalSlides">13</span>
+    <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
   </div>
 
   <script>

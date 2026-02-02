@@ -267,7 +267,7 @@ export default function CreateSkillPage() {
 
         <div className="flex items-center justify-between pt-6">
           <p className="text-sm text-green-600">
-            🆓 创建 Skill 即可获得 500 $ASKL 奖励！
+            🆓 创建 Skill 即可获得 500 $MSKL 奖励！
           </p>
 
           <div className="flex gap-4">

@@ -27,10 +27,10 @@ Agent Reward Hub 的 Monad Skills 可以无缝集成到 OpenClaw/ClawHub 生态�
 
 [用户]                    [命令                     [结果]
   │                          │                          │
-  ├── 搜索 Skills ────────►│ monad-skills search     │ 带评分的列表
+  ├── 搜索 Skills ────────►│ mskills search     │ 带评分的列表
   │                         │   --platform openclaw   │
   │                          │                          │
-  ├── 安装 Skill ─────────►│ monad-skills install    │ 下载到 OpenClaw
+  ├── 安装 Skill ─────────►│ mskills install    │ 下载到 OpenClaw
   │                         │   --target openclaw     │ 目录
   │                          │                          │
   └── OpenClaw 自动加载 ───►│ (OpenClaw 重启会话)     │ Skill 可用
@@ -43,8 +43,8 @@ Agent Reward Hub 的 Monad Skills 可以无缝集成到 OpenClaw/ClawHub 生态�
 | skillName | name |
 | description | description |
 | platform | metadata.openclaw.* |
-| testScore | metadata.monad-skills.score |
-| grade | metadata.monad-skills.grade |
+| testScore | metadata.mskills.score |
+| grade | metadata.mskills.grade |
 
 **生成的 SKILL.md 示例**：
 
@@ -58,7 +58,7 @@ metadata:
       "emoji": "✍️",
       "user-invocable": true
     },
-    "monad-skills": {
+    "mskills": {
       "score": 92,
       "grade": "Gold",
       "testDate": "2026-02-03",
@@ -86,7 +86,7 @@ metadata:
 
 ## 创作者
 - 地址: 0x1234...5678
-- 打赏: 使用 monad-skills reward ai-writer
+- 打赏: 使用 mskills reward ai-writer
 ```
 
 ---
@@ -97,36 +97,36 @@ metadata:
 
 ```bash
 # 搜索所有 OpenClaw Skills（带评分）
-monad-skills search --platform openclaw
+mskills search --platform openclaw
 
 # 搜索高评分 Skills
-monad-skills search --platform openclaw --min-score 80
+mskills search --platform openclaw --min-score 80
 
 # 搜索特定类别
-monad-skills search --platform openclaw --tag writing
+mskills search --platform openclaw --tag writing
 ```
 
 ### 安装到 OpenClaw
 
 ```bash
 # 安装到默认 OpenClaw 目录
-monad-skills install ai-writer --target openclaw
+mskills install ai-writer --target openclaw
 
 # 指定安装目录
 monad-skells install ai-writer --target openclaw --dir ~/.openclaw/skills
 
 # 安装特定版本
-monad-skills install ai-writer@1.2.0 --target openclaw
+mskills install ai-writer@1.2.0 --target openclaw
 ```
 
 ### 与 ClawHub 配合
 
 ```bash
 # 用我们的评分过滤 ClawHub Skills
-clawhub search "writing" | monad-skills filter --min-score 85
+clawhub search "writing" | mskills filter --min-score 85
 
 # 从 ClawHub 安装，但显示我们的评分
-clawhub install ai-writer --verify-with monad-skills
+clawhub install ai-writer --verify-with mskills
 ```
 
 ---
@@ -137,7 +137,7 @@ OpenClaw/ClawHub 可以调用我们的 API 获取评分：
 
 ```javascript
 // 获取 Skill 评分信息
-const response = await fetch('https://api.monad-skills.xyz/v1/skills/ai-writer', {
+const response = await fetch('https://api.mskills.xyz/v1/skills/ai-writer', {
   headers: {
     'X-Platform': 'openclaw'
   }
@@ -191,7 +191,7 @@ const skill = await response.json()
 
 ```bash
 # 1. 用户搜索写作助手
-monad-skills search --platform openclaw --tag writing
+mskills search --platform openclaw --tag writing
 
 # 输出：
 # ✍️ ai-writer          Score: 92 (Gold)   [安装]
@@ -199,10 +199,10 @@ monad-skills search --platform openclaw --tag writing
 # ✒️ copy-writer        Score: 65 (Bronze) [安装]
 
 # 2. 选择高分 Skill 安装
-monad-skills install ai-writer --target openclaw
+mskills install ai-writer --target openclaw
 
 # 输出：
-# ✓ Downloading ai-writer from monad-skills registry
+# ✓ Downloading ai-writer from mskills registry
 # ✓ Converting to OpenClaw format
 # ✓ Installing to ~/.openclaw/skills/ai-writer/
 # ✓ Generating SKILL.md with test scores
@@ -210,14 +210,14 @@ monad-skills install ai-writer --target openclaw
 # 重启 OpenClaw 会话以使用新 Skill
 
 # 3. 打赏创作者
-monad-skills reward ai-writer 50 ASKL
+mskills reward ai-writer 50 ASKL
 ```
 
 ---
 
 ## 配置文件
 
-用户可以在 `~/.monad-skills/config.json` 配置 OpenClaw 目录：
+用户可以在 `~/.mskills/config.json` 配置 OpenClaw 目录：
 
 ```json
 {
