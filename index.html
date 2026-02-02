@@ -43,6 +43,17 @@
       background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.05));
       backdrop-filter: blur(10px);
     }
+
+    /* 打印样式 */
+    @media print {
+      .slide { display: flex !important; page-break-after: always; page-break-before: always; }
+      .slide:first-child { page-break-before: avoid; }
+      .slide:last-child { page-break-after: avoid; }
+      body { overflow: visible !important; }
+      #progress, #prevBtn, #nextBtn, .fixed { display: none !important; }
+      .float, .pulse-glow { animation: none !important; }
+      @page { margin: 0; size: landscape; }
+    }
   </style>
 </head>
 <body class="gradient-bg min-h-screen text-white overflow-hidden">
