@@ -3,7 +3,7 @@
 > 跨平台 Agent Skill 打赏与激励协议
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Monad](https://img.shields.io/badge/Deployed-On-Monad-blue)](https://monad.xyz)
+[![Monad](https://img.shields.io/badge/Deployed-On-MonadTestnet-blue)](https://monad.xyz)
 
 ---
 
