@@ -59,160 +59,254 @@
 <body class="gradient-bg min-h-screen text-white overflow-hidden">
   <!-- 进度条 -->
   <div class="fixed top-0 left-0 w-full h-1 bg-gray-800 z-50">
-    <div id="progress" class="progress-bar h-full bg-gradient-to-r from-purple-500 to-pink-500" style="width: 12.5%"></div>
+    <div id="progress" class="progress-bar h-full bg-gradient-to-r from-purple-500 to-pink-500" style="width: 10%"></div>
   </div>
 
   <!-- 幻灯片容器 -->
   <div id="presentation" class="h-screen w-full relative">
 
-    <!-- Slide 1: 封面 -->
+    <!-- Slide 1: 封面 + Hook -->
     <div class="slide active flex-col items-center justify-center h-full px-8">
       <div class="text-center">
-        <div class="text-8xl mb-8 float">🎁</div>
+        <div class="text-8xl mb-8 float">🎯</div>
         <h1 class="text-7xl font-black mb-6 gradient-text">Agent Reward Hub</h1>
-        <p class="text-2xl text-gray-400 mb-4">跨平台 Agent Skill 打赏与激励协议</p>
-        <p class="text-xl text-gray-500 mb-12">让 Agent Skill 创作者获得持续收益</p>
+        <p class="text-3xl text-gray-400 mb-4 font-bold">Agent Skills 领域的 SWE-bench</p>
+        <p class="text-xl text-gray-500 mb-8">让 Agent Skill 有评价、有激励、有标准</p>
+        <div class="bg-gray-800/50 rounded-2xl p-6 max-w-3xl mx-auto mb-8">
+          <p class="text-2xl text-purple-400 font-bold mb-2">"就像早期 App Store 没有评分系统"</p>
+          <p class="text-gray-500">现在有 1000+ Agent Skills，用户不知道哪个好用<br/>创作者没有反馈，生态无法进化</p>
+        </div>
         <div class="flex gap-4 justify-center text-sm text-gray-500">
-          <span class="px-4 py-2 rounded-full border border-purple-500/30">Coze</span>
-          <span class="px-4 py-2 rounded-full border border-purple-500/30">Claude Code</span>
-          <span class="px-4 py-2 rounded-full border border-purple-500/30">Manus</span>
-          <span class="px-4 py-2 rounded-full border border-purple-500/30">MiniMax</span>
+          <span class="px-4 py-2 rounded-full border border-purple-500/30">评测基准</span>
+          <span class="px-4 py-2 rounded-full border border-pink-500/30">创作者激励</span>
+          <span class="px-4 py-2 rounded-full border border-orange-500/30">Monad Testnet</span>
         </div>
-      </div>
-      <div class="absolute bottom-12 text-gray-600 text-sm">
-        按键盘 → 或点击屏幕右侧切换 · 按 ESC 退出
       </div>
     </div>
 
-    <!-- Slide 2: 痛点 -->
+    <!-- Slide 2: Problem - 三大痛点 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">💡 为什么做这个？</h2>
-      <div class="grid grid-cols-2 gap-8 max-w-6xl">
-        <div class="card-gradient rounded-2xl p-8">
-          <div class="text-4xl mb-4">📦</div>
-          <h3 class="text-2xl font-bold mb-4 text-red-400">现状问题</h3>
-          <p class="text-gray-400 mb-6">Agent Skill 创作者无法获得收益</p>
-          <div class="space-y-3 text-left">
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✅</span>
-              <span>Coze</span>
-              <span class="text-green-400 ml-auto">有分成</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-red-400">❌</span>
-              <span>Claude Code</span>
-              <span class="text-red-400 ml-auto">无收益</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-red-400">❌</span>
-              <span>Manus</span>
-              <span class="text-red-400 ml-auto">无收益</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-red-400">❌</span>
-              <span>MiniMax</span>
-              <span class="text-red-400 ml-auto">无收益</span>
-            </div>
+      <h2 class="text-5xl font-bold mb-12">😰 现在的 Agent Skills 生态</h2>
+      <div class="grid grid-cols-3 gap-8 max-w-6xl">
+        <div class="card-gradient rounded-2xl p-8 text-center">
+          <div class="text-5xl mb-4">🎲</div>
+          <h3 class="text-2xl font-bold mb-4 text-red-400">用户痛点</h3>
+          <p class="text-gray-400 mb-4">试错成本高</p>
+          <p class="text-sm text-gray-500">"用到一个烂 Agent<br/>浪费半天时间"</p>
+          <div class="mt-4 bg-gray-800/50 rounded-lg p-3">
+            <p class="text-xs text-gray-400">skills.sh 有 400+ Skills</p>
+            <p class="text-xs text-red-400">但 0 个评分</p>
           </div>
         </div>
-        <div class="card-gradient rounded-2xl p-8">
-          <div class="text-4xl mb-4">🎯</div>
-          <h3 class="text-2xl font-bold mb-4 text-purple-400">我们的发现</h3>
-          <p class="text-gray-400 mb-6">类似 skills.sh 的平台只能浏览，无法打赏</p>
-          <div class="bg-gray-800/50 rounded-lg p-4 text-left">
-            <code class="text-sm text-green-400">$ npx skills list</code>
-            <p class="text-gray-500 mt-2 text-sm">400+ Skills，创作者 0 收入</p>
+        <div class="card-gradient rounded-2xl p-8 text-center">
+          <div class="text-5xl mb-4">😶</div>
+          <h3 class="text-2xl font-bold mb-4 text-purple-400">创作者痛点</h3>
+          <p class="text-gray-400 mb-4">没有正向反馈</p>
+          <p class="text-sm text-gray-500">"写了 Agent 没人知道<br/>不知道好不好用"</p>
+          <div class="mt-4 bg-gray-800/50 rounded-lg p-3">
+            <p class="text-xs text-gray-400">Claude Code / Manus</p>
+            <p class="text-xs text-red-400">创作者 0 收益</p>
+          </div>
+        </div>
+        <div class="card-gradient rounded-2xl p-8 text-center">
+          <div class="text-5xl mb-4">📊</div>
+          <h3 class="text-2xl font-bold mb-4 text-pink-400">行业痛点</h3>
+          <p class="text-gray-400 mb-4">没有评测标准</p>
+          <p class="text-sm text-gray-500">"什么是好 Agent？<br/>怎么科学地评测？"</p>
+          <div class="mt-4 bg-gray-800/50 rounded-lg p-3">
+            <p class="text-xs text-gray-400">代码生成有 SWE-bench</p>
+            <p class="text-xs text-red-400">Agent Skills 没有</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 3: 解决方案 -->
+    <!-- Slide 3: Solution 一句话 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">🚀 我们的解决方案</h2>
       <div class="max-w-5xl w-full">
-        <div class="card-gradient rounded-3xl p-12 glow">
-          <div class="flex items-center justify-between mb-8">
-            <div class="text-center">
-              <div class="text-5xl mb-3">👤</div>
-              <p class="text-gray-400">用户</p>
-            </div>
-            <div class="flex-1 h-1 bg-gradient-to-r from-purple-500 to-pink-500 mx-8"></div>
-            <div class="text-center">
-              <div class="text-5xl mb-3">🎁</div>
-              <p class="gradient-text font-bold">Reward Hub</p>
-            </div>
-            <div class="flex-1 h-1 bg-gradient-to-r from-pink-500 to-orange-500 mx-8"></div>
-            <div class="text-center">
-              <div class="text-5xl mb-3">👨‍💻</div>
-              <p class="text-gray-400">创作者</p>
-            </div>
+        <div class="card-gradient rounded-3xl p-12 glow mb-8">
+          <div class="text-center mb-8">
+            <p class="text-3xl font-bold gradient-text mb-4">App Store 评分 + GitHub Sponsors + SWE-bench</p>
+            <p class="text-xl text-gray-400">= Agent Reward Hub</p>
           </div>
-          <div class="text-center grid grid-cols-3 gap-8 mt-12">
-            <div>
-              <div class="text-3xl font-bold gradient-text mb-2">98%</div>
-              <p class="text-gray-400 text-sm">创作者收到</p>
+          <div class="grid grid-cols-3 gap-6 mt-12">
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
+                <span class="text-3xl">📊</span>
+              </div>
+              <h4 class="font-bold mb-2">评测基准</h4>
+              <p class="text-xs text-gray-500">三层 Grader 体系<br/>六维能力评分</p>
             </div>
-            <div>
-              <div class="text-3xl font-bold text-pink-400 mb-2">2%</div>
-              <p class="text-gray-400 text-sm">平台销毁</p>
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-500/20 flex items-center justify-center">
+                <span class="text-3xl">💰</span>
+              </div>
+              <h4 class="font-bold mb-2">创作者激励</h4>
+              <p class="text-xs text-gray-500">98% 打赏直达<br/>成长追踪 + 徽章</p>
             </div>
-            <div>
-              <div class="text-3xl font-bold text-orange-400 mb-2">0Gas</div>
-              <p class="text-gray-400 text-sm">免手续费</p>
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <span class="text-3xl">🏆</span>
+              </div>
+              <h4 class="font-bold mb-2">等级排名</h4>
+              <p class="text-xs text-gray-500">铂金/黄金/白银<br/>透明排行榜</p>
             </div>
           </div>
         </div>
-        <div class="mt-8 text-center text-gray-500">
-          <p>创作者一次注册，多平台收益</p>
+        <div class="text-center text-gray-500">
+          <p class="text-lg">一次评测，多方受益</p>
         </div>
       </div>
     </div>
 
-    <!-- Slide 4: 产品形态 -->
+    <!-- Slide 4: Why Now -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">⏰ 为什么现在做？</h2>
+      <div class="max-w-4xl w-full">
+        <div class="card-gradient rounded-3xl p-10 glow">
+          <div class="text-center mb-8">
+            <div class="text-6xl mb-4">🚀</div>
+            <p class="text-3xl font-bold gradient-text mb-4">Anthropic 刚开放 Agent Skills API (2025)</p>
+            <p class="text-xl text-gray-400">处于生态爆发前夜</p>
+          </div>
+          <div class="grid grid-cols-2 gap-6 mt-10">
+            <div class="bg-gray-800/50 rounded-xl p-6">
+              <h4 class="font-bold mb-3 text-green-400">✅ 早期 App Store</h4>
+              <p class="text-sm text-gray-400">有评分系统 → 成为标准 → 垄断市场</p>
+            </div>
+            <div class="bg-gray-800/50 rounded-xl p-6">
+              <h4 class="font-bold mb-3 text-purple-400">🎯 我们的窗口</h4>
+              <p class="text-sm text-gray-400">现在做评测平台 = 定义 Agent Skills 的标准</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 text-center">
+          <p class="text-gray-500">就像 SWE-bench 定义了代码生成评测标准<br/>我们要定义 Agent Skills 的评测标准</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Technology - 核心差异化 -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🔬 科学评测体系</h2>
+      <div class="max-w-6xl w-full">
+        <div class="grid grid-cols-2 gap-8">
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-2xl font-bold mb-6 gradient-text">三层 Grader 体系</h3>
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <span class="text-green-400 font-bold">1</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-bold">Code Grader</p>
+                  <p class="text-xs text-gray-500">快速、客观、低成本</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                  <span class="text-purple-400 font-bold">2</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-bold">Model Grader</p>
+                  <p class="text-xs text-gray-500">灵活、理解上下文</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                  <span class="text-orange-400 font-bold">3</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-bold">Human Grader</p>
+                  <p class="text-xs text-gray-500">准确、金标准</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-gradient rounded-2xl p-8">
+            <h3 class="text-2xl font-bold mb-6 gradient-text">六维能力评分</h3>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <p class="text-purple-400 font-bold">质量</p>
+                <p class="text-xs text-gray-600">Quality</p>
+              </div>
+              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <p class="text-pink-400 font-bold">相关性</p>
+                <p class="text-xs text-gray-600">Relevance</p>
+              </div>
+              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <p class="text-orange-400 font-bold">可靠性</p>
+                <p class="text-xs text-gray-600">Reliability</p>
+              </div>
+              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <p class="text-green-400 font-bold">效率</p>
+                <p class="text-xs text-gray-600">Efficiency</p>
+              </div>
+              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <p class="text-blue-400 font-bold">准确性</p>
+                <p class="text-xs text-gray-600">Accuracy</p>
+              </div>
+              <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <p class="text-red-400 font-bold">安全性</p>
+                <p class="text-xs text-gray-600">Safety</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mt-8 bg-gray-800/30 rounded-xl p-6 text-center">
+          <p class="text-sm text-gray-400 mb-2">对标 Anthropic Evals 方法论</p>
+          <p class="text-lg font-bold">pass@1 / pass@3 / pass@5 指标</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: 产品形态 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">🎨 产品形态</h2>
-      <div class="max-w-6xl w-full grid grid-cols-3 gap-6">
+      <div class="max-w-6xl w-full grid grid-cols-3 gap-6 mb-8">
         <div class="card-gradient rounded-2xl p-6 text-center">
-          <div class="text-4xl mb-4">📋</div>
-          <h3 class="text-xl font-bold mb-3">Skills 目录</h3>
-          <p class="text-gray-400 text-sm">浏览所有 Agent Skills<br/>按平台/热��筛选</p>
+          <div class="text-4xl mb-4">🏆</div>
+          <h3 class="text-xl font-bold mb-3">排行榜</h3>
+          <p class="text-gray-400 text-sm">铂金/黄金/白银/青铜<br/>透明可追溯</p>
         </div>
         <div class="card-gradient rounded-2xl p-6 text-center">
-          <div class="text-4xl mb-4">💎</div>
-          <h3 class="text-xl font-bold mb-3">一键打赏</h3>
-          <p class="text-gray-400 text-sm">用 $ASKL 打赏创作者<br/>98% 直达创作者</p>
+          <div class="text-4xl mb-4">📊</div>
+          <h3 class="text-xl font-bold mb-3">测试报告</h3>
+          <p class="text-gray-400 text-sm">详细的评测结果<br/>历史趋势分析</p>
         </div>
         <div class="card-gradient rounded-2xl p-6 text-center">
-          <div class="text-4xl mb-4">✨</div>
-          <h3 class="text-xl font-bold mb-3">创建 Skill</h3>
-          <p class="text-gray-400 text-sm">注册自己的 Skill<br/>获得 500 ASKL 奖励</p>
+          <div class="text-4xl mb-4">⚖️</div>
+          <h3 class="text-xl font-bold mb-3">Skill 对比</h3>
+          <p class="text-gray-400 text-sm">并排对比相似 Skills<br/>帮助用户决策</p>
         </div>
       </div>
-      <div class="mt-12">
-        <p class="text-gray-500 mb-4">界面预览</p>
-        <div class="bg-gray-900/50 rounded-xl p-6 max-w-4xl mx-auto">
-          <div class="flex gap-4">
-            <div class="flex-1 bg-gray-800 rounded-lg p-4">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded">Claude Code</span>
-                <span class="text-xs text-gray-500">0xabcd...efgh</span>
-              </div>
-              <p class="font-bold mb-2">AI 写作助手</p>
-              <p class="text-sm text-gray-500 mb-3">帮助快速生成高质量文案...</p>
-              <div class="flex gap-4 text-xs text-gray-500 mb-4">
-                <span>📥 12.5K</span>
-                <span>⭐ 256</span>
-                <span>💰 1.2K ASKL</span>
-              </div>
-              <button class="w-full py-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-sm">打赏 💎</button>
+      <div class="max-w-4xl w-full">
+        <p class="text-gray-500 mb-4">创作者成长追踪</p>
+        <div class="bg-gray-900/50 rounded-xl p-6">
+          <div class="grid grid-cols-4 gap-4 text-center">
+            <div>
+              <p class="text-2xl font-bold gradient-text">月度统计</p>
+              <p class="text-xs text-gray-500">Skills / 测试 / 收益</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold gradient-text">成长曲线</p>
+              <p class="text-xs text-gray-500">可视化进步轨迹</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold gradient-text">成就徽章</p>
+              <p class="text-xs text-gray-500">里程碑激励</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold gradient-text">一键打赏</p>
+              <p class="text-xs text-gray-500">98% 直达创作者</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 5: 技术架构 -->
+    <!-- Slide 7: 技术架构 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">⚙️ 技术架构</h2>
       <div class="max-w-5xl w-full">
@@ -232,7 +326,7 @@
           <div class="card-gradient rounded-xl p-6 text-center flex-1">
             <div class="text-3xl mb-3">🗄️</div>
             <h4 class="font-bold mb-2">数据库</h4>
-            <p class="text-xs text-gray-500">SQLite</p>
+            <p class="text-xs text-gray-500">SQLite + 测试数据存储</p>
           </div>
           <div class="text-purple-500 text-2xl">→</div>
           <div class="card-gradient rounded-xl p-6 text-center flex-1 pulse-glow">
@@ -248,193 +342,23 @@
               <li>• ERC20 $ASKL 代币</li>
               <li>• Skill 注册表</li>
               <li>• 自动 98/2 分账</li>
-              <li>• 打赏记录追踪</li>
+              <li>• 评测记录链上存证</li>
             </ul>
           </div>
           <div class="bg-gray-800/30 rounded-xl p-6">
-            <h4 class="font-bold mb-4 text-pink-400">数据采集</h4>
+            <h4 class="font-bold mb-4 text-pink-400">评测系统</h4>
             <ul class="text-sm text-gray-400 space-y-2">
-              <li>• npm 下载量 API</li>
-              <li>• GitHub stars/forks</li>
-              <li>• 定时自动更新</li>
-              <li>• Redis 缓存加速</li>
+              <li>• Docker 沙箱执行</li>
+              <li>• Puppeteer 测试自动化</li>
+              <li>• Anthropic Evals 指标</li>
+              <li>• 三层 Grader 架构</li>
             </ul>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 6: 代币经济 -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">💰 $ASKL 代币经济</h2>
-      <div class="max-w-6xl w-full grid grid-cols-2 gap-8">
-        <div>
-          <h3 class="text-2xl font-bold mb-6 gradient-text">代币分配</h3>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>创作者激励池</span>
-                <span class="text-purple-400">40%</span>
-              </div>
-              <div class="h-3 bg-gray-800 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-purple-500 to-purple-600" style="width: 40%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>生态基金</span>
-                <span class="text-pink-400">20%</span>
-              </div>
-              <div class="h-3 bg-gray-800 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-pink-500 to-pink-600" style="width: 20%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-2">
-                <span>团队 + 流动性 + 社区</span>
-                <span class="text-orange-400">30%</span>
-              </div>
-              <div class="h-3 bg-gray-800 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-orange-500 to-orange-600" style="width: 30%"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h3 class="text-2xl font-bold mb-6 gradient-text">代币用途</h3>
-          <div class="space-y-3">
-            <div class="flex items-center gap-4">
-              <span class="text-2xl">💸</span>
-              <div>
-                <p class="font-bold">支付工具</p>
-                <p class="text-sm text-gray-500">用 $ASKL 打赏创作者</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <span class="text-2xl">🗳️</span>
-              <div>
-                <p class="font-bold">治理权</p>
-                <p class="text-sm text-gray-500">持有代币可投票</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <span class="text-2xl">🏆</span>
-              <div>
-                <p class="font-bold">创作者挖��</p>
-                <p class="text-sm text-gray-500">Skill 越火，挖得越多</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-4">
-              <span class="text-2xl">🔥</span>
-              <div>
-                <p class="font-bold">通缩机制</p>
-                <p class="text-sm text-gray-500">每次打赏销毁 2%</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 7: 商业模式 -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">📈 商业模式</h2>
-      <div class="max-w-5xl w-full">
-        <div class="card-gradient rounded-3xl p-10 mb-8">
-          <h3 class="text-2xl font-bold mb-8 text-center">经济飞轮</h3>
-          <div class="flex items-center justify-between text-center">
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-purple-500/20 flex items-center justify-center">
-                <span class="text-3xl">🎁</span>
-              </div>
-              <p class="font-bold">更多 Skills</p>
-            </div>
-            <div class="text-purple-500 text-3xl">→</div>
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-pink-500/20 flex items-center justify-center">
-                <span class="text-3xl">👥</span>
-              </div>
-              <p class="font-bold">更多用户</p>
-            </div>
-            <div class="text-pink-500 text-3xl">→</div>
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-orange-500/20 flex items-center justify-center">
-                <span class="text-3xl">💰</span>
-              </div>
-              <p class="font-bold">更多打赏</p>
-            </div>
-            <div class="text-orange-500 text-3xl">→</div>
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                <span class="text-3xl">📈</span>
-              </div>
-              <p class="font-bold">代币升值</p>
-            </div>
-            <div class="text-green-500 text-3xl">↺</div>
-          </div>
-        </div>
-        <div class="grid grid-cols-3 gap-6">
-          <div class="stat-card rounded-xl p-6 text-center">
-            <div class="text-3xl font-bold gradient-text mb-2">To C</div>
-            <p class="text-sm text-gray-400">用户打赏</p>
-          </div>
-          <div class="stat-card rounded-xl p-6 text-center">
-            <div class="text-3xl font-bold gradient-text mb-2">To B</div>
-            <p class="text-sm text-gray-400">项目方赞助</p>
-          </div>
-          <div class="stat-card rounded-xl p-6 text-center">
-            <div class="text-3xl font-bold gradient-text mb-2">Exit</div>
-            <p class="text-sm text-gray-400">被大厂收购</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 8: 赛道与竞争力 -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">🎯 赛道与竞争力</h2>
-      <div class="max-w-5xl w-full grid grid-cols-2 gap-8">
-        <div class="card-gradient rounded-2xl p-8">
-          <h3 class="text-xl font-bold mb-6 text-purple-400">🏟️ 赛道 2️⃣</h3>
-          <p class="text-gray-400 mb-4">与智能体共生与智能市场</p>
-          <div class="bg-gray-800/50 rounded-lg p-4 text-sm">
-            <p class="text-green-400 mb-2">✅ 围绕智能体智能的数据采集、反馈与激励机制</p>
-            <p class="text-gray-500">创作者通过统一的收益地址从多个平台获得收益</p>
-          </div>
-        </div>
-        <div class="card-gradient rounded-2xl p-8">
-          <h3 class="text-xl font-bold mb-6 text-pink-400">💳 同时切赛道 1️⃣</h3>
-          <p class="text-gray-400 mb-4">原生智能体支付与基础设施</p>
-          <div class="bg-gray-800/50 rounded-lg p-4 text-sm">
-            <p class="text-green-400 mb-2">✅ 可被智能体调用的支付、订阅与结算协议</p>
-            <p class="text-gray-500">创作者只需定义一次 paymentAddress</p>
-          </div>
-        </div>
-      </div>
-      <div class="mt-8 max-w-5xl w-full">
-        <h3 class="text-xl font-bold mb-6">🆚 竞争优势</h3>
-        <div class="grid grid-cols-4 gap-4">
-          <div class="bg-gray-800/30 rounded-lg p-4 text-center">
-            <p class="text-purple-400 font-bold mb-2">跨平台</p>
-            <p class="text-xs text-gray-500">一次注册<br/>多平台收益</p>
-          </div>
-          <div class="bg-gray-800/30 rounded-lg p-4 text-center">
-            <p class="text-pink-400 font-bold mb-2">代币激励</p>
-            <p class="text-xs text-gray-500">创作者<br/>持续收益</p>
-          </div>
-          <div class="bg-gray-800/30 rounded-lg p-4 text-center">
-            <p class="text-orange-400 font-bold mb-2">自动分账</p>
-            <p class="text-xs text-gray-500">智能合约<br/>透明可信</p>
-          </div>
-          <div class="bg-gray-800/30 rounded-lg p-4 text-center">
-            <p class="text-green-400 font-bold mb-2">数据驱动</p>
-            <p class="text-xs text-gray-500">npm/GitHub<br/>实时统计</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 9: MVP 已完成 -->
+    <!-- Slide 8: MVP 进展 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">✅ MVP 进展</h2>
       <div class="max-w-4xl w-full">
@@ -457,8 +381,8 @@
             <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
               <span class="text-2xl text-green-400">✓</span>
             </div>
-            <p class="font-bold">数据库</p>
-            <p class="text-xs text-gray-500">SQLite Schema</p>
+            <p class="font-bold">数据库设计</p>
+            <p class="text-xs text-gray-500">评测数据 Schema</p>
           </div>
         </div>
         <div class="card-gradient rounded-2xl p-8">
@@ -467,13 +391,13 @@
             <div class="space-y-2">
               <p class="flex items-center gap-2"><span class="text-green-400">✓</span> Skills 目录浏览</p>
               <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 钱包连接 (RainbowKit)</p>
-              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 数据库 API</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 评测数据库设计</p>
               <p class="flex items-center gap-2"><span class="text-green-400">✓</span> GitHub 统计集成</p>
             </div>
             <div class="space-y-2">
-              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 打赏功能 (开发中)</p>
-              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 创建 Skill 页面</p>
-              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 水龙头功能</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 评测执行引擎</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 打赏功能</p>
+              <p class="flex items-center gap-2"><span class="text-yellow-400">○</span> 排行榜页面</p>
               <p class="flex items-center gap-2"><span class="text-purple-400">◐</span> 合约部署测试网</p>
             </div>
           </div>
@@ -481,7 +405,7 @@
       </div>
     </div>
 
-    <!-- Slide 10: 团队 -->
+    <!-- Slide 9: 团队 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">👥 团队介绍</h2>
       <div class="max-w-4xl w-full">
@@ -504,60 +428,21 @@
           </div>
         </div>
         <div class="mt-12 text-center">
-          <p class="text-gray-400 mb-4">一起探索，开拓眼界，做个好玩的东西 💪</p>
+          <p class="text-gray-400 mb-4">"我们都是 AI 开发者，切身感受到这个痛点"</p>
           <p class="text-sm text-gray-600">Monad Hackathon 2026 · Rebel in Paradise</p>
         </div>
       </div>
     </div>
 
-    <!-- Slide 11: 路线图 -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">🗺️ 路线图</h2>
-      <div class="max-w-4xl w-full">
-        <div class="relative">
-          <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500"></div>
-          <div class="space-y-8">
-            <div class="flex items-start gap-6">
-              <div class="w-16 h-16 rounded-full bg-purple-500 flex items-center justify-center text-xl font-bold z-10">P0</div>
-              <div class="card-gradient rounded-xl p-6 flex-1">
-                <h4 class="font-bold mb-2">黑客松 MVP</h4>
-                <p class="text-sm text-gray-400">打赏功能 · 创建 Skill · 合约部署测试网</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-6">
-              <div class="w-16 h-16 rounded-full bg-pink-500 flex items-center justify-center text-xl font-bold z-10">P1</div>
-              <div class="card-gradient rounded-xl p-6 flex-1">
-                <h4 class="font-bold mb-2">Q1 2026</h4>
-                <p class="text-sm text-gray-400">水龙头功能 · npm 流量抓取 · 项目方赞助</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-6">
-              <div class="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center text-xl font-bold z-10">P2</div>
-              <div class="card-gradient rounded-xl p-6 flex-1">
-                <h4 class="font-bold mb-2">Q2 2026</h4>
-                <p class="text-sm text-gray-400">多链部署（Solana）· 移动端 App · 创作者主页</p>
-              </div>
-            </div>
-            <div class="flex items-start gap-6">
-              <div class="w-16 h-16 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 flex items-center justify-center text-xl z-10">🎯</div>
-              <div class="card-gradient rounded-xl p-6 flex-1">
-                <h4 class="font-bold mb-2">长期愿景</h4>
-                <p class="text-sm text-gray-400">Agent 时代的 App Store · 破亿用户</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 12: 结尾 -->
+    <!-- Slide 10: 结尾 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <div class="text-center">
-        <div class="text-8xl mb-8">🎁</div>
+        <div class="text-8xl mb-8">🎯</div>
         <h1 class="text-6xl font-black mb-6 gradient-text">Agent Reward Hub</h1>
-        <p class="text-2xl text-gray-400 mb-12">让 Agent Skill 创作者获得持续收益</p>
+        <p class="text-3xl text-gray-400 mb-4 font-bold">让 Agent Skill 有评价、有激励、有标准</p>
+        <p class="text-xl text-gray-500 mb-12">成为 Agent Skills 领域的 SWE-bench</p>
         <div class="card-gradient rounded-2xl p-8 max-w-2xl mx-auto mb-12">
-          <h3 class="text-xl font-bold mb-4">谢谢评委！</h3>
+          <h3 class="text-2xl font-bold mb-4">谢谢评委！</h3>
           <p class="text-gray-400">欢迎体验 DEMO 和提出建议</p>
         </div>
         <div class="flex gap-8 justify-center text-sm text-gray-500">
@@ -567,7 +452,7 @@
           </div>
           <div>
             <p class="font-bold text-white">GitHub</p>
-            <p>github.com/your-repo</p>
+            <p>github.com/agent-reward-hub</p>
           </div>
           <div>
             <p class="font-bold text-white">联系</p>
@@ -589,7 +474,7 @@
 
   <!-- 页码 -->
   <div class="fixed bottom-8 right-8 text-gray-600 text-sm z-50">
-    <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+    <span id="currentSlide">1</span> / <span id="totalSlides">10</span>
   </div>
 
   <script>
