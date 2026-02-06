@@ -1,26 +1,1383 @@
-@import "tailwindcss";
+/* ============================================
+   高级感 DeFi/Web3 平台样式系统
+   基于 UI 稿：深色主题 + 玻璃态 + 动态背景
+   ============================================ */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 核心颜色：深黑主题 */
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #141414;
+
+  /* 文本颜色 */
+  --text-primary: #ffffff;
+  --text-secondary: #e5e7eb;
+  --text-muted: #9ca3af;
+  --text-dim: #6b7280;
+
+  /* 玻璃态表面 - 增强对比度，提升视觉层次感 */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg-strong: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-border-strong: rgba(255, 255, 255, 0.25);
+
+  /* 发光效果 */
+  --glow-green: rgba(34, 197, 94, 0.3);
+  --glow-blue: rgba(56, 189, 248, 0.3);
+  --glow-cyan: rgba(34, 211, 238, 0.25);
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* 阴影 - 增强轮廓感 */
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-glow: 0 0 40px rgba(34, 197, 94, 0.25);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    "SF Pro Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ============================================
+   动态背景：抽象流动的发光线条和节点
+   ============================================ */
+
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  isolation: isolate;
+  overflow-x: hidden;
+}
+
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+
+.app-backdrop::before {
+  content: "";
+  position: absolute;
+  width: 1200px;
+  height: 1200px;
+  top: -400px;
+  left: -200px;
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.15) 0%,
+    rgba(56, 189, 248, 0.1) 30%,
+    transparent 70%
+  );
+  animation: float-1 20s ease-in-out infinite;
+}
+
+.app-backdrop::after {
+  content: "";
+  position: absolute;
+  width: 1000px;
+  height: 1000px;
+  bottom: -300px;
+  right: -100px;
+  background: radial-gradient(
+    circle,
+    rgba(34, 211, 238, 0.12) 0%,
+    rgba(139, 92, 246, 0.08) 40%,
+    transparent 70%
+  );
+  animation: float-2 25s ease-in-out infinite;
+}
+
+@keyframes float-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(100px, -50px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes float-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(-80px, 60px) scale(1.15);
+    opacity: 0.7;
+  }
+}
+
+/* 背景网格纹理 */
+.app-backdrop {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ============================================
+   顶部导航：统一风格，符合 UI 稿
+   ============================================ */
+
+.app-nav {
+  position: relative;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  margin: 20px 20px 0;
+  background: var(--bg-primary);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-orb {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #06b6d4, #22c55e, #3b82f6);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.brand-orb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+  opacity: 0.6;
+}
+
+.brand-orb::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: var(--radius-full);
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4), transparent 60%);
+}
+
+.brand-text {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.nav-pill {
+  display: none; /* 隐藏副标题，保持导航栏简洁 */
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* 导航链接容器 - 深灰色药丸形状 */
+.nav-links-container {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 6px;
+  background: rgba(30, 30, 30, 0.8);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.nav-link {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  white-space: nowrap;
+  border-radius: var(--radius-full);
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link-strong {
+  display: none; /* 移除 Create 链接，保持简洁 */
+}
+
+/* RainbowKit ConnectButton 自定义样式 - 深灰色风格，非蓝色 */
+.app-nav button[data-rk],
+.app-nav [data-rk] button,
+.app-nav button[aria-haspopup],
+.app-nav [data-rk] > button,
+.app-nav button[type="button"] {
+  background: #1a1a1a !important; /* 深灰色背景 */
+  color: #ffffff !important; /* 白色文字 */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 40px !important;
+}
+
+/* 按钮内部图标和文字 */
+.app-nav button[data-rk] span,
+.app-nav [data-rk] button span,
+.app-nav button[data-rk] div,
+.app-nav [data-rk] button div {
+  color: #ffffff !important;
+  font-weight: 400 !important;
+}
+
+.app-nav button[data-rk] svg,
+.app-nav [data-rk] button svg {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+}
+
+.app-nav button[data-rk]:hover,
+.app-nav [data-rk] button:hover,
+.app-nav button[aria-haspopup]:hover,
+.app-nav [data-rk] > button:hover {
+  background: #252525 !important; /* Hover 时稍亮 */
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.app-nav button[data-rk]:active,
+.app-nav [data-rk] button:active,
+.app-nav button[aria-haspopup]:active,
+.app-nav [data-rk] > button:active {
+  transform: translateY(0) !important;
+}
+
+/* 已连接状态 */
+.app-nav button[data-rk][aria-expanded="true"],
+.app-nav [data-rk] button[aria-expanded="true"] {
+  background: #1a1a1a !important;
+}
+
+/* 账户地址显示样式 */
+.app-nav [data-rk] [data-testid],
+.app-nav [data-rk] div {
+  color: #ffffff !important;
+}
+
+/* ============================================
+   RainbowKit 弹窗样式：统一深色玻璃态风格
+   ============================================ */
+
+/* 弹窗遮罩层 - 覆盖所有可能的遮罩 */
+div[data-rk] + div[style*="position"],
+div[style*="position: fixed"][style*="z-index"],
+[role="dialog"] + div,
+div[role="presentation"],
+div[style*="position: fixed"]:has([role="dialog"]),
+div[style*="position: fixed"]:has([data-rk]) {
+  background: rgba(0, 0, 0, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* 弹窗主容器 - 覆盖所有可能的容器 - 增强不透明度 */
+div[data-rk][role="dialog"],
+div[role="dialog"][data-rk],
+[data-rk] > div[role="dialog"],
+div[data-rk] > div,
+div[role="dialog"]:has([data-rk]),
+div[class*="rk"]:has([role="dialog"]),
+div[class*="RainbowKit"] {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+  color: var(--text-primary) !important;
+}
+
+/* 弹窗内部所有容器 - 确保没有白色背景 */
+div[data-rk] > div,
+div[data-rk] > div > div,
+[data-rk] section,
+[data-rk] article,
+[data-rk] main {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* 弹窗内容区域 - 增强背景不透明度 */
+div[role="dialog"] > div,
+div[role="dialog"] > div > div,
+div[role="dialog"] section,
+div[role="dialog"] article {
+  background: rgba(20, 20, 20, 0.98) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+}
+
+/* 弹窗标题 */
+[data-rk] h1,
+[data-rk] h2,
+[data-rk] h3,
+[data-rk] h4,
+[data-rk] h5,
+[data-rk] h6,
+[data-rk] [class*="title"],
+[data-rk] [class*="Title"],
+[data-rk] [class*="heading"],
+[data-rk] [class*="Heading"] {
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* 弹窗所有文字 - 强制覆盖 */
+[data-rk] p,
+[data-rk] span:not(button span):not(button *),
+[data-rk] div:not(button):not([role="button"]):not(button *),
+[data-rk] li,
+[data-rk] label {
+  color: var(--text-secondary) !important;
+}
+
+/* 弹窗链接文字 */
+[data-rk] a:not([role="button"]) {
+  color: var(--text-secondary) !important;
+}
+
+[data-rk] a:not([role="button"]):hover {
+  color: var(--text-primary) !important;
+}
+
+/* 钱包选项按钮 - 覆盖所有按钮样式 - 增强不透明度 */
+[data-rk] button:not([aria-label*="close"]):not([aria-label*="Close"]):not([aria-label*="Close modal"]),
+[data-rk] [role="menuitem"],
+[data-rk] [role="button"]:not([aria-label*="close"]),
+[data-rk] a[role="button"],
+[data-rk] [class*="wallet"],
+[data-rk] [class*="Wallet"],
+[data-rk] [class*="option"],
+[data-rk] [class*="Option"] {
+  background: rgba(30, 30, 30, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-md) !important;
+  transition: all 0.2s ease !important;
+  padding: 12px 16px !important;
+  margin-bottom: 8px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+
+[data-rk] button:not([aria-label*="close"]):not([aria-label*="Close"]):not([aria-label*="Close modal"]):hover,
+[data-rk] [role="menuitem"]:hover,
+[data-rk] [role="button"]:not([aria-label*="close"]):hover,
+[data-rk] a[role="button"]:hover,
+[data-rk] [class*="wallet"]:hover,
+[data-rk] [class*="Wallet"]:hover {
+  background: rgba(40, 40, 40, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: var(--text-primary) !important;
+  transform: translateX(2px) !important;
+}
+
+/* 钱包按钮内的文字和图标 */
+[data-rk] button span,
+[data-rk] button div,
+[data-rk] [role="button"] span,
+[data-rk] [role="button"] div {
+  color: var(--text-primary) !important;
+}
+
+[data-rk] button svg,
+[data-rk] [role="button"] svg {
+  color: var(--text-secondary) !important;
+  fill: var(--text-secondary) !important;
+  width: 24px !important;
+  height: 24px !important;
+  flex-shrink: 0 !important;
+}
+
+/* 关闭按钮 */
+[data-rk] button[aria-label*="close"],
+[data-rk] button[aria-label*="Close"],
+[data-rk] button[aria-label="Close modal"],
+[data-rk] [class*="close"],
+[data-rk] [class*="Close"],
+[data-rk] button[type="button"][aria-label*="close"] {
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 8px !important;
+  border-radius: var(--radius-full) !important;
+  width: auto !important;
+  min-width: auto !important;
+  margin: 0 !important;
+}
+
+[data-rk] button[aria-label*="close"]:hover,
+[data-rk] button[aria-label*="Close"]:hover,
+[data-rk] [class*="close"]:hover {
+  color: var(--text-primary) !important;
+  background: var(--glass-bg-strong) !important;
+}
+
+[data-rk] button[aria-label*="close"] svg,
+[data-rk] button[aria-label*="Close"] svg {
+  color: inherit !important;
+  fill: inherit !important;
+}
+
+/* 输入框 */
+[data-rk] input[type="text"],
+[data-rk] input[type="search"],
+[data-rk] input[type="email"],
+[data-rk] input {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-md) !important;
+  padding: 10px 14px !important;
+  font-size: 14px !important;
+}
+
+[data-rk] input[type="text"]:focus,
+[data-rk] input[type="search"]:focus,
+[data-rk] input[type="email"]:focus,
+[data-rk] input:focus {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: var(--glass-bg-strong) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05) !important;
+  outline: none !important;
+}
+
+[data-rk] input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.6 !important;
+}
+
+/* 分隔线 */
+[data-rk] hr,
+[data-rk] [class*="divider"],
+[data-rk] [class*="Divider"],
+[data-rk] [class*="separator"],
+[data-rk] [class*="Divider"] {
+  border-color: var(--glass-border) !important;
+  border-width: 1px !important;
+  margin: 16px 0 !important;
+  opacity: 0.5 !important;
+}
+
+/* 图标 - 确保所有图标都是浅色 */
+[data-rk] svg:not(button svg):not([aria-label*="close"]) {
+  color: var(--text-secondary) !important;
+  fill: var(--text-secondary) !important;
+}
+
+/* 钱包图标容器和图片 */
+[data-rk] img,
+[data-rk] [class*="icon"],
+[data-rk] [class*="Icon"],
+[data-rk] [class*="logo"],
+[data-rk] [class*="Logo"] {
+  opacity: 0.9 !important;
+  filter: brightness(1.1) !important;
+}
+
+/* 账户信息显示 */
+[data-rk] [class*="account"],
+[data-rk] [class*="Account"],
+[data-rk] [class*="address"],
+[data-rk] [class*="Address"] {
+  color: var(--text-primary) !important;
+}
+
+[data-rk] [class*="address"],
+[data-rk] [class*="Address"] {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace !important;
+  font-size: 13px !important;
+}
+
+/* 余额显示 */
+[data-rk] [class*="balance"],
+[data-rk] [class*="Balance"] {
+  color: var(--text-secondary) !important;
+}
+
+/* 切换网络按钮 */
+[data-rk] button[class*="chain"],
+[data-rk] button[class*="Chain"],
+[data-rk] button[class*="network"],
+[data-rk] button[class*="Network"] {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-rk] button[class*="chain"]:hover,
+[data-rk] button[class*="Chain"]:hover {
+  background: var(--glass-bg-strong) !important;
+}
+
+/* 强制覆盖所有可能的白色背景 - 增强不透明度 */
+[data-rk] * {
+  background-color: transparent !important;
+}
+
+[data-rk] button:not([aria-label*="close"]),
+[data-rk] [role="button"]:not([aria-label*="close"]),
+[data-rk] [role="menuitem"] {
+  background-color: rgba(30, 30, 30, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+}
+
+[data-rk] button:not([aria-label*="close"]):hover,
+[data-rk] [role="button"]:not([aria-label*="close"]):hover,
+[data-rk] [role="menuitem"]:hover {
+  background-color: rgba(40, 40, 40, 0.9) !important;
+}
+
+/* 覆盖 RainbowKit 的默认白色主题类 */
+[class*="rk"],
+[class*="RainbowKit"],
+[class*="rk-"],
+[class*="rk_"] {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+/* 确保弹窗主容器是深色玻璃 - 增强不透明度 */
+div[role="dialog"]:has([data-rk]),
+div:has([data-rk][role="dialog"]) {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+}
+
+/* 覆盖所有可能的白色背景类 - 增强不透明度 */
+[class*="white"],
+[class*="White"],
+[class*="light"],
+[class*="Light"],
+[class*="bg-white"],
+[class*="bg-gray-50"],
+[class*="bg-gray-100"] {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 额外覆盖：确保所有弹窗相关元素都使用深色不透明背景 */
+div:has([role="dialog"]),
+div:has([data-rk][role="dialog"]),
+div[style*="background"]:has([role="dialog"]),
+div[style*="background-color"]:has([role="dialog"]) {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+}
+
+/* 覆盖所有可能的白色背景样式属性 */
+div[style*="background: white"],
+div[style*="background: #fff"],
+div[style*="background: #ffffff"],
+div[style*="background-color: white"],
+div[style*="background-color: #fff"],
+div[style*="background-color: #ffffff"] {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+}
+
+/* ============================================
+   主体内容区域：框架式设计
+   ============================================ */
+
+.app-main {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 32px 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============================================
+   Hero 区域：居中大标题
+   ============================================ */
+
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 60px 0;
+}
+
+.hero-copy {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  padding: 48px 40px;
+  border-radius: var(--radius-xl);
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: var(--shadow-glass), var(--shadow-glow);
+  text-align: center;
+}
+
+.hero-kicker {
+  display: inline-flex;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  background: rgba(30, 30, 30, 0.6);
+}
+
+.hero-title {
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px;
+  color: var(--text-primary);
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0 0 40px;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.primary-btn,
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.primary-btn {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
+}
+
+.ghost-btn {
+  border-color: var(--glass-border-strong);
+  color: var(--text-primary);
+  background: rgba(30, 30, 30, 0.5);
+}
+
+.ghost-btn:hover {
+  background: rgba(40, 40, 40, 0.7);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.hero-meta span {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  background: rgba(30, 30, 30, 0.5);
+}
+
+/* ============================================
+   Skills 目录区域
+   ============================================ */
+
+.skills-section {
+  position: relative;
+  padding: 32px;
+  border-radius: var(--radius-xl);
+  background: rgba(20, 20, 20, 0.5);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: var(--shadow-glass);
+}
+
+.skills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.skills-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.skills-subtitle {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.skills-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  background: rgba(30, 30, 30, 0.6);
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23ffffff' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.filter-select:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(35, 35, 35, 0.7);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+@media (max-width: 960px) {
+  .skills-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.loading-state,
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-orb {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--glass-border);
+  border-top-color: var(--text-primary);
+  margin: 0 auto 16px;
+  animation: spin 0.8s linear infinite;
+}
+
+.loading-text {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.empty-state h3 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ============================================
+   通用玻璃卡片 - 用于详情页、排行榜等
+   ============================================ */
+
+.glass-card {
+  background: rgba(25, 25, 25, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   Skill 卡片：玻璃态设计
+   ============================================ */
+
+.skill-card {
+  position: relative;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: rgba(25, 25, 25, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.skill-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(56, 189, 248, 0.3));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.skill-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--glass-border-strong);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), var(--shadow-glow);
+}
+
+.skill-card:hover::before {
+  opacity: 1;
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skill-platform-pill {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: rgba(35, 35, 35, 0.7);
+}
+
+.skill-creator {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.skill-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.skill-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  min-height: 44px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.skill-links {
+  display: flex;
+  gap: 8px;
+}
+
+.skill-links a {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  background: rgba(30, 30, 30, 0.5);
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+}
+
+.skill-links a:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(40, 40, 40, 0.7);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.skill-links a svg {
+  width: 16px;
+  height: 16px;
+}
+
+.skill-stats {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 16px;
+  margin-top: 8px;
+  border-top: 1px solid var(--glass-border-strong);
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.skill-tips {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.skill-tip-button {
+  margin-top: 8px;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.skill-tip-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+}
+
+.skill-tip-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
+}
+
+.skill-tip-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.skill-tip-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   创建 Skill 表单：统一风格
+   ============================================ */
+
+.skill-form {
+  display: grid;
+  gap: 24px;
+  padding: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.skill-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skill-form-field > span {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.skill-input,
+.skill-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border-strong);
+  background: rgba(30, 30, 30, 0.6);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.skill-input::placeholder,
+.skill-textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.skill-input:hover,
+.skill-textarea:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(35, 35, 35, 0.7);
+}
+
+.skill-input:focus,
+.skill-textarea:focus {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(35, 35, 35, 0.8);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.skill-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+.skill-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding-top: 16px;
+  margin-top: 16px;
+  border-top: 1px solid var(--glass-border-strong);
+}
+
+.skill-form-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skill-form-meta > span:first-child {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.skill-form-id {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  word-break: break-all;
+}
+
+/* ============================================
+   页脚
+   ============================================ */
+
+.app-footer {
+  position: relative;
+  z-index: 10;
+  margin-top: auto;
+  padding: 24px 32px;
+  border-radius: var(--radius-lg);
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border-strong);
+  margin: 32px 20px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.footer-dim {
+  opacity: 0.7;
+}
+
+.footer-dim a {
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.footer-dim a:hover {
+  color: var(--text-primary);
+}
+
+.footer-right {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-pill {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border-strong);
+  background: rgba(30, 30, 30, 0.5);
+}
+
+@media (max-width: 768px) {
+  .app-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .app-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .nav-right {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+  }
+
+  .brand-text {
+    font-size: 15px;
+  }
+
+  .brand-orb {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ============================================
+   动画
+   ============================================ */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
+   RainbowKit 全局覆盖：强制深色玻璃态主题
+   ============================================ */
+
+/* 覆盖所有可能的白色背景 - 使用最高优先级 - 增强不透明度 */
+div[role="dialog"],
+div[role="dialog"] > div,
+div[role="dialog"] > div > div,
+div[role="dialog"] section,
+div[role="dialog"] article {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 覆盖 RainbowKit 特定的类名 - 增强不透明度 */
+[class*="rk"],
+[class*="RainbowKit"],
+[class*="rk-"],
+[class*="rk_"],
+[class*="rkModal"],
+[class*="rkModalContent"] {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 覆盖所有白色背景的 div - 增强不透明度 */
+div[style*="background"]:has([data-rk]),
+div:has([data-rk]) {
+  background: rgba(20, 20, 20, 0.95) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+}
+
+/* 确保弹窗内的所有文字都是浅色 */
+div[role="dialog"] *,
+div[role="dialog"] p,
+div[role="dialog"] span,
+div[role="dialog"] div,
+div[role="dialog"] h1,
+div[role="dialog"] h2,
+div[role="dialog"] h3,
+div[role="dialog"] h4,
+div[role="dialog"] h5,
+div[role="dialog"] h6 {
+  color: var(--text-primary) !important;
+}
+
+div[role="dialog"] p,
+div[role="dialog"] span:not(button span),
+div[role="dialog"] div:not(button) {
+  color: var(--text-secondary) !important;
+}
+
+/* 减少动画（无障碍） */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

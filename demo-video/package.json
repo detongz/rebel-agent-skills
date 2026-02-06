@@ -1,0 +1,24 @@
+{
+  "name": "agent-reward-hub-demo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "remotion studio",
+    "build": "remotion render DemoVideo out/video.mp4",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.419",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.419"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config": "^4.0.419",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/web": "^0.0.217",
+    "eslint": "^9.15.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,25 +1,27 @@
-// app/skill/[id]/page.tsx - Skill 详情页
+// app/skill/[id]/page.tsx - Skill Detail Page
 'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useAccount, useWriteContract } from 'wagmi';
+import { parseEther } from 'viem';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { config } from '@/lib/wagmi';
+import { config, CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
 import ConnectButton from '@/components/ConnectButton';
-import TipModal from '@/components/TipModal';
 
 const queryClient = new QueryClient();
 
 function SkillDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { address, isConnected } = useAccount();
+  const { writeContractAsync, isPending } = useWriteContract();
   const skillId = params.id as string;
 
   const [skill, setSkill] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [showTipModal, setShowTipModal] = useState(false);
   const [tips, setTips] = useState<any[]>([]);
 
   useEffect(() => {
@@ -39,7 +41,7 @@ function SkillDetailPage() {
       const data = await res.json();
       setSkill(data.skill);
     } catch (error) {
-      console.error('获取 Skill 失败:', error);
+      console.error('Failed to fetch skill:', error);
       router.push('/');
     } finally {
       setLoading(false);
@@ -52,22 +54,78 @@ function SkillDetailPage() {
       const data = await res.json();
       setTips(data.tips || []);
     } catch (error) {
-      console.error('获取打赏记录失败:', error);
+      console.error('Failed to fetch tips:', error);
     }
   };
 
-  const handleTipSuccess = () => {
-    // 刷新数据
-    fetchSkill();
-    fetchTips();
+  const handleTip = async () => {
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    if (!skill.skill_id) {
+      alert('Skill ID is missing, cannot tip');
+      return;
+    }
+
+    if (CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+      alert('Contract not configured. Please set NEXT_PUBLIC_CONTRACT_ADDRESS');
+      return;
+    }
+
+    const input = window.prompt('Enter tip amount (ASKL)', '1');
+    if (!input) return;
+
+    let amountWei: bigint;
+    try {
+      amountWei = parseEther(input);
+    } catch (error) {
+      alert('Invalid amount format');
+      return;
+    }
+
+    if (amountWei <= 0n) {
+      alert('Please enter an amount greater than 0');
+      return;
+    }
+
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESS as `0x${string}`,
+        abi: CONTRACT_ABI,
+        functionName: 'tipSkill',
+        args: [skill.skill_id as `0x${string}`, amountWei],
+      });
+
+      await fetch('/api/tip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          skill_id: skill.id,
+          amount: amountWei.toString(),
+          message: '',
+          from_address: address,
+          tx_hash: hash,
+        }),
+      });
+
+      fetchSkill();
+      fetchTips();
+      alert('Tip submitted successfully!');
+    } catch (error) {
+      console.error('Tip failed:', error);
+      alert('Tip failed, please try again later');
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-          <p className="mt-4 text-gray-400">加载中...</p>
+      <div className="app-shell">
+        <div className="app-backdrop" aria-hidden="true" />
+        <div className="loading-state">
+          <div className="loading-orb" />
+          <p className="loading-text">Loading Skill...</p>
         </div>
       </div>
     );
@@ -75,82 +133,148 @@ function SkillDetailPage() {
 
   if (!skill) {
     return (
-      <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center">
-        <p className="text-gray-400">Skill 不存在</p>
+      <div className="app-shell">
+        <div className="app-backdrop" aria-hidden="true" />
+        <div className="empty-state">
+          <h3>Skill Not Found</h3>
+          <p>The skill you're looking for doesn't exist.</p>
+          <button className="primary-btn" onClick={() => router.push('/')}>
+            Go Home
+          </button>
+        </div>
       </div>
     );
   }
 
   const formatNumber = (num: number | string) => {
-    const n = typeof num === 'string' ? parseFloat(num) : num;
+    const n = typeof num === 'string' ? parseFloat(num) / 1e18 : num;
     if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
     return n.toString();
   };
 
+  const parseTags = (tags: any) => {
+    try {
+      return typeof tags === 'string' ? JSON.parse(tags) : tags;
+    } catch {
+      return [];
+    }
+  };
+
+  const tags = parseTags(skill.tags);
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* 导航栏 */}
-      <nav className="border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <button
-              onClick={() => router.push('/')}
-              className="flex items-center gap-2 text-gray-300 hover:text-white transition"
-            >
-              <span>←</span>
-              <span>返回首页</span>
-            </button>
-            <ConnectButton />
+    <div className="app-shell">
+      <div className="app-backdrop" aria-hidden="true" />
+
+      <nav className="app-nav">
+        <div className="nav-left">
+          <a href="/" className="nav-link">
+            ← Back
+          </a>
+        </div>
+        <div className="nav-right">
+          <div className="nav-links-container">
+            <a href="/" className="nav-link">
+              Home
+            </a>
+            <a href="/leaderboard" className="nav-link">
+              Leaderboard
+            </a>
+            <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
+              Learn More
+            </a>
           </div>
+          <ConnectButton />
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="py-12 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-start gap-6 mb-8">
-            {skill.logo_url && (
-              <img
-                src={skill.logo_url}
-                alt={skill.name}
-                className="w-24 h-24 rounded-2xl"
-              />
-            )}
-            <div className="flex-1">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h1 className="text-4xl font-bold mb-2">{skill.name}</h1>
-                  <p className="text-xl text-gray-400 mb-4">{skill.description}</p>
+      <main className="app-main">
+        <section className="hero">
+          <div className="hero-copy">
+            <span className="hero-kicker">{skill.platform}</span>
+            <h1 className="hero-title">{skill.name}</h1>
+            <p className="hero-subtitle">
+              {skill.description}
+            </p>
+            <div className="hero-actions">
+              <button
+                onClick={handleTip}
+                disabled={isPending}
+                className="primary-btn"
+                style={{ opacity: isPending ? 0.5 : 1 }}
+              >
+                {isPending ? 'Submitting...' : '💰 Tip this Skill'}
+              </button>
+              <a
+                href={skill.repository}
+                target="_blank"
+                rel="noreferrer"
+                className="ghost-btn"
+              >
+                View Source
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="skills-section">
+          <header className="skills-header">
+            <div>
+              <h2 className="skills-title">Skill Details</h2>
+              <p className="skills-subtitle">
+                Full information about this Agent Skill
+              </p>
+            </div>
+          </header>
+
+          <div style={{ display: 'grid', gap: '24px', maxWidth: '800px' }}>
+            {/* Stats Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+              gap: '16px',
+            }}>
+              <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-purple)' }}>
+                  {formatNumber(skill.total_tips || '0')}
+                </p>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Total Tips (ASKL)</p>
+              </div>
+              <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-green)' }}>
+                  {skill.tip_count || 0}
+                </p>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Tip Count</p>
+              </div>
+              {skill.github_stars > 0 && (
+                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-blue)' }}>
+                    {formatNumber(skill.github_stars)}
+                  </p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>GitHub Stars</p>
                 </div>
-                <button
-                  onClick={() => setShowTipModal(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-medium hover:opacity-90 transition"
-                >
-                  💰 打赏
-                </button>
-              </div>
+              )}
+              {skill.platform_likes > 0 && (
+                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-pink)' }}>
+                    {formatNumber(skill.platform_likes)}
+                  </p>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Platform Likes</p>
+                </div>
+              )}
+            </div>
 
-              {/* Stats */}
-              <div className="flex flex-wrap gap-4 mb-4">
-                <span className="px-3 py-1 bg-purple-900/30 border border-purple-700 rounded-full text-sm">
-                  {skill.platform}
-                </span>
-                {skill.version && (
-                  <span className="px-3 py-1 bg-gray-800 rounded-full text-sm">
-                    v{skill.version}
-                  </span>
-                )}
-              </div>
-
-              {/* 外部链接 */}
-              <div className="flex gap-4 text-sm">
+            {/* External Links */}
+            <div className="glass-card" style={{ padding: '20px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>External Links</h3>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                 {skill.npm_package && (
                   <a
                     href={`https://www.npmjs.com/package/${skill.npm_package}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition"
+                    className="nav-link"
                   >
                     📦 npm
                   </a>
@@ -160,7 +284,7 @@ function SkillDetailPage() {
                     href={skill.repository}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition"
+                    className="nav-link"
                   >
                     🔗 GitHub
                   </a>
@@ -170,121 +294,95 @@ function SkillDetailPage() {
                     href={skill.homepage}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-white transition"
+                    className="nav-link"
                   >
-                    🌐 官网
+                    🌐 Homepage
                   </a>
                 )}
               </div>
             </div>
-          </div>
 
-          {/* 统计数据 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-purple-400">{formatNumber(skill.download_count || 0)}</p>
-              <p className="text-sm text-gray-500">下载量</p>
-            </div>
-            <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-green-400">{formatNumber(skill.github_stars || 0)}</p>
-              <p className="text-sm text-gray-500">GitHub Stars</p>
-            </div>
-            <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-pink-400">{formatNumber(skill.total_tips || '0')} ASKL</p>
-              <p className="text-sm text-gray-500">累计打赏</p>
-            </div>
-            <div className="bg-gray-900/50 rounded-xl p-4 text-center">
-              <p className="text-2xl font-bold text-orange-400">{skill.tip_count || 0}</p>
-              <p className="text-sm text-gray-500">打赏次数</p>
-            </div>
-          </div>
-
-          {/* 标签 */}
-          {skill.tags && (() => {
-            try {
-              const tags = typeof skill.tags === 'string' ? JSON.parse(skill.tags) : skill.tags;
-              if (Array.isArray(tags) && tags.length > 0) {
-                return (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-bold mb-3">标签</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {tags.map((tag: string, idx: number) => (
-                        <span key={idx} className="px-3 py-1 bg-gray-800 rounded-full text-sm">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              }
-            } catch (e) {
-              console.error('Failed to parse tags:', e);
-            }
-            return null;
-          })()}
-
-          {/* 收款信息 */}
-          <div className="bg-gray-900/50 rounded-xl p-6 mb-8">
-            <h3 className="text-lg font-bold mb-4">收款信息</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">创作者地址</span>
-                <span className="font-mono text-xs">{skill.creator_address}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">收款地址</span>
-                <span className="font-mono text-xs">{skill.payment_address}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">分账比例</span>
-                <span className="text-green-400">98% 创作者 / 2% 平台</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 打赏记录 */}
-      <section className="py-8 px-4 border-t border-gray-800">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6">最近打赏</h2>
-          {tips.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">还没有打赏，快来第一个打赏吧！</p>
-          ) : (
-            <div className="space-y-3">
-              {tips.map((tip) => (
-                <div key={tip.id} className="bg-gray-900/50 rounded-xl p-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-bold text-green-400">{tip.amount} ASKL</p>
-                      {tip.message && (
-                        <p className="text-gray-400 text-sm mt-1">"{tip.message}"</p>
-                      )}
-                    </div>
-                    <div className="text-right text-sm">
-                      <p className="text-gray-500">
-                        {new Date(tip.created_at).toLocaleDateString('zh-CN')}
-                      </p>
-                      <p className="text-xs text-gray-600 font-mono">
-                        {tip.from_address.slice(0, 6)}...{tip.from_address.slice(-4)}
-                      </p>
-                    </div>
-                  </div>
+            {/* Tags */}
+            {Array.isArray(tags) && tags.length > 0 && (
+              <div className="glass-card" style={{ padding: '20px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>Tags</h3>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {tags.map((tag: string, idx: number) => (
+                    <span
+                      key={idx}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        background: 'var(--glass-bg-strong)',
+                        border: '1px solid var(--glass-border)',
+                        fontSize: '13px',
+                      }}
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+              </div>
+            )}
 
-      {/* Tip Modal */}
-      {showTipModal && (
-        <TipModal
-          skill={skill}
-          onClose={() => setShowTipModal(false)}
-          onSuccess={handleTipSuccess}
-        />
-      )}
+            {/* Payment Info */}
+            <div className="glass-card" style={{ padding: '20px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>Payment Information</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Creator Address</span>
+                  <span style={{ fontFamily: 'monospace' }}>{skill.creator_address?.slice(0, 10)}...{skill.creator_address?.slice(-8)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Payment Address</span>
+                  <span style={{ fontFamily: 'monospace' }}>{skill.payment_address?.slice(0, 10)}...{skill.payment_address?.slice(-8)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Fee Distribution</span>
+                  <span style={{ color: 'var(--accent-green)' }}>98% Creator · 2% Platform</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Tips */}
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>Recent Tips</h3>
+              {tips.length === 0 ? (
+                <div className="glass-card" style={{ padding: '32px', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No tips yet. Be the first to tip!</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {tips.map((tip) => (
+                    <div key={tip.id} className="glass-card" style={{ padding: '16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                        <div>
+                          <p style={{ fontWeight: 600, color: 'var(--accent-green)' }}>
+                            {formatNumber(tip.amount)} ASKL
+                          </p>
+                          {tip.message && (
+                            <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                              "{tip.message}"
+                            </p>
+                          )}
+                        </div>
+                        <div style={{ textAlign: 'right', fontSize: '12px' }}>
+                          <p style={{ color: 'var(--text-muted)' }}>
+                            {new Date(tip.created_at).toLocaleDateString('en-US')}
+                          </p>
+                          <p style={{ fontFamily: 'monospace', color: 'var(--text-dim)' }}>
+                            {tip.from_address?.slice(0, 6)}...{tip.from_address?.slice(-4)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

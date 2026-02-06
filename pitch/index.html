@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mskills - Monad Hackathon 2026</title>
+  <title>myskills - Monad Hackathon 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
@@ -44,15 +44,25 @@
       backdrop-filter: blur(10px);
     }
 
-    /* 打印样式 */
+    /* 打印样式 - 16:9 aspect ratio for PDF export */
     @media print {
-      .slide { display: flex !important; page-break-after: always; page-break-before: always; }
+      @page {
+        margin: 0;
+        size: 1920px 1080px;
+      }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        page-break-before: always;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
       .slide:first-child { page-break-before: avoid; }
       .slide:last-child { page-break-after: avoid; }
       body { overflow: visible !important; }
       #progress, #prevBtn, #nextBtn, .fixed { display: none !important; }
       .float, .pulse-glow { animation: none !important; }
-      @page { margin: 0; size: landscape; }
     }
   </style>
 </head>
@@ -299,9 +309,9 @@
           <p class="text-gray-400 text-center mb-8">让用户一键安装经过评测的高质量 Skills</p>
           <div class="bg-gray-900/70 rounded-xl p-6 font-mono text-sm">
             <p class="text-green-400 mb-2"># 搜索带评分的 Skills</p>
-            <p class="text-gray-300 mb-4">mskills search --platform openclaw</p>
+            <p class="text-gray-300 mb-4">myskills search --platform openclaw</p>
             <p class="text-green-400 mb-2"># 安装到 OpenClaw</p>
-            <p class="text-gray-300">mskills install ai-writer --target openclaw</p>
+            <p class="text-gray-300">myskills install ai-writer --target openclaw</p>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-6">

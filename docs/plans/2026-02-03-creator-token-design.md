@@ -24,10 +24,10 @@
 
 ```bash
 # 创作者命令
-mskills register my-skill --token-address 0x123... --chain solana
+myskills register my-skill --token-address 0x123... --chain solana
 
 # 用户打赏时
-mskills reward my-skill 100 --token creator
+myskills reward my-skill 100 --token creator
 # 自动接收创作者绑定的代币
 ```
 
@@ -37,7 +37,7 @@ mskills reward my-skill 100 --token creator
 
 ```bash
 # 创作者一键发 meme 币
-mskills launch-token my-skill \
+myskills launch-token my-skill \
   --name "MySkillToken" \
   --symbol "MST" \
   --supply 1000000 \
@@ -183,7 +183,7 @@ contract CreatorToken is ERC20, Ownable {
 
 ```bash
 # 绑定现有代币
-mskills link-token <skill> \
+myskills link-token <skill> \
   --address <token-address> \
   --chain <solana|base|monad|bsc>
 
@@ -196,14 +196,14 @@ monad-skells launch-token <skill> \
   --creator-alloc <%>  # 创作者保留百分比
 
 # 用创作者代币打赏
-mskills reward <skill> <amount> --token creator
+myskills reward <skill> <amount> --token creator
 
 # 查看创作者代币价格
 monad-skells price <skill>
 # 输出：1 MST = 0.05 ASKL ($0.02)
 
 # 创作者提现打赏池
-mskills claim-reward <skill>
+myskills claim-reward <skill>
 ```
 
 ---
@@ -285,20 +285,20 @@ mskills claim-reward <skill>
 
 ```bash
 # 1. 用户搜索高分 Skills
-mskills search --min-score 85 --has-token
+myskills search --min-score 85 --has-token
 
 # 输出：
 # ✍️ ai-writer     Score: 92  🪙 MST ($0.05)  [购买]
 # 📝 blog-assist    Score: 88  🪙 BAT ($0.02)  [购买]
 
 # 2. 用户打赏，获得创作者代币
-mskills reward ai-writer 10 ASKL
+myskills reward ai-writer 10 ASKL
 # 自动按当前汇率转换为 MST
 # 收到 200 MST（价值 $10）
 
 # 3. Skill 越火，代币越值钱
 # 一个月后：
-mskills price ai-writer
+myskills price ai-writer
 # 1 MST = 0.1 ASKL ($0.04)  ↗️ 2x
 
 # 4. 用户可以：

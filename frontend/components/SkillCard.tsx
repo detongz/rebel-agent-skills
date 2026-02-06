@@ -1,11 +1,15 @@
 // components/SkillCard.tsx - Skill 卡片组件
 'use client';
 
+import { useAccount, useWriteContract } from 'wagmi';
+import { parseEther } from 'viem';
 import { useRouter } from 'next/navigation';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
 
 interface SkillCardProps {
   skill: {
     id: number;
+    skill_id?: string;
     name: string;
     description: string;
     platform: string;
@@ -20,13 +24,17 @@ interface SkillCardProps {
     github_stars?: number;
     github_forks?: number;
   };
+  onTipped?: () => void;
 }
 
-export default function SkillCard({ skill }: SkillCardProps) {
+export default function SkillCard({ skill, onTipped }: SkillCardProps) {
   const router = useRouter();
-  const shortenAddress = (address: string) => {
-    if (!address || address.length < 10) return address;
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  const { address, isConnected } = useAccount();
+  const { writeContractAsync, isPending } = useWriteContract();
+
+  const shortenAddress = (addr: string) => {
+    if (!addr || addr.length < 10) return addr;
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
   const formatNumber = (num: number | string) => {
@@ -37,40 +45,106 @@ export default function SkillCard({ skill }: SkillCardProps) {
   };
 
   const formatTips = (tips: string) => {
-    const n = parseFloat(tips) / 1e18; // 转换为 ASKL 单位
+    const n = parseFloat(tips) / 1e18;
     return formatNumber(n);
   };
 
+  const handleTip = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+
+    if (!skill.skill_id) {
+      alert('Skill ID is missing, cannot tip');
+      return;
+    }
+
+    if (CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+      // Fall back to navigate to detail page if contract not configured
+      router.push(`/skill/${skill.id}`);
+      return;
+    }
+
+    const input = window.prompt('Enter tip amount (ASKL)', '1');
+    if (!input) return;
+
+    let amountWei: bigint;
+    try {
+      amountWei = parseEther(input);
+    } catch (error) {
+      alert('Invalid amount format');
+      return;
+    }
+
+    if (amountWei <= 0n) {
+      alert('Please enter an amount greater than 0');
+      return;
+    }
+
+    try {
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESS as `0x${string}`,
+        abi: CONTRACT_ABI,
+        functionName: 'tipSkill',
+        args: [skill.skill_id as `0x${string}`, amountWei],
+      });
+
+      const creatorReceived = (amountWei * 9800n) / 10000n;
+      const platformFee = amountWei - creatorReceived;
+
+      await fetch('/api/tip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          skill_id: skill.id,
+          amount: amountWei.toString(),
+          message: '',
+          from_address: address,
+          tx_hash: hash,
+        }),
+      });
+
+      if (onTipped) onTipped();
+      alert('Tip submitted successfully!');
+    } catch (error) {
+      console.error('Tip failed:', error);
+      alert('Tip failed, please try again later');
+    }
+  };
+
   return (
-    <div
-      onClick={() => router.push(`/skill/${skill.id}`)}
-      className="border border-gray-800 rounded-xl p-6 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all cursor-pointer"
-    >
+    <div className="skill-card" onClick={() => router.push(`/skill/${skill.id}`)}>
       {/* 头部：平台 + 创作者 */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm capitalize border border-purple-500/20">
+      <div className="skill-card-header">
+        <span className="skill-platform-pill">
           {skill.platform}
         </span>
-        <span className="text-sm text-gray-500 font-mono" title={skill.payment_address}>
-          👤 {shortenAddress(skill.payment_address)}
+        <span className="skill-creator" title={skill.payment_address}>
+          {shortenAddress(skill.payment_address)}
         </span>
       </div>
 
       {/* 名称和描述 */}
-      <h3 className="text-lg font-bold mb-2 text-white">{skill.name}</h3>
-      <p className="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">{skill.description}</p>
+      <h3 className="skill-title">{skill.name}</h3>
+      <p className="skill-description">{skill.description}</p>
 
       {/* 外部链接 */}
-      <div className="flex gap-3 mb-4 text-sm">
+      <div className="skill-links">
         {skill.npm_package && (
           <a
             href={`https://www.npmjs.com/package/${skill.npm_package}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-red-400 hover:text-red-300 transition"
             title="npm"
+            aria-label="View on npm"
+            onClick={(e) => e.stopPropagation()}
           >
-            📦
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
           </a>
         )}
         {skill.repository && (
@@ -78,10 +152,13 @@ export default function SkillCard({ skill }: SkillCardProps) {
             href={skill.repository}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white transition"
             title="GitHub"
+            aria-label="View on GitHub"
+            onClick={(e) => e.stopPropagation()}
           >
-            🐙
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+            </svg>
           </a>
         )}
         {skill.homepage && (
@@ -89,36 +166,82 @@ export default function SkillCard({ skill }: SkillCardProps) {
             href={skill.homepage}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-400 hover:text-blue-300 transition"
-            title="官网"
+            title="Homepage"
+            aria-label="Visit homepage"
+            onClick={(e) => e.stopPropagation()}
           >
-            🔗
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+            </svg>
           </a>
         )}
       </div>
 
       {/* 统计数据 */}
-      <div className="flex items-center gap-3 text-xs text-gray-500 border-t border-gray-800 pt-4">
+      <div className="skill-stats">
         {(skill.download_count || 0) > 0 && (
-          <span title="下载量">📥 {formatNumber(skill.download_count || 0)}</span>
+          <span title="Downloads">{formatNumber(skill.download_count || 0)}</span>
         )}
         {(skill.github_stars || 0) > 0 && (
-          <span title="GitHub Stars">⭐ {formatNumber(skill.github_stars || 0)}</span>
+          <span title="GitHub Stars">{formatNumber(skill.github_stars || 0)} ⭐</span>
         )}
         {(skill.github_forks || 0) > 0 && (
-          <span title="GitHub Forks">🍴 {formatNumber(skill.github_forks || 0)}</span>
+          <span title="GitHub Forks">{formatNumber(skill.github_forks || 0)}</span>
         )}
         {(skill.platform_likes || 0) > 0 && (
-          <span title="点赞">👍 {formatNumber(skill.platform_likes || 0)}</span>
+          <span title="Likes">{formatNumber(skill.platform_likes || 0)}</span>
         )}
-        <span title="累计打赏" className="font-semibold text-purple-400">
-          💰 {formatTips(skill.total_tips)} ASKL
+        <span title="Total Tips" className="skill-tips">
+          {formatTips(skill.total_tips)} ASKL
         </span>
       </div>
 
-      {/* 查看详情按钮 */}
-      <button className="w-full mt-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90 transition text-sm">
-        查看详情 / 打赏 💎
+      {/* 打赏按钮 */}
+      <button
+        onClick={handleTip}
+        disabled={isPending}
+        className="skill-tip-button"
+      >
+        {isPending ? (
+          <>
+            <svg
+              className="skill-tip-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+            <span>Submitting...</span>
+          </>
+        ) : (
+          <>
+            <svg
+              className="skill-tip-icon"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="8" cy="8" r="6" />
+              <path d="M18.09 10.37A6 6 0 1 1 10.34 18" />
+              <path d="M7 6h1v4" />
+              <path d="m16.71 13.88.7.71-2.82 2.82" />
+            </svg>
+            <span>Tip</span>
+          </>
+        )}
       </button>
     </div>
   );

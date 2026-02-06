@@ -1,8 +1,8 @@
-// components/TipModal.tsx - 打赏弹窗组件
+// components/TipModal.tsx - Tip Modal Component
 'use client';
 
 import { useState } from 'react';
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount } from 'wagmi';
 
 interface TipModalProps {
   skill: any;
@@ -12,7 +12,6 @@ interface TipModalProps {
 
 export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
   const { address, isConnected } = useAccount();
-  const { disconnect } = useDisconnect();
 
   const [amount, setAmount] = useState('10');
   const [message, setMessage] = useState('');
@@ -21,13 +20,13 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
 
   const handleTip = async () => {
     if (!isConnected || !address) {
-      setResult({ success: false, message: '请先连接钱包' });
+      setResult({ success: false, message: 'Please connect your wallet first' });
       return;
     }
 
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || amountNum <= 0) {
-      setResult({ success: false, message: '请输入有效的打赏金额' });
+      setResult({ success: false, message: 'Please enter a valid tip amount' });
       return;
     }
 
@@ -51,16 +50,16 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
       if (data.success) {
         setResult({
           success: true,
-          message: `✅ 打赏成功！感谢支持 ${skill.name} 的创作者！`,
+          message: `Tip successful! Thank you for supporting ${skill.name}!`,
           txHash: data.data.tx_hash,
         });
         if (onSuccess) onSuccess();
       } else {
-        setResult({ success: false, message: `❌ ${data.error}` });
+        setResult({ success: false, message: data.error });
       }
     } catch (error) {
-      console.error('打赏失败:', error);
-      setResult({ success: false, message: '❌ 打赏失败，请稍后重试' });
+      console.error('Tip failed:', error);
+      setResult({ success: false, message: 'Tip failed, please try again later' });
     } finally {
       setTipping(false);
     }
@@ -70,21 +69,21 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
   const platformFee = (parseFloat(amount || '0') * 0.02).toFixed(2);
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900 rounded-2xl max-w-md w-full border border-gray-700">
+    <div className="tip-modal-overlay" onClick={onClose}>
+      <div className="tip-modal" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b border-gray-800">
-          <h3 className="text-xl font-bold">打赏创作者</h3>
+        <div className="tip-modal-header">
+          <h3 className="text-xl font-bold">Tip Creator</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition"
+            className="text-gray-400 hover:text-white transition text-xl"
           >
             ✕
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-6">
+        <div className="tip-modal-body">
           {/* Skill Info */}
           <div className="flex items-center gap-3 mb-6 p-4 bg-gray-800/50 rounded-xl">
             {skill.logo_url && (
@@ -98,46 +97,44 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
 
           {/* Amount Input */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">打赏金额 (ASKL)</label>
+            <label className="form-label">Tip Amount (ASKL)</label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               min="1"
               step="1"
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500"
-              placeholder="输入打赏金额"
+              className="form-input"
+              placeholder="Enter tip amount"
             />
           </div>
 
           {/* Message Input */}
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">留言 (可选)</label>
+            <label className="form-label">Message (Optional)</label>
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
-              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 resize-none"
-              placeholder="给创作者留个言..."
+              className="form-input resize-none"
+              placeholder="Leave a message for the creator..."
             />
           </div>
 
           {/* Fee Breakdown */}
-          <div className="bg-gray-800/50 rounded-xl p-4 mb-6">
-            <p className="text-sm font-medium mb-3">分账明细</p>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-400">创作者收到</span>
-                <span className="text-green-400 font-bold">{creatorReceived} ASKL (98%)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">平台费用</span>
-                <span className="text-gray-400">{platformFee} ASKL (2%)</span>
-              </div>
-              <div className="border-t border-gray-700 pt-2 flex justify-between">
-                <span className="font-medium">总计</span>
-                <span className="font-bold">{amount} ASKL</span>
-              </div>
+          <div className="fee-breakdown mb-6">
+            <p className="text-sm font-medium mb-3">Fee Breakdown</p>
+            <div className="fee-row">
+              <span className="text-gray-400">Creator receives</span>
+              <span className="text-green-400 font-bold">{creatorReceived} ASKL (98%)</span>
+            </div>
+            <div className="fee-row">
+              <span className="text-gray-400">Platform fee</span>
+              <span className="text-gray-400">{platformFee} ASKL (2%)</span>
+            </div>
+            <div className="fee-row fee-row-total">
+              <span className="font-medium">Total</span>
+              <span className="font-bold">{amount} ASKL</span>
             </div>
           </div>
 
@@ -148,42 +145,44 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
             }`}>
               <p className={result.success ? 'text-green-400' : 'text-red-400'}>{result.message}</p>
               {result.txHash && (
-                <p className="text-xs text-gray-500 mt-2 break-all">
+                <p className="text-xs text-gray-500 mt-2 break-all font-mono">
                   TX: {result.txHash}
                 </p>
               )}
             </div>
           )}
+        </div>
 
-          {/* Action Button */}
+        {/* Footer */}
+        <div className="tip-modal-footer">
           {!isConnected ? (
             <div className="bg-yellow-900/30 border border-yellow-700 rounded-xl p-4 text-center">
-              <p className="text-yellow-400 mb-2">请先连接钱包</p>
-              <p className="text-sm text-gray-400">连接后即可打赏创作者</p>
+              <p className="text-yellow-400 mb-2">Please connect your wallet first</p>
+              <p className="text-sm text-gray-400">Connect to tip creators</p>
             </div>
           ) : (
             <button
               onClick={handleTip}
               disabled={tipping || result?.success}
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {tipping ? (
                 <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                  处理中...
+                  <div className="spinner" style={{ width: 16, height: 16 }}></div>
+                  Processing...
                 </span>
               ) : result?.success ? (
-                '已完成 ✓'
+                'Completed ✓'
               ) : (
-                `打赏 ${amount} ASKL`
+                `Tip ${amount} ASKL`
               )}
             </button>
           )}
 
           {/* Creator Address */}
           <div className="mt-4 text-center">
-            <p className="text-xs text-gray-500">
-              收款地址: {skill.payment_address}
+            <p className="text-xs text-gray-500 font-mono">
+              Payment Address: {skill.payment_address}
             </p>
           </div>
         </div>

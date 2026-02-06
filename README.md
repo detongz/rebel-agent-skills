@@ -1,6 +1,6 @@
-# Agent Reward Hub 🎁
+# myskills 🎁
 
-> 跨平台 Agent Skill 打赏与激励协议
+> 跨平台 Agent Skill 打赏与激励协议 | myskills CLI
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Monad](https://img.shields.io/badge/Deployed-On-MonadTestnet-blue)](https://monad.xyz)
@@ -9,7 +9,9 @@
 
 ## 项目简介
 
-**Agent Reward Hub** 是一个去中心化的 Agent Skill 打赏与激励平台，旨在解决当前 Agent Skill 创作者无法获得收益的问题。
+**myskills** 是一个去中心化的 Agent Skill 打赏与激励平台，旨在解决当前 Agent Skill 创作者无法获得收益的问题。
+
+提供 **Web 界面** 和 **CLI 工具** 两种方式，让 Agent Skill 创作者可以轻松注册和管理自己的 Skills。
 
 ### 核心问题
 
@@ -152,6 +154,43 @@ npm run deploy
 
 ```bash
 npm run dev
+```
+
+---
+
+## CLI 工具使用
+
+**安装 CLI:**
+
+```bash
+# 使用 npx (无需安装)
+npx myskills list
+
+# 或全局安装
+npm install -g myskills
+```
+
+**CLI 命令:**
+
+```bash
+# 列出所有 Skills
+myskills list --platform claude-code --sort tips
+
+# 查看 Skill 详情
+myskills info <skillId>
+
+# 注册新 Skill
+myskills register \
+  --name "My AI Assistant" \
+  --platform claude-code \
+  --repository https://github.com/user/repo \
+  --wallet 0x1234...5678
+
+# 同步 GitHub 统计
+myskills sync-github <skillId>
+
+# 查看创作者收益
+myskills stats <address>
 ```
 
 ---

@@ -1,0 +1,32 @@
+{
+  "name": "myskills",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "CLI for myskills - Cross-platform Agent Skill tipping protocol",
+  "bin": {
+    "myskills": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts"
+  },
+  "keywords": ["agent", "skill", "tipping", "web3", "monad"],
+  "author": "Agent Reward Hub",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "cli-table3": "^0.6.3",
+    "axios": "^1.6.5",
+    "ethers": "^6.10.0",
+    "dotenv": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/inquirer": "^9.0.7",
+    "typescript": "^5.3.3",
+    "ts-node": "^10.9.2"
+  }
+}

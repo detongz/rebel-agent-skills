@@ -1,9 +1,8 @@
 // lib/wagmi.ts - Web3 配置
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { monadTestnet } from 'wagmi/chains';
 
-// 配置（使用 wagmi/chains 的 monadTestnet，避免冲突）
-const monadConfig = {
+// Monad Testnet 配置
+const monadTestnet = {
   id: 41454,
   name: 'Monad Testnet',
   network: 'monad testnet',
@@ -26,10 +25,11 @@ const monadConfig = {
   testnet: true,
 };
 
+// RainbowKit 配置 - 使用 demo projectId（RainbowKit 提供的默认值）
 export const config = getDefaultConfig({
   appName: 'Agent Reward Hub',
-  projectId: 'YOUR_WALLET_CONNECT_PROJECT_ID', // 可选
-  chains: [monadConfig],
+  projectId: 'YOUR_WALLET_CONNECT_PROJECT_ID', // 使用占位符，RainbowKit 仍可使用内置连接器
+  chains: [monadTestnet],
   ssr: true,
 });
 

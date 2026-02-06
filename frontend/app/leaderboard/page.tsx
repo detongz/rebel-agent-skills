@@ -1,7 +1,8 @@
-// app/leaderboard/page.tsx - 排行榜页面
+// app/leaderboard/page.tsx - Leaderboard Page
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
@@ -14,6 +15,7 @@ type SortBy = 'tips' | 'stars' | 'likes' | 'downloads';
 type Platform = 'all' | 'coze' | 'claude-code' | 'manus' | 'minimax';
 
 function LeaderboardPage() {
+  const router = useRouter();
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<SortBy>('tips');
@@ -26,29 +28,22 @@ function LeaderboardPage() {
   const fetchSkills = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({
-        sort_by: sortBy,
-        ...(platform !== 'all' && { platform }),
-      });
+      const params = new URLSearchParams();
+      if (sortBy) params.set('sort', sortBy);
+      if (platform !== 'all') params.set('platform', platform);
+
       const res = await fetch(`/api/skills?${params}`);
       const data = await res.json();
       setSkills(data.skills || []);
     } catch (error) {
-      console.error('获取 Skills 失败:', error);
+      console.error('Failed to fetch skills:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getTier = (index: number) => {
-    if (index < 3) return { tier: '铂金', color: 'from-gray-300 to-gray-400', border: 'border-gray-300' };
-    if (index < 10) return { tier: '黄金', color: 'from-yellow-500 to-yellow-600', border: 'border-yellow-500' };
-    if (index < 30) return { tier: '白银', color: 'from-gray-400 to-gray-500', border: 'border-gray-400' };
-    return { tier: '青铜', color: 'from-orange-600 to-orange-700', border: 'border-orange-600' };
-  };
-
   const formatNumber = (num: number | string) => {
-    const n = typeof num === 'string' ? parseFloat(num) : num;
+    const n = typeof num === 'string' ? parseFloat(num) / 1e18 : num;
     if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
     if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
     return n.toString();
@@ -58,161 +53,156 @@ function LeaderboardPage() {
     if (index === 0) return '🥇';
     if (index === 1) return '🥈';
     if (index === 2) return '🥉';
-    return (index + 1).toString();
+    return `#${index + 1}`;
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      {/* 导航栏 */}
-      <nav className="border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-4">
-              <a href="/" className="text-gray-300 hover:text-white transition">
-                ← 返回
-              </a>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">🏆</span>
-                <h1 className="text-xl font-bold">排行榜</h1>
-              </div>
-            </div>
-            <ConnectButton />
+    <div className="app-shell">
+      <div className="app-backdrop" aria-hidden="true" />
+
+      <nav className="app-nav">
+        <div className="nav-left">
+          <a href="/" className="nav-link">
+            ← Back
+          </a>
+        </div>
+        <div className="nav-right">
+          <div className="nav-links-container">
+            <a href="/" className="nav-link">
+              Home
+            </a>
+            <a href="#skills" className="nav-link">
+              Skills
+            </a>
+            <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
+              Learn More
+            </a>
           </div>
+          <ConnectButton />
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="py-12 px-4 text-center border-b border-gray-800">
-        <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          Agent Skills 排行榜
-        </h2>
-        <p className="text-gray-400">发现最受欢迎的 Agent Skills</p>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 justify-center mt-8">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as SortBy)}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
-          >
-            <option value="tips">按打赏量排序</option>
-            <option value="stars">按 GitHub Stars</option>
-            <option value="likes">按点赞量排序</option>
-            <option value="downloads">按下载量排序</option>
-          </select>
-
-          <select
-            value={platform}
-            onChange={(e) => setPlatform(e.target.value as Platform)}
-            className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2"
-          >
-            <option value="all">全部平台</option>
-            <option value="coze">Coze</option>
-            <option value="claude-code">Claude Code</option>
-            <option value="manus">Manus</option>
-            <option value="minimax">MiniMax</option>
-          </select>
-        </div>
-
-        {/* Tier Legend */}
-        <div className="flex flex-wrap gap-4 justify-center mt-6 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gradient-to-r from-gray-300 to-gray-400"></div>
-            <span className="text-gray-400">铂金 (Top 3)</span>
+      <main className="app-main">
+        <section className="hero">
+          <div className="hero-copy">
+            <span className="hero-kicker">🏆 Leaderboard</span>
+            <h1 className="hero-title">Top Agent Skills</h1>
+            <p className="hero-subtitle">
+              Discover the most rewarded and popular Agent Skills across all platforms.
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gradient-to-r from-yellow-500 to-yellow-600"></div>
-            <span className="text-gray-400">黄金 (Top 10)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gradient-to-r from-gray-400 to-gray-500"></div>
-            <span className="text-gray-400">白银 (Top 30)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-gradient-to-r from-orange-600 to-orange-700"></div>
-            <span className="text-gray-400">青铜</span>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Leaderboard */}
-      <section className="py-8 px-4">
-        <div className="max-w-4xl mx-auto">
+        <section className="skills-section">
+          <header className="skills-header">
+            <div>
+              <h2 className="skills-title">Rankings</h2>
+              <p className="skills-subtitle">
+                Skills ranked by {sortBy === 'tips' ? 'total tips received' : sortBy === 'stars' ? 'GitHub stars' : sortBy === 'likes' ? 'platform likes' : 'downloads'}
+              </p>
+            </div>
+            <div className="skills-filters">
+              <select
+                className="filter-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortBy)}
+              >
+                <option value="tips">Most Tipped</option>
+                <option value="stars">GitHub Stars</option>
+                <option value="likes">Most Liked</option>
+                <option value="downloads">Downloads</option>
+              </select>
+
+              <select
+                className="filter-select"
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value as Platform)}
+              >
+                <option value="all">All Platforms</option>
+                <option value="coze">Coze</option>
+                <option value="claude-code">Claude Code</option>
+                <option value="manus">Manus</option>
+                <option value="minimax">MiniMax</option>
+              </select>
+            </div>
+          </header>
+
           {loading ? (
-            <div className="text-center py-20">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-              <p className="mt-4 text-gray-400">加载中...</p>
+            <div className="loading-state">
+              <div className="loading-orb" />
+              <p className="loading-text">Loading rankings...</p>
             </div>
           ) : skills.length === 0 ? (
-            <div className="text-center py-20">
-              <p className="text-gray-400">暂无数据</p>
+            <div className="empty-state">
+              <h3>No Skills Yet</h3>
+              <p>No skills found. Be the first to create a Skill!</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {skills.map((skill, index) => {
-                const tier = getTier(index);
-                return (
-                  <a
-                    key={skill.id}
-                    href={`/skill/${skill.id}`}
-                    className={`block bg-gray-900/50 rounded-xl p-4 border-2 ${tier.border} hover:bg-gray-800/50 transition`}
-                  >
-                    <div className="flex items-center gap-4">
-                      {/* Rank */}
-                      <div className="w-12 h-12 flex items-center justify-center text-2xl font-bold">
-                        {getRankIcon(index)}
-                      </div>
+            <div className="skills-grid">
+              {skills.map((skill, index) => (
+                <div
+                  key={skill.id}
+                  className="skill-card"
+                  onClick={() => router.push(`/skill/${skill.id}`)}
+                  style={{ position: 'relative' }}
+                >
+                  {/* Rank Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-10px',
+                    left: '-10px',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: index < 3
+                      ? 'linear-gradient(135deg, #ffd700, #ff8c00)'
+                      : 'var(--glass-bg-strong)',
+                    border: '2px solid var(--glass-border)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: index < 3 ? '18px' : '14px',
+                    fontWeight: 'bold',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                  }}>
+                    {getRankIcon(index)}
+                  </div>
 
-                      {/* Tier Badge */}
-                      <div className={`px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${tier.color} text-white`}>
-                        {tier.tier}
-                      </div>
+                  {/* Platform & Creator */}
+                  <div className="skill-card-header">
+                    <span className="skill-platform-pill">
+                      {skill.platform}
+                    </span>
+                    <span className="skill-creator" title={skill.payment_address}>
+                      {skill.payment_address?.slice(0, 6)}...{skill.payment_address?.slice(-4)}
+                    </span>
+                  </div>
 
-                      {/* Skill Info */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-bold">{skill.name}</h3>
-                          <span className="px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded text-xs">
-                            {skill.platform}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-400 line-clamp-1">{skill.description}</p>
-                      </div>
+                  {/* Name and Description */}
+                  <h3 className="skill-title">{skill.name}</h3>
+                  <p className="skill-description">{skill.description}</p>
 
-                      {/* Stats */}
-                      <div className="flex gap-4 text-sm">
-                        <div className="text-center">
-                          <p className="font-bold text-purple-400">
-                            {formatNumber(skill.total_tips || '0')}
-                          </p>
-                          <p className="text-xs text-gray-500">ASKL</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="font-bold text-green-400">
-                            {formatNumber(skill.github_stars || 0)}
-                          </p>
-                          <p className="text-xs text-gray-500">Stars</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="font-bold text-pink-400">
-                            {skill.tip_count || 0}
-                          </p>
-                          <p className="text-xs text-gray-500">打赏</p>
-                        </div>
-                      </div>
-                    </div>
-                  </a>
-                );
-              })}
+                  {/* Stats */}
+                  <div className="skill-stats">
+                    {skill.github_stars > 0 && (
+                      <span title="GitHub Stars">{formatNumber(skill.github_stars)} ⭐</span>
+                    )}
+                    {skill.platform_likes > 0 && (
+                      <span title="Likes">{formatNumber(skill.platform_likes)}</span>
+                    )}
+                    {skill.tip_count > 0 && (
+                      <span title="Tip Count">{skill.tip_count} tips</span>
+                    )}
+                    <span title="Total Tips" className="skill-tips">
+                      {formatNumber(skill.total_tips || '0')} ASKL
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-800 py-8 text-center text-gray-500">
-        <p>Agent Reward Hub - Monad Hackathon 2026</p>
-      </footer>
+        </section>
+      </main>
     </div>
   );
 }
