@@ -7,7 +7,8 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const platform = searchParams.get('platform');
-    const sort = searchParams.get('sort') || 'tips';
+    // 支持 sort 和 sort_by 两种参数名
+    const sort = searchParams.get('sort_by') || searchParams.get('sort') || 'tips';
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;

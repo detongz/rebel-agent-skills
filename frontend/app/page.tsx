@@ -4,6 +4,7 @@
 import '@rainbow-me/rainbowkit/styles.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from '@/lib/wagmi';
 import ConnectButton from '@/components/ConnectButton';
 import SkillCard from '@/components/SkillCard';
@@ -14,6 +15,8 @@ const queryClient = new QueryClient();
 function HomePage() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSkills();
@@ -31,10 +34,34 @@ function HomePage() {
     }
   };
 
+  const syncGitHubStats = async () => {
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch('/api/sync-github/stats');
+      const data = await res.json();
+      if (data.success) {
+        setSyncResult(`✅ 同步完成: 更新 ${data.summary.updated} 个，跳过 ${data.summary.skipped} 个`);
+        // 刷新列表
+        await fetchSkills();
+      } else {
+        setSyncResult(`❌ 同步失败: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('同步失败:', error);
+      setSyncResult('❌ 同步失败: 网络错误');
+    } finally {
+      setSyncing(false);
+      // 3 秒后清除提示
+      setTimeout(() => setSyncResult(null), 3000);
+    }
+  };
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <div className="min-h-screen bg-gray-950 text-white">
+        <RainbowKitProvider>
+          <div className="min-h-screen bg-gray-950 text-white">
           {/* 导航栏 */}
           <nav className="border-b border-gray-800">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,6 +73,9 @@ function HomePage() {
                   </h1>
                 </div>
                 <div className="flex items-center gap-4">
+                  <a href="/leaderboard" className="text-gray-300 hover:text-white transition">
+                    排行榜
+                  </a>
                   <a href="/create" className="text-gray-300 hover:text-white transition">
                     创建 Skill
                   </a>
@@ -87,7 +117,27 @@ function HomePage() {
             <div className="max-w-7xl mx-auto">
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-2xl font-bold">Skills 目录</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                  <button
+                    onClick={syncGitHubStats}
+                    disabled={syncing}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {syncing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+                        <span>同步中...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>🔄</span>
+                        <span>同步 GitHub</span>
+                      </>
+                    )}
+                  </button>
+                  {syncResult && (
+                    <span className="text-sm text-gray-400">{syncResult}</span>
+                  )}
                   <select className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2">
                     <option>全部平台</option>
                     <option value="coze">Coze</option>
@@ -133,6 +183,7 @@ function HomePage() {
             </p>
           </footer>
         </div>
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

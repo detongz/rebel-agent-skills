@@ -1,4 +1,8 @@
 // components/SkillCard.tsx - Skill 卡片组件
+'use client';
+
+import { useRouter } from 'next/navigation';
+
 interface SkillCardProps {
   skill: {
     id: number;
@@ -19,6 +23,7 @@ interface SkillCardProps {
 }
 
 export default function SkillCard({ skill }: SkillCardProps) {
+  const router = useRouter();
   const shortenAddress = (address: string) => {
     if (!address || address.length < 10) return address;
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -37,7 +42,10 @@ export default function SkillCard({ skill }: SkillCardProps) {
   };
 
   return (
-    <div className="border border-gray-800 rounded-xl p-6 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all">
+    <div
+      onClick={() => router.push(`/skill/${skill.id}`)}
+      className="border border-gray-800 rounded-xl p-6 hover:border-purple-500/50 hover:shadow-lg hover:shadow-purple-500/10 transition-all cursor-pointer"
+    >
       {/* 头部：平台 + 创作者 */}
       <div className="flex items-center justify-between mb-4">
         <span className="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-full text-sm capitalize border border-purple-500/20">
@@ -108,12 +116,9 @@ export default function SkillCard({ skill }: SkillCardProps) {
         </span>
       </div>
 
-      {/* 打赏按钮 */}
-      <button
-        onClick={() => {/* TODO: 打赏功能 */}}
-        className="w-full mt-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90 transition text-sm"
-      >
-        打赏 💎
+      {/* 查看详情按钮 */}
+      <button className="w-full mt-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90 transition text-sm">
+        查看详情 / 打赏 💎
       </button>
     </div>
   );

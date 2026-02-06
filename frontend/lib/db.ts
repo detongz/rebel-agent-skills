@@ -19,6 +19,17 @@ db.pragma('foreign_keys = ON');
 
 // 初始化表结构
 function initDatabase() {
+  // 检查表是否已存在
+  const tableExists = db.prepare(`
+    SELECT name FROM sqlite_master
+    WHERE type='table' AND name='skills'
+  `).get();
+
+  if (tableExists) {
+    console.log('✅ 数据库已存在，跳过初始化');
+    return;
+  }
+
   const schemaPath = path.join(process.cwd(), '..', 'database', 'schema.sqlite.sql');
   if (fs.existsSync(schemaPath)) {
     const schema = fs.readFileSync(schemaPath, 'utf-8');
