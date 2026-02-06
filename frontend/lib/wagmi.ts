@@ -2,8 +2,8 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { monadTestnet } from 'wagmi/chains';
 
-// Monad Testnet 配置
-export const monadTestnet = {
+// 配置（使用 wagmi/chains 的 monadTestnet，避免冲突）
+const monadConfig = {
   id: 41454,
   name: 'Monad Testnet',
   network: 'monad testnet',
@@ -29,7 +29,7 @@ export const monadTestnet = {
 export const config = getDefaultConfig({
   appName: 'Agent Reward Hub',
   projectId: 'YOUR_WALLET_CONNECT_PROJECT_ID', // 可选
-  chains: [monadTestnet],
+  chains: [monadConfig],
   ssr: true,
 });
 

@@ -91,14 +91,14 @@ export default function SkillCard({ skill }: SkillCardProps) {
 
       {/* 统计数据 */}
       <div className="flex items-center gap-3 text-xs text-gray-500 border-t border-gray-800 pt-4">
-        {skill.download_count > 0 && (
-          <span title="下载量">📥 {formatNumber(skill.download_count)}</span>
+        {(skill.download_count || 0) > 0 && (
+          <span title="下载量">📥 {formatNumber(skill.download_count || 0)}</span>
         )}
-        {skill.github_stars > 0 && (
-          <span title="GitHub Stars">⭐ {formatNumber(skill.github_stars)}</span>
+        {(skill.github_stars || 0) > 0 && (
+          <span title="GitHub Stars">⭐ {formatNumber(skill.github_stars || 0)}</span>
         )}
-        {skill.github_forks > 0 && (
-          <span title="GitHub Forks">🍴 {formatNumber(skill.github_forks)}</span>
+        {(skill.github_forks || 0) > 0 && (
+          <span title="GitHub Forks">🍴 {formatNumber(skill.github_forks || 0)}</span>
         )}
         {(skill.platform_likes || 0) > 0 && (
           <span title="点赞">👍 {formatNumber(skill.platform_likes || 0)}</span>
