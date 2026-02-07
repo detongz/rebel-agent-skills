@@ -137,7 +137,7 @@
 <body class="min-h-screen text-white overflow-hidden relative z-10">
   <!-- 进度条 -->
   <div class="fixed top-0 left-0 w-full h-1 z-50" style="background: rgba(255,255,255,0.1);">
-    <div id="progress" class="progress-bar h-full" style="width: 8.33%;"></div>
+    <div id="progress" class="progress-bar h-full" style="width: 9.09%;"></div>
   </div>
 
   <!-- 幻灯片容器 -->
@@ -389,100 +389,56 @@
 
     <!-- Slide 8: 技术架构 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">⚙️ 技术架构</h2>
+      <h2 class="text-5xl font-bold mb-12">⚡ 为什么选择 Monad</h2>
       <div class="max-w-5xl w-full">
-        <div class="flex items-center justify-between gap-4">
-          <div class="glass-card p-6 text-center flex-1">
-            <div class="text-3xl mb-3">🌐</div>
-            <h4 class="font-bold mb-2">前��</h4>
-            <p class="text-xs text-gray-500">Next.js + RainbowKit</p>
+        <div class="glass-card-strong p-10 mb-8 glow-green">
+          <div class="text-center mb-8">
+            <div class="text-6xl mb-4">⚡</div>
+            <p class="text-3xl font-bold gradient-text mb-4">超高性能 = 丝滑打赏体验</p>
+            <p class="text-xl text-gray-400">Monad 让支付像发消息一样快</p>
           </div>
-          <div class="text-green-500 text-2xl">→</div>
-          <div class="glass-card p-6 text-center flex-1">
-            <div class="text-3xl mb-3">🔌</div>
-            <h4 class="font-bold mb-2">API</h4>
-            <p class="text-xs text-gray-500">Next.js API Routes</p>
-          </div>
-          <div class="text-green-500 text-2xl">→</div>
-          <div class="glass-card p-6 text-center flex-1">
-            <div class="text-3xl mb-3">🗄️</div>
-            <h4 class="font-bold mb-2">数据库</h4>
-            <p class="text-xs text-gray-500">SQLite</p>
-          </div>
-          <div class="text-green-500 text-2xl">→</div>
-          <div class="glass-card p-6 text-center flex-1 pulse-glow">
-            <div class="text-3xl mb-3">⛓️</div>
-            <h4 class="font-bold mb-2">Monad</h4>
-            <p class="text-xs text-gray-500">Testnet</p>
+          <div class="grid grid-cols-3 gap-6 mt-10">
+            <div class="text-center p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <p class="text-4xl font-black text-green-400 mb-2">10,000+</p>
+              <p class="text-sm text-gray-400">TPS</p>
+              <p class="text-xs text-gray-600 mt-2">交易吞吐量</p>
+            </div>
+            <div class="text-center p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <p class="text-4xl font-black text-cyan-400 mb-2">&lt; 1s</p>
+              <p class="text-sm text-gray-400">确认时间</p>
+              <p class="text-xs text-gray-600 mt-2">打赏即时到账</p>
+            </div>
+            <div class="text-center p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <p class="text-4xl font-black text-white mb-2">$0.001</p>
+              <p class="text-sm text-gray-400">Gas 费用</p>
+              <p class="text-xs text-gray-600 mt-2">微支付友好</p>
+            </div>
           </div>
         </div>
-        <div class="mt-12 grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-2 gap-6">
           <div class="glass-card p-6">
             <h4 class="font-bold mb-4 text-green-400">智能合约</h4>
             <ul class="text-sm text-gray-400 space-y-2">
               <li>• ERC20 $ASKL 代币</li>
               <li>• Skill 注册表</li>
               <li>• 自动 98/2 分账</li>
+              <li>• 链上打赏记录</li>
             </ul>
           </div>
           <div class="glass-card p-6">
-            <h4 class="font-bold mb-4 text-cyan-400">前端功能</h4>
+            <h4 class="font-bold mb-4 text-cyan-400">核心功能</h4>
             <ul class="text-sm text-gray-400 space-y-2">
-              <li>• Skills 目录</li>
-              <li>• 排行榜</li>
+              <li>• Skills 目录浏览</li>
+              <li>• 实时排行榜</li>
               <li>• 一键打赏</li>
+              <li>• CLI 工具集成</li>
             </ul>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 9: 代币经济 -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">💰 代币经济</h2>
-      <div class="max-w-5xl w-full">
-        <div class="glass-card-strong p-10 mb-8">
-          <h3 class="text-2xl font-bold mb-8 text-center">$ASKL 代币飞轮</h3>
-          <div class="flex items-center justify-between text-center">
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.15);">
-                <span class="text-3xl">📊</span>
-              </div>
-              <p class="font-bold">更多打赏</p>
-            </div>
-            <div class="text-green-500 text-3xl">→</div>
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 211, 238, 0.15);">
-                <span class="text-3xl">👥</span>
-              </div>
-              <p class="font-bold">更多创作者</p>
-            </div>
-            <div class="text-cyan-500 text-3xl">→</div>
-            <div class="flex-1">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(255, 255, 255, 0.1);">
-                <span class="text-3xl">🎨</span>
-              </div>
-              <p class="font-bold">更多 Skills</p>
-            </div>
-            <div class="text-white text-3xl">↺</div>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-6">
-          <div class="stat-card p-6 text-center">
-            <div class="text-3xl mb-3">🔥</div>
-            <p class="font-bold gradient-text mb-2">通缩机制</p>
-            <p class="text-xs text-gray-400">每次打赏销毁 2%</p>
-          </div>
-          <div class="stat-card p-6 text-center">
-            <div class="text-3xl mb-3">🏆</div>
-            <p class="font-bold gradient-text mb-2">创作者激励</p>
-            <p class="text-xs text-gray-400">根据热度发放额外奖励</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 10: MVP 进展 -->
+    <!-- Slide 9: MVP 进展 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">✅ MVP 进展</h2>
       <div class="max-w-4xl w-full">
@@ -529,7 +485,7 @@
       </div>
     </div>
 
-    <!-- Slide 11: 团队 -->
+    <!-- Slide 10: 团队 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <h2 class="text-5xl font-bold mb-12">👥 团队</h2>
       <div class="max-w-4xl w-full">
@@ -558,7 +514,7 @@
       </div>
     </div>
 
-    <!-- Slide 12: 结尾 -->
+    <!-- Slide 11: 结尾 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
       <div class="text-center">
         <div class="text-8xl mb-8">💎</div>
@@ -598,7 +554,7 @@
 
   <!-- 页码 -->
   <div class="fixed bottom-8 right-8 text-gray-600 text-sm z-50">
-    <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+    <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
   </div>
 
   <script>
@@ -609,7 +565,7 @@
     const currentSlideEl = document.getElementById('currentSlide');
     const totalSlidesEl = document.getElementById('totalSlides');
 
-    totalSlidesEl.textContent = totalSlides;
+    totalSlidesEl.textContent = 11;
 
     function showSlide(n) {
       slides[currentSlide].classList.remove('active');
