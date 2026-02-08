@@ -116,7 +116,7 @@ async function main() {
   const { execSync } = require('child_process');
   try {
     const fs = require('fs');
-    const files = fs.readdirSync('videos').filter(f => f.endsWith('.webm'));
+    const files = fs.readdirSync('videos').filter((f: string) => f.endsWith('.webm'));
     if (files.length > 0) {
       const webmFile = `videos/${files[files.length - 1]}`;
       console.log(`📁 Converting ${webmFile}...`);

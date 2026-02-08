@@ -20,10 +20,22 @@
   "license": "MIT",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.0"
+    "hardhat": "^2.22.0",
+    "playwright": "^1.58.2"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
     "dotenv": "^16.4.0"
-  }
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/detongz/rebel-agent-skills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/detongz/rebel-agent-skills/issues"
+  },
+  "homepage": "https://github.com/detongz/rebel-agent-skills#readme"
 }

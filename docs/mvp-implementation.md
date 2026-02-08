@@ -1,680 +1,569 @@
-# 阶段 1 MVP 实施方案（黑客松版）
+# MySkills - MVP Implementation Plan (7-Day Sprint)
 
-## 数据库设计更新
-
-### skills 表（完整字段）
-
-```sql
-CREATE TABLE skills (
-  -- 基础字段
-  id SERIAL PRIMARY KEY,
-  skill_id BYTEA NOT NULL UNIQUE,        -- 链上 skillId (bytes32)
-  name VARCHAR(255) NOT NULL,
-  description TEXT,
-  platform VARCHAR(50) NOT NULL,          -- 'coze' | 'claude-code' | 'manus' | 'minimax'
-  version VARCHAR(50),
-
-  -- 收款相关（核心！）
-  creator_address VARCHAR(42) NOT NULL,   -- 创作者钱包地址
-  payment_address VARCHAR(42) NOT NULL,   -- 收款地址（可以和 creator 不同）
-
-  -- 外部链接（阶段 1 添加）
-  npm_package VARCHAR(255),               -- npm 包名，如 "@scope/package-name"
-  repository TEXT,                        -- GitHub 仓库 URL
-  homepage TEXT,                          -- 官网/文档 URL
-
-  -- 统计数据（手动填写，阶段 1）
-  download_count INTEGER DEFAULT 0,       -- 手动填写的下载量展示
-  github_stars INTEGER DEFAULT 0,         -- 手动获取一次后缓存
-  github_forks INTEGER DEFAULT 0,
-
-  -- 平台数据
-  total_tips NUMERIC DEFAULT 0,           -- 累计打赏（从链上读取）
-  platform_likes INTEGER DEFAULT 0,       -- 平台内点赞数
-
-  -- 元数据
-  logo_url TEXT,                          -- Skill 图标
-  tags TEXT[],                            -- 标签数组
-  status VARCHAR(20) DEFAULT 'active',    -- 'active' | 'hidden' | 'deleted'
-
-  -- 时间戳
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW(),
-  stats_updated_at TIMESTAMP              -- 统计数据更新时间
-);
-
--- 索引
-CREATE INDEX idx_skills_platform ON skills(platform);
-CREATE INDEX idx_skills_creator ON skills(creator_address);
-CREATE INDEX idx_skills_payment ON skills(payment_address);
-CREATE INDEX idx_skills_tips ON skills(total_tips DESC);
-CREATE INDEX idx_skills_likes ON skills(platform_likes DESC);
-```
+**Last Updated**: February 8, 2026
+**Status**: Aligned with UNIFIED_PLAN.md
+**Timeline**: Feb 8-15, 2026 (Moltiverse Submission)
 
 ---
 
-## 前端表单设计
+## Sprint Overview
 
-### 创建 Skill 表单（阶段 1）
+**Goal**: Submit competitive Moltiverse hackathon entry by Feb 15
+**Product**: MySkills - Agent Skill Marketplace
+**Focus**: Agent-to-Agent coordination via MCP Server
 
-```tsx
-// app/create-skill/page.tsx
+---
 
-'use client';
+## Day-by-Day Plan
 
-import { useState } from 'react';
-import { useAccount } from 'wagmi';
+### Day 1-2 (Feb 8-9): Foundation & MCP Server
 
-export default function CreateSkillPage() {
-  const { address } = useAccount();
-  const [formData, setFormData] = useState({
-    // 必填字段
-    name: '',
-    description: '',
-    platform: '',
-    version: '1.0.0',
-    paymentAddress: address || '',  // 默认当前钱包
+**Priority**: CRITICAL
 
-    // 可选字段（阶段 1）
-    npmPackage: '',
-    repository: '',
-    homepage: '',
+**Day 1 (Feb 8) - Planning** ✅ COMPLETED
+- [x] Review all debate documents and create unified plan
+- [ ] Set up project tracking system
+- [ ] Identify and block development time for next 7 days
+- [ ] Prepare development environment (testnet MON, wallet)
+- [ ] Review Moltiverse submission requirements
 
-    // 其他
-    tags: [],
-  });
+**Day 2 (Feb 9) - MCP Server Core** 🎯 CRITICAL
+- [ ] MCP Server: Integrate with deployed ASKLToken contract (4h)
+  - [ ] Connect viem client to Monad testnet
+  - [ ] Implement contract calls for list_skills, get_skill
+  - [ ] Implement write operations: tip_creator, register_skill
+  - [ ] Add error handling and transaction confirmation
+- [ ] MCP Server: Add basic bounty tools (2h)
+  - [ ] post_bounty (Direction A)
+  - [ ] submit_audit (Direction A)
+- [ ] Test MCP Server with Claude Code (1h)
+- [ ] Document MCP Server installation (30min)
 
-  const [loading, setLoading] = useState(false);
+**Deliverable**: Working MCP Server with P0 tools
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+---
 
+### Day 3-4 (Feb 10-11): Core Features
+
+**Priority**: HIGH
+
+**Day 3 (Feb 10) - Frontend Core** 🎯
+- [ ] Complete P0 shared pages (4h)
+  - [ ] Home page with adaptive hero (Direction A/B toggle)
+  - [ ] Skills directory with filtering
+  - [ ] Skill detail page with tipping
+  - [ ] Create skill form
+- [ ] Add Direction A specific UI (2h)
+  - [ ] Bounties list page
+  - [ ] Post bounty form
+  - [ ] Submit audit interface
+- [ ] Deploy frontend to Vercel (30min)
+
+**Day 4 (Feb 11) - Integration & Polish** 🎯
+- [ ] Frontend: Connect to MCP Server (2h)
+  - [ ] Integrate with real contract calls
+  - [ ] Add loading states
+  - [ ] Add error handling
+- [ ] End-to-end testing (2h)
+  - [ ] Test skill registration flow
+  - [ ] Test tipping flow
+  - [ ] Test bounty creation flow
+- [ ] Bug fixes and UI polish (2h)
+
+**Deliverable**: Functional frontend with Direction A features
+
+---
+
+### Day 5 (Feb 12): Demo Video & Submission
+
+**Priority**: CRITICAL
+
+**Day 5 (Feb 12) - Demo Video** 🎥
+- [ ] Record Moltiverse demo footage (2h)
+  - [ ] Problem introduction (agent skill monetization)
+  - [ ] Solution overview (MySkills marketplace)
+  - [ ] MCP Server integration demo
+  - [ ] Agent-to-agent bounty flow
+  - [ ] Monad performance highlights
+- [ ] Edit demo video (2h)
+  - [ ] Add narration
+  - [ ] Add subtitles
+  - [ ] Add transitions
+  - [ ] Export in 1080p
+- [ ] Upload to YouTube (30min)
+
+**Moltiverse Video Content (60-90s)**:
+1. **Problem (10s)**: Agent skill creators can't earn across platforms
+2. **Solution (15s)**: MySkills - cross-platform reward protocol
+3. **Agent Demo (30s)**: Agent using skill → auto-tipping creator
+4. **Monad Benefits (15s)**: 10K TPS, <1s confirmation, near-zero gas
+5. **Call to Action (10s)**: GitHub + Demo URL
+
+**Deliverable**: Moltiverse demo video (60-90s)
+
+---
+
+### Day 6-7 (Feb 13-14): Polish & Buffer
+
+**Priority**: MEDIUM
+
+**Day 6-7 (Feb 13-14)** 🔧
+- [ ] Final testing (2h)
+  - [ ] Test all flows on fresh wallet
+  - [ ] Test MCP Server with different agents
+  - [ ] Check for edge cases
+- [ ] Documentation (2h)
+  - [ ] Update README with quick start
+  - [ ] Document MCP Server usage
+  - [ ] Add architecture diagrams
+- [ ] Buffer time (4h)
+  - [ ] Handle unexpected issues
+  - [ ] Additional polish
+  - [ ] Rest before submission
+
+**Deliverable**: Polished product ready for submission
+
+---
+
+### Day 7 (Feb 15): Submission Day
+
+**Priority**: CRITICAL
+
+**Moltiverse Submission Tasks** 📝
+- [ ] Create Moltiverse.dev account (15min)
+- [ ] Fill submission form (30min)
+  - [ ] Project name: "MySkills - Agent Skill Marketplace"
+  - [ ] Description emphasizing Agent Track
+  - [ ] Demo video URL
+  - [ ] GitHub repository
+  - [ ] Live demo URL
+  - [ ] MCP Server documentation
+- [ ] Submit to Agent Track (15min)
+- [ ] Confirm submission received (15min)
+- [ ] Share on Moltiverse community (30min)
+
+**Deliverable**: Successful Moltiverse submission by Feb 15 23:59 ET
+
+---
+
+## Technical Implementation Details
+
+### MCP Server Implementation
+
+**Package Structure**:
+```
+packages/mcp-server/
+├── src/
+│   ├── index.ts              # Main entry point
+│   ├── tools/
+│   │   ├── list-skills.ts    # P0: List all skills
+│   │   ├── get-skill.ts      # P0: Get skill by ID
+│   │   ├── tip-creator.ts    # P0: Send tip
+│   │   ├── register-skill.ts # P0: Register skill
+│   │   ├── post-bounty.ts    # P1: Post bounty (Direction A)
+│   │   └── submit-audit.ts   # P1: Submit audit (Direction A)
+│   ├── contract.ts           # ASKLToken contract integration
+│   ├── cache.ts              # In-memory cache
+│   └── types.ts              # TypeScript types
+├── package.json
+├── tsconfig.json
+└── README.md
+```
+
+**Implementation Example**:
+```typescript
+// packages/mcp-server/src/tools/tip-creator.ts
+import { ASKLToken } from '@/contract';
+import { publicClient, walletClient } from '@/clients';
+
+export const tipCreator = {
+  name: 'tip_creator',
+  description: 'Send a tip to a skill creator',
+  parameters: {
+    type: 'object',
+    properties: {
+      skillId: { type: 'string', description: 'Skill ID to tip' },
+      amount: { type: 'number', description: 'Amount in ASKL' },
+    },
+    required: ['skillId', 'amount'],
+  },
+  handler: async ({ skillId, amount }: { skillId: string; amount: number }) => {
     try {
-      // 1. 生成 skillId
-      const skillId = generateSkillId(formData.name, formData.version, formData.platform);
-
-      // 2. 调用智能合约注册
-      const tx = await contract.registerSkill(
-        skillId,
-        formData.name,
-        formData.paymentAddress
-      );
-      await tx.wait();
-
-      // 3. 保存元数据到后端
-      await fetch('/api/skills', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          skillId,
-          ...formData,
-          creatorAddress: address,
-        }),
+      // Check balance
+      const balance = await publicClient.readContract({
+        ...ASKLToken,
+        functionName: 'balanceOf',
+        args: [walletClient.account.address],
       });
 
-      // 4. 成功！
-      alert('Skill 创建成功！获得 500 ASKL 奖励');
-      router.push(`/skills/${skillId}`);
-
-    } catch (error) {
-      console.error('创建失败:', error);
-      alert('创建失败，请重试');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8">📝 创建新的 Agent Skill</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* ===== 必填字段 ===== */}
-
-        <div>
-          <label className="block mb-2 font-medium">
-            Skill 名称 *
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="例如: Claude Code Copilot"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-medium">
-            描述 *
-          </label>
-          <textarea
-            required
-            placeholder="描述这个 Skill 的功能..."
-            rows={4}
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-medium">
-            所属平台 *
-          </label>
-          <div className="grid grid-cols-2 gap-4">
-            {['coze', 'claude-code', 'manus', 'minimax'].map((platform) => (
-              <label key={platform} className="flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="radio"
-                  name="platform"
-                  value={platform}
-                  required
-                  onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-                />
-                <span className="capitalize">{platform}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-2 font-medium">
-            版本号
-          </label>
-          <input
-            type="text"
-            defaultValue="1.0.0"
-            placeholder="1.0.0"
-            onChange={(e) => setFormData({ ...formData, version: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-medium">
-            收款钱包地址 *
-          </label>
-          <input
-            type="text"
-            required
-            placeholder="0x..."
-            value={formData.paymentAddress}
-            onChange={(e) => setFormData({ ...formData, paymentAddress: e.target.value })}
-            className="w-full px-4 py-2 border rounded-lg font-mono"
-          />
-          <p className="text-sm text-gray-500 mt-1">
-            默认使用当前钱包，也可以填写其他地址
-          </p>
-        </div>
-
-        {/* ===== 可选字段（阶段 1）===== */}
-
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold mb-4">📎 外部链接（可选）</h3>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">
-                npm 包名
-              </label>
-              <input
-                type="text"
-                placeholder="@scope/package-name"
-                value={formData.npmPackage}
-                onChange={(e) => setFormData({ ...formData, npmPackage: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                填写后将显示下载量统计
-              </p>
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">
-                GitHub 仓库
-              </label>
-              <input
-                type="url"
-                placeholder="https://github.com/owner/repo"
-                value={formData.repository}
-                onChange={(e) => setFormData({ ...formData, repository: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-              <p className="text-sm text-gray-500 mt-1">
-                填写后将显示 stars/forks
-              </p>
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium text-gray-700">
-                官网/文档
-              </label>
-              <input
-                type="url"
-                placeholder="https://your-website.com"
-                value={formData.homepage}
-                onChange={(e) => setFormData({ ...formData, homepage: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* ===== 提交 ===== */}
-
-        <div className="flex items-center justify-between pt-6">
-          <p className="text-sm text-green-600">
-            🆓 创建 Skill 即可获得 500 $MSKL 奖励！
-          </p>
-
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-6 py-2 border rounded-lg"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg disabled:opacity-50"
-            >
-              {loading ? '创建中...' : '创建 Skill 🚀'}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  );
-}
-```
-
----
-
-## Skill 卡片展示（阶段 1）
-
-```tsx
-// components/SkillCard.tsx
-
-interface SkillCardProps {
-  skill: {
-    name: string;
-    description: string;
-    platform: string;
-    paymentAddress: string;
-    totalTips: string;
-
-    // 可选字段
-    npmPackage?: string;
-    repository?: string;
-    homepage?: string;
-    downloadCount?: number;
-    githubStars?: number;
-    githubForks?: number;
-  };
-}
-
-export function SkillCard({ skill }: SkillCardProps) {
-  return (
-    <div className="border rounded-xl p-6 hover:shadow-lg transition">
-      {/* 头部：平台 + 创作者 */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm capitalize">
-          {skill.platform}
-        </span>
-        <span className="text-sm text-gray-500 font-mono">
-          👤 {shortenAddress(skill.paymentAddress)}
-        </span>
-      </div>
-
-      {/* 名称和描述 */}
-      <h3 className="text-xl font-bold mb-2">{skill.name}</h3>
-      <p className="text-gray-600 mb-4 line-clamp-2">{skill.description}</p>
-
-      {/* 外部链接 */}
-      <div className="flex gap-2 mb-4">
-        {skill.npmPackage && (
-          <a
-            href={`https://www.npmjs.com/package/${skill.npmPackage}`}
-            target="_blank"
-            className="text-red-500 hover:text-red-600"
-          >
-            📦 npm
-          </a>
-        )}
-        {skill.repository && (
-          <a
-            href={skill.repository}
-            target="_blank"
-            className="text-gray-700 hover:text-gray-900"
-          >
-            🐙 GitHub
-          </a>
-        )}
-        {skill.homepage && (
-          <a
-            href={skill.homepage}
-            target="_blank"
-            className="text-blue-500 hover:text-blue-600"
-          >
-            🔗 官网
-          </a>
-        )}
-      </div>
-
-      {/* 统计数据 */}
-      <div className="flex items-center gap-4 text-sm text-gray-600 border-t pt-4">
-        {skill.downloadCount > 0 && (
-          <span title="下载量">📥 {formatNumber(skill.downloadCount)}</span>
-        )}
-        {skill.githubStars > 0 && (
-          <span title="GitHub Stars">⭐ {formatNumber(skill.githubStars)}</span>
-        )}
-        {skill.githubForks > 0 && (
-          <span title="GitHub Forks">🍴 {formatNumber(skill.githubForks)}</span>
-        )}
-        <span title="累计打赏" className="font-semibold text-purple-600">
-          💰 {formatNumber(skill.totalTips)} ASKL
-        </span>
-      </div>
-
-      {/* 打赏按钮 */}
-      <button
-        onClick={() => openTipModal(skill)}
-        className="w-full mt-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium hover:opacity-90"
-      >
-        打赏 💎
-      </button>
-    </div>
-  );
-}
-
-// 辅助函数
-function shortenAddress(address: string) {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
-function formatNumber(num: number | string): string {
-  const n = typeof num === 'string' ? parseFloat(num) : num;
-  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
-  return n.toString();
-}
-```
-
----
-
-## 后端 API（阶段 1）
-
-### POST /api/skills - 创建 Skill
-
-```typescript
-// app/api/skills/route.ts
-
-import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-
-    // 验证必填字段
-    const { skillId, name, description, platform, paymentAddress, creatorAddress } = body;
-    if (!skillId || !name || !description || !platform || !paymentAddress) {
-      return NextResponse.json(
-        { error: '缺少必��字段' },
-        { status: 400 }
-      );
-    }
-
-    // 保存到数据库
-    const skill = await db.skills.create({
-      data: {
-        skill_id: Buffer.from(skillId.slice(2), 'hex'),
-        name,
-        description,
-        platform,
-        version: body.version || '1.0.0',
-        creator_address: creatorAddress,
-        payment_address: paymentAddress,
-
-        // 可选字段
-        npm_package: body.npmPackage || null,
-        repository: body.repository || null,
-        homepage: body.homepage || null,
-
-        // 标签
-        tags: body.tags || [],
-      },
-    });
-
-    // 如果有 GitHub 仓库，获取一次 stars
-    if (body.repository) {
-      try {
-        const stats = await getGitHubStats(body.repository);
-        await db.skills.update({
-          where: { id: skill.id },
-          data: {
-            github_stars: stats.stars,
-            github_forks: stats.forks,
-            stats_updated_at: new Date(),
-          },
-        });
-      } catch (error) {
-        console.error('获取 GitHub 统计失败:', error);
+      if (balance < amount) {
+        throw new Error('Insufficient balance');
       }
+
+      // Send tip
+      const hash = await walletClient.writeContract({
+        ...ASKLToken,
+        functionName: 'tipSkill',
+        args: [skillId, amount],
+      });
+
+      // Wait for confirmation
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+      return {
+        success: true,
+        txHash: hash,
+        blockNumber: receipt.blockNumber,
+      };
+    } catch (error) {
+      throw new Error(`Tip failed: ${error.message}`);
     }
+  },
+};
+```
 
-    return NextResponse.json({ success: true, skill });
+---
 
-  } catch (error) {
-    console.error('创建 Skill 失败:', error);
-    return NextResponse.json(
-      { error: '服务器错误' },
-      { status: 500 }
-    );
-  }
+### Frontend Implementation
+
+**Tech Stack**:
+- Next.js 16 (App Router)
+- TypeScript 5+
+- Tailwind CSS 4
+- wagmi 3 + viem 2 + RainbowKit 2
+- TanStack Query 5
+
+**Key Components**:
+
+**1. Wallet Connection**:
+```typescript
+// components/WalletConnection.tsx
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
+
+export function WalletConnection() {
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  return (
+    <div>
+      {isConnected ? (
+        <button onClick={() => disconnect()}>
+          {address?.slice(0, 6)}...{address?.slice(-4)}
+        </button>
+      ) : (
+        <button onClick={() => connect({ connector: injected() })}>
+          Connect Wallet
+        </button>
+      )}
+    </div>
+  );
 }
 ```
 
-### GET /api/skills - 获取 Skills 列表
-
+**2. Tipping Interface**:
 ```typescript
-// app/api/skills/route.ts
+// components/TipModal.tsx
+import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { ASKL_TOKEN_ABI, ASKL_TOKEN_ADDRESS } from '@/contracts';
 
-export async function GET(req: NextRequest) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const platform = searchParams.get('platform');
-    const sort = searchParams.get('sort') || 'tips';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+export function TipModal({ skillId, onClose }: TipModalProps) {
+  const [amount, setAmount] = useState(50);
+  const { data: hash, writeContract, isPending } = useWriteContract();
+  const { isLoading: isConfirming } = useWaitForTransactionReceipt({
+    hash,
+  });
 
-    // 构建查询条件
-    const where: any = { status: 'active' };
-    if (platform) {
-      where.platform = platform;
-    }
-
-    // 排序
-    let orderBy: any = { created_at: 'desc' };
-    if (sort === 'tips') orderBy = { total_tips: 'desc' };
-    if (sort === 'likes') orderBy = { platform_likes: 'desc' };
-    if (sort === 'downloads') orderBy = { download_count: 'desc' };
-
-    // 查询
-    const [skills, total] = await Promise.all([
-      db.skills.findMany({
-        where,
-        orderBy,
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      db.skills.count({ where }),
-    ]);
-
-    return NextResponse.json({
-      skills: skills.map(skill => ({
-        id: skill.id,
-        skillId: skill.skill_id.toString('hex'),
-        name: skill.name,
-        description: skill.description,
-        platform: skill.platform,
-        paymentAddress: skill.payment_address,
-        totalTips: skill.total_tips.toString(),
-
-        // 可选字段
-        npmPackage: skill.npm_package,
-        repository: skill.repository,
-        homepage: skill.homepage,
-        downloadCount: skill.download_count,
-        githubStars: skill.github_stars,
-        githubForks: skill.github_forks,
-        platformLikes: skill.platform_likes,
-        createdAt: skill.created_at,
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+  const handleTip = () => {
+    writeContract({
+      address: ASKL_TOKEN_ADDRESS,
+      abi: ASKL_TOKEN_ABI,
+      functionName: 'tipSkill',
+      args: [skillId, parseUnits(amount.toString(), 18)],
     });
+  };
 
-  } catch (error) {
-    console.error('获取 Skills 失败:', error);
-    return NextResponse.json(
-      { error: '服务器错误' },
-      { status: 500 }
-    );
-  }
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm">
+      <div className="glass-card p-6">
+        <h2>Tip Skill Creator</h2>
+        <input
+          type="number"
+          value={amount}
+          onChange={(e) => setAmount(Number(e.target.value))}
+        />
+        <button
+          onClick={handleTip}
+          disabled={isPending || isConfirming}
+        >
+          {isPending || isConfirming ? 'Confirming...' : 'Confirm Tip'}
+        </button>
+        <button onClick={onClose}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+```
+
+**3. Skills Directory**:
+```typescript
+// app/skills/page.tsx
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { SkillCard } from '@/components/SkillCard';
+
+export default function SkillsPage() {
+  const { data: skills, isLoading } = useQuery({
+    queryKey: ['skills'],
+    queryFn: async () => {
+      const response = await fetch('/api/skills');
+      return response.json();
+    },
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {skills?.map((skill) => (
+        <SkillCard key={skill.id} skill={skill} />
+      ))}
+    </div>
+  );
 }
 ```
 
 ---
 
-## 简单的 API 调用工具
+### Smart Contract Extensions
 
-```typescript
-// lib/github-api.ts
+**Direction A (Moltiverse)** - Add ~50 lines to ASKLToken.sol:
 
-interface GitHubStats {
-  stars: number;
-  forks: number;
+```solidity
+// Add to existing ASKLToken.sol contract
+
+struct Bounty {
+    uint256 id;
+    bytes32 skillId;
+    uint256 reward;
+    string criteria;
+    address poster;
+    bool isActive;
+    address winner;
 }
 
-export async function getGitHubStats(repoUrl: string): Promise<GitHubStats> {
-  try {
-    // 解析 GitHub URL
-    const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-    if (!match) {
-      throw new Error('Invalid GitHub URL');
-    }
+uint256 public bountyCounter;
+mapping(uint256 => Bounty) public bounties;
 
-    const [, owner, repo] = match;
-    const url = `https://api.github.com/repos/${owner}/${repo}`;
-
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        // 可选：添加 GitHub token 提高速率限制
-        ...(process.env.GITHUB_TOKEN && {
-          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-        }),
-      },
+function postBounty(
+    bytes32 skillId,
+    uint256 reward,
+    string calldata criteria
+) external payable returns (uint256 bountyId) {
+    require(msg.value >= reward, "Insufficient reward");
+    bountyCounter++;
+    bounties[bountyCounter] = Bounty({
+        id: bountyCounter,
+        skillId: skillId,
+        reward: reward,
+        criteria: criteria,
+        poster: msg.sender,
+        isActive: true,
+        winner: address(0)
     });
-
-    if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    return {
-      stars: data.stargazers_count || 0,
-      forks: data.forks_count || 0,
-    };
-
-  } catch (error) {
-    console.error('获取 GitHub 统计失败:', error);
-    return { stars: 0, forks: 0 };
-  }
+    emit BountyPosted(bountyCounter, skillId, reward, msg.sender);
+    return bountyCounter;
 }
-```
 
-```typescript
-// lib/npm-api.ts
-
-export async function getNpmDownloads(packageName: string): Promise<number> {
-  try {
-    const url = `https://api.npmjs.org/downloads/point/last-week/${packageName}`;
-
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`npm API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.downloads || 0;
-
-  } catch (error) {
-    console.error('获取 npm 下载量失败:', error);
-    return 0;
-  }
+function submitAudit(
+    uint256 bountyId,
+    string calldata report
+) external {
+    Bounty storage bounty = bounties[bountyId];
+    require(bounty.isActive, "Bounty not active");
+    // Simple approval for MVP
+    bounty.winner = msg.sender;
+    bounty.isActive = false;
+    _transfer(address(this), bounty.winner, bounty.reward);
+    emit BountyCompleted(bountyId, bounty.winner);
 }
 ```
 
 ---
 
-## 环境变量
+## Success Criteria
 
-```bash
-# .env.local
+### Moltiverse Success Criteria (Feb 15)
 
-# GitHub Token（可选，但推荐）
-# 获取方式: GitHub Settings -> Developer settings -> Personal access tokens
-GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+**Must-Have** (Critical Path):
+- [ ] MCP Server working with Claude Code
+  - [ ] list_skills returns real data from contract
+  - [ ] tip_creator executes transaction successfully
+  - [ ] register_skill creates new skill entry
+- [ ] Smart contracts deployed on Monad testnet
+  - [ ] ASKLToken contract accessible
+  - [ ] Bounty functions working
+  - [ ] Test transactions successful
+- [ ] Frontend functional
+  - [ ] All P0 pages working
+  - [ ] Wallet connection successful
+  - [ ] Real transactions execute
+- [ ] Demo video (60-90s)
+  - [ ] Clear problem statement
+  - [ ] Working demo of agent flows
+  - [ ] Monad benefits highlighted
+- [ ] Submission complete
+  - [ ] Form filled correctly
+  - [ ] All required links provided
+  - [ ] Submitted before deadline
 
-# 数据库（先占位，后续配置）
-DATABASE_URL=postgresql://...
+**Nice-to-Have** (If Time Permits):
+- [ ] OpenClaw Skill integration
+- [ ] Advanced MCP features (filters, sorting)
+- [ ] Enhanced UI/UX polish
+- [ ] Comprehensive documentation
 
-# 智能合约地址
-NEXT_PUBLIC_CONTRACT_ADDRESS=0x...
-NEXT_PUBLIC_CHAIN_ID=41454
-NEXT_PUBLIC_RPC_URL=https://testnet-rpc.monad.xyz
-```
-
----
-
-## 阶段 1 检查清单
-
-### 数据库
-- [x] skills 表设计完成（包含 payment_address 等新字段）
-- [ ] 执行 SQL 创建表
-
-### 前端
-- [ ] 创建 Skill 页面（带表单）
-- [ ] Skill 卡片组件（展示外部链接）
-- [ ] Skills 列表页面
-
-### 后端 API
-- [ ] POST /api/skills（创建 Skill）
-- [ ] GET /api/skills（获取列表）
-- [ ] GET /api/skills/:id（获取详情）
-
-### 工具函数
-- [x] getGitHubStats（获取 GitHub stars）
-- [x] getNpmDownloads（获取 npm 下载量）
+**Success Indicators**:
+- Demo video shows end-to-end agent flow
+- MCP Server integrates with real contracts
+- Transactions complete in <5s on Monad
+- Submission emphasizes Agent Track criteria
 
 ---
 
-## 下一步
+## Risk Mitigation
 
-你想先从哪个开始做？
-1. **建数据库表**（SQL 脚本）
-2. **搭建前端项目**（Next.js + Tailwind）
-3. **编写后端 API**（API Routes）
+### If MCP Server Fails (Feb 9)
+- [ ] Fall back to mock data for demo
+- [ ] Submit with detailed MCP design document
+- [ ] Emphasize CLI and frontend functionality
+
+### If Demo Video Quality Poor (Feb 10)
+- [ ] Use screen recording with clear narration
+- [ ] Create animated slides with voiceover
+- [ ] Focus on clarity over production value
+
+### If Frontend Issues Persist (Feb 11)
+- [ ] Document known issues
+- [ ] Provide alternative demo method
+- [ ] Emphasize backend/MCP functionality
+
+### If Time Runs Short (Any Day)
+- [ ] Prioritize Moltiverse submission first
+- [ ] Cut P2 features immediately
+- [ ] Focus on core flows only
+- [ ] Accept "good enough" over "perfect"
+
+---
+
+## Testing Checklist
+
+### MCP Server Testing
+- [ ] list_skills returns all registered skills
+- [ ] get_skill returns correct skill by ID
+- [ ] tip_creator sends 98/2 split correctly
+- [ ] register_skill creates new skill entry
+- [ ] post_bounty creates bounty with correct reward
+- [ ] submit_audit completes bounty and distributes payment
+
+### Frontend Testing
+- [ ] Wallet connection works (MetaMask + WalletConnect)
+- [ ] Auto-prompt to switch to Monad testnet
+- [ ] Balance display updates correctly
+- [ ] Tipping flow completes successfully
+- [ ] Skill registration flow works
+- [ ] Bounty posting flow works
+- [ ] All pages load without errors
+
+### End-to-End Testing
+- [ ] New user can claim faucet tokens
+- [ ] User can browse and discover skills
+- [ ] User can tip skill creators
+- [ ] Creator can register new skill
+- [ ] User can post bounty for custom skill
+- [ ] Agent can accept and complete bounty
+
+---
+
+## Performance Targets
+
+| Metric | Target | Status |
+|--------|--------|--------|
+| MCP Server response time | <1s | ⏳ To test |
+| Frontend page load | <2s | ⏳ To test |
+| Transaction confirmation | <5s on Monad | ⏳ To test |
+| Gas cost per tip | <$0.01 | ⏳ To test |
+| Lighthouse score | >90 | ⏳ To test |
+
+---
+
+## Team Responsibilities
+
+### Frontend Developer
+- Build P0 pages (Home, Skills, Detail, Create)
+- Implement tipping interface
+- Connect to MCP Server
+- Handle wallet connection
+- Deploy to Vercel
+
+### Smart Contract Developer
+- Extend ASKLToken with bounty functions
+- Test on Monad testnet
+- Verify 98/2 split works
+- Document contract interface
+
+### MCP Server Developer
+- Implement P0 tools
+- Add Direction A tools
+- Test with Claude Code
+- Write documentation
+
+### All Team Members
+- Test end-to-end flows
+- Report bugs promptly
+- Help with demo video
+- Assist with submission
+
+---
+
+## Daily Standup Questions
+
+1. **What did you complete yesterday?**
+2. **What will you work on today?**
+3. **Are there any blockers?**
+4. **Are we on track for Feb 15 submission?**
+
+---
+
+## Communication Channels
+
+- **Discord**: #myskills-dev for daily sync
+- **GitHub**: Issues for bug tracking
+- **Notion**: Shared planning doc
+- **Zoom**: Daily standup at 9AM PT
+
+---
+
+## Post-Submission Plan (Feb 16-28)
+
+After Moltiverse submission, prepare for Blitz Pro:
+
+**Feb 16-20**: Direction B Features
+- Implement multi-agent coordination
+- Add task scheduling UI
+- Enhance payment infrastructure
+
+**Feb 21-27**: Blitz Pro Polish
+- Create longer demo video (120-150s)
+- Add developer documentation
+- Performance optimization
+
+**Feb 28**: Blitz Pro Submission
+
+---
+
+**Document Status**: ✅ Ready for Execution
+**Sprint Start**: February 8, 2026
+**Submission Deadline**: February 15, 2026 (Moltiverse)
+**Next Review**: Daily standup (Feb 9-15)

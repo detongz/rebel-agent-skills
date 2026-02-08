@@ -1,191 +1,106 @@
-// app/api/skills/route.ts - Skills API
+/**
+ * API Route: /api/skills
+ *
+ * GET: List all skills with optional filtering
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
 
-// GET /api/skills - 获取 Skills 列表
-export async function GET(req: NextRequest) {
+// Mock skills data - replace with MCP Server call
+const mockSkills = [
+  {
+    id: '0xskill001',
+    name: 'Web Security Scanner',
+    platform: 'claude-code',
+    description: 'Automated security scanning for web applications. Detects XSS, SQL injection, CSRF vulnerabilities.',
+    totalTips: 1250.5,
+    totalStars: 42,
+    creator: '0x1234567890abcdef1234567890abcdef12345678',
+    createdAt: new Date('2026-02-01').toISOString(),
+  },
+  {
+    id: '0xskill002',
+    name: 'Smart Contract Auditor',
+    platform: 'coze',
+    description: 'AI-powered smart contract vulnerability detection for Solidity contracts.',
+    totalTips: 890.0,
+    totalStars: 35,
+    creator: '0xabcdefabcdefabcdefabcdefabcdefabcdefabcd',
+    createdAt: new Date('2026-02-03').toISOString(),
+  },
+  {
+    id: '0xskill003',
+    name: 'Test Generator',
+    platform: 'manus',
+    description: 'Generate comprehensive test suites from TypeScript/JavaScript code.',
+    totalTips: 567.25,
+    totalStars: 28,
+    creator: '0x567890abcdef1234567890abcdef1234567890',
+    createdAt: new Date('2026-02-05').toISOString(),
+  },
+  {
+    id: '0xskill004',
+    name: 'Code Optimizer',
+    platform: 'claude-code',
+    description: 'Optimize JavaScript/TypeScript code for better performance and smaller bundle size.',
+    totalTips: 445.0,
+    totalStars: 23,
+    creator: '0x9876543210987654321098765432109876543210',
+    createdAt: new Date('2026-02-06').toISOString(),
+  },
+  {
+    id: '0xskill005',
+    name: 'Documentation Writer',
+    platform: 'minibmp',
+    description: 'Auto-generate API documentation from JSDoc comments and TypeScript types.',
+    totalTips: 334.5,
+    totalStars: 19,
+    creator: '0xfedcba9876543210fedcba9876543210fedcba98',
+    createdAt: new Date('2026-02-07').toISOString(),
+  },
+];
+
+export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const platform = searchParams.get('platform');
-    // 支持 sort 和 sort_by 两种参数名
-    const sort = searchParams.get('sort_by') || searchParams.get('sort') || 'tips';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = (page - 1) * limit;
+    const { searchParams } = new URL(request.url);
+    const platform = searchParams.get('platform') || 'all';
+    const sort = searchParams.get('sort') || 'tips';
+    const limit = parseInt(searchParams.get('limit') || '50');
 
-    // 构建查询
-    let whereClause = 'WHERE status = ?';
-    const params: any[] = ['active'];
+    let filtered = [...mockSkills];
 
-    if (platform && platform !== 'all') {
-      whereClause += ' AND platform = ?';
-      params.push(platform);
+    // Filter by platform
+    if (platform !== 'all') {
+      filtered = filtered.filter((s) => s.platform === platform);
     }
 
-    // 排序
-    let orderBy = 'ORDER BY created_at DESC';
-    if (sort === 'tips') orderBy = 'ORDER BY CAST(total_tips AS INTEGER) DESC';
-    if (sort === 'likes') orderBy = 'ORDER BY platform_likes DESC';
-    if (sort === 'downloads') orderBy = 'ORDER BY download_count DESC';
-    if (sort === 'stars') orderBy = 'ORDER BY github_stars DESC';
-
-    // 查询总数
-    const countStmt = db.prepare(`SELECT COUNT(*) as total FROM skills ${whereClause}`);
-    const countResult = countStmt.get(...params) as { total: number };
-    const total = countResult.total;
-
-    // 查询列表
-    const query = `
-      SELECT
-        id, skill_id, name, description, platform, version,
-        creator_address, payment_address,
-        npm_package, repository, homepage,
-        download_count, github_stars, github_forks,
-        total_tips, tip_count, platform_likes,
-        logo_url, tags, status, created_at, updated_at
-      FROM skills
-      ${whereClause}
-      ${orderBy}
-      LIMIT ? OFFSET ?
-    `;
-
-    const stmt = db.prepare(query);
-    const skills = stmt.all(...params, limit, offset);
-
-    return NextResponse.json({
-      skills: skills.map((skill: any) => ({
-        ...skill,
-        // 解析 tags JSON
-        tags: skill.tags ? JSON.parse(skill.tags) : [],
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sort) {
+        case 'stars':
+          return b.totalStars - a.totalStars;
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'tips':
+        default:
+          return b.totalTips - a.totalTips;
+      }
     });
 
-  } catch (error) {
-    console.error('获取 Skills 失败:', error);
-    return NextResponse.json(
-      { error: '服务器错误' },
-      { status: 500 }
-    );
-  }
-}
-
-// POST /api/skills - 创建 Skill
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-
-    // 验证必填字段
-    const { name, description, platform, paymentAddress, creatorAddress } = body;
-    if (!name || !description || !platform || !paymentAddress) {
-      return NextResponse.json(
-        { error: '缺少必填字段' },
-        { status: 400 }
-      );
-    }
-
-    // 生成 skillId
-    const crypto = require('crypto');
-    const version = body.version || '1.0.0';
-    const data = `${name}:${version}:${platform}`;
-    const skillId = '0x' + crypto.createHash('sha256').update(data).digest('hex');
-
-    // 保存到数据库
-    const stmt = db.prepare(`
-      INSERT INTO skills (
-        skill_id, name, description, platform, version,
-        creator_address, payment_address,
-        npm_package, repository, homepage,
-        tags
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-
-    const result = stmt.run(
-      skillId,
-      name,
-      description,
-      platform,
-      version,
-      creatorAddress || paymentAddress,
-      paymentAddress,
-      body.npmPackage || null,
-      body.repository || null,
-      body.homepage || null,
-      body.tags ? JSON.stringify(body.tags) : null
-    );
-
-    // 如果有 GitHub 仓库，获取一次 stars
-    if (body.repository) {
-      try {
-        const stats = await getGitHubStats(body.repository);
-        const updateStmt = db.prepare(`
-          UPDATE skills
-          SET github_stars = ?, github_forks = ?, stats_updated_at = datetime('now')
-          WHERE id = ?
-        `);
-        updateStmt.run(stats.stars, stats.forks, result.lastInsertRowid);
-      } catch (error) {
-        console.error('获取 GitHub 统计失败:', error);
-      }
-    }
+    const results = filtered.slice(0, limit);
 
     return NextResponse.json({
       success: true,
-      skill: {
-        id: result.lastInsertRowid,
-        skillId,
-        name,
-        description,
-        platform,
-      },
+      data: results,
+      count: results.length,
     });
-
   } catch (error) {
-    console.error('创建 Skill 失败:', error);
+    console.error('Error fetching skills:', error);
     return NextResponse.json(
-      { error: '服务器错误' },
+      { success: false, error: 'Failed to fetch skills' },
       { status: 500 }
     );
-  }
-}
-
-// GitHub API 调用
-async function getGitHubStats(repoUrl: string) {
-  try {
-    const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
-    if (!match) {
-      return { stars: 0, forks: 0 };
-    }
-
-    const [, owner, repo] = match;
-    const url = `https://api.github.com/repos/${owner}/${repo}`;
-
-    const response = await fetch(url, {
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        ...(process.env.GITHUB_TOKEN && {
-          'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-        }),
-      },
-    });
-
-    if (!response.ok) {
-      return { stars: 0, forks: 0 };
-    }
-
-    const data = await response.json();
-    return {
-      stars: data.stargazers_count || 0,
-      forks: data.forks_count || 0,
-    };
-
-  } catch (error) {
-    console.error('获取 GitHub 统计失败:', error);
-    return { stars: 0, forks: 0 };
   }
 }

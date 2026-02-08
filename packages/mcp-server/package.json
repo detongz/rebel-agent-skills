@@ -1,0 +1,32 @@
+{
+  "name": "@myskills/mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for MySkills - Agent Skill Reward Protocol on Monad",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node build/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "myskills",
+    "monad",
+    "agent",
+    "payment"
+  ],
+  "author": "MySkills Team",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "viem": "^2.21.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

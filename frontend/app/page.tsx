@@ -32,7 +32,7 @@ function HomePage() {
       const url = params.toString() ? `/api/skills?${params.toString()}` : '/api/skills';
       const res = await fetch(url);
       const data = await res.json();
-      setSkills(data.skills || []);
+      setSkills(data.data || []);
     } catch (error) {
       console.error('获取 Skills 失败:', error);
     } finally {
