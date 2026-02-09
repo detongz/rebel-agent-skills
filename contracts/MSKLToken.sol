@@ -127,13 +127,31 @@ contract ASKLToken is ERC20, ERC20Burnable, Ownable {
 
     // ============ 核心功能：打赏 ============
     /**
-     * @notice 打赏指定 Skill 的创作者（自动分账）
+     * @notice 批量打赏多个 Skills
+     * @param skillIds Skill ID 数组
+     * @param amounts 每个 Skill 的打赏金额
+     */
+    function tipSkillsBatch(
+        bytes32[] calldata skillIds,
+        uint256[] calldata amounts
+    ) external {
+        require(skillIds.length == amounts.length, "Length mismatch");
+
+        for (uint256 i = 0; i < skillIds.length; i++) {
+            if (amounts[i] > 0) {
+                _tipSkillInternal(skillIds[i], amounts[i]);
+            }
+        }
+    }
+
+    /**
+     * @notice 打赏指定 Skill 的创作者（自动分账）- 内部函数
      * @param skillId Skill ID
      * @param amount 打赏金额
      * @dev 自动分配：98% 给创作者，2% 销毁
      */
-    function tipSkill(bytes32 skillId, uint256 amount)
-        external
+    function _tipSkillInternal(bytes32 skillId, uint256 amount)
+        internal
         validAmount(amount)
     {
         address creator = skillCreators[skillId];
@@ -152,8 +170,6 @@ contract ASKLToken is ERC20, ERC20Burnable, Ownable {
         // 平台费用（销毁或转入金库）
         if (platformFee > 0) {
             _transfer(msg.sender, platformWallet, platformFee);
-            // 可选：直接销毁
-            // _burn(msg.sender, platformFee);
         }
 
         // 更新统计
@@ -165,21 +181,16 @@ contract ASKLToken is ERC20, ERC20Burnable, Ownable {
     }
 
     /**
-     * @notice 批量打赏多个 Skills
-     * @param skillIds Skill ID 数组
-     * @param amounts 每个 Skill 的打赏金额
+     * @notice 打赏指定 Skill 的创作者（自动分账）
+     * @param skillId Skill ID
+     * @param amount 打赏金额
+     * @dev 自动分配：98% 给创作者，2% 销毁
      */
-    function tipSkillsBatch(
-        bytes32[] calldata skillIds,
-        uint256[] calldata amounts
-    ) external {
-        require(skillIds.length == amounts.length, "Length mismatch");
-
-        for (uint256 i = 0; i < skillIds.length; i++) {
-            if (amounts[i] > 0) {
-                tipSkill(skillIds[i], amounts[i]);
-            }
-        }
+    function tipSkill(bytes32 skillId, uint256 amount)
+        external
+        validAmount(amount)
+    {
+        _tipSkillInternal(skillId, amount);
     }
 
     /**

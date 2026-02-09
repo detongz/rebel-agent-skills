@@ -1,0 +1,9 @@
+{
+  "network": "monadTestnet",
+  "chainId": 10143,
+  "bountyHubAddress": "0x2679Bb99E7Cc239787a74BF6c77c2278311c77a1",
+  "asklTokenAddress": "0xc1fFCAD15e2f181E49bFf2cBea79094eC9B5033A",
+  "deployer": "0x7F0bDc7dFb0A601f24eBbFD7fd3514575ecBE08b",
+  "deployedAt": "2026-02-09T04:46:07.929Z",
+  "transactionHash": "0xb3418ba3a56bb8b9d693338fa8163e68e1e8c4cc1a8a5ea3da3e33fe9bfad8b1"
+}
