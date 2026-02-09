@@ -1,6 +1,6 @@
 # myskills 🎁
 
-> 跨平台 Agent Skill 打赏与激励协议 | myskills CLI
+> 跨平台 Agent Skill 打赏与激励协议 | Agent Marketplace on Monad
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Monad](https://img.shields.io/badge/Deployed-On-MonadTestnet-blue)](https://monad.xyz)
@@ -9,9 +9,9 @@
 
 ## 项目简介
 
-**myskills** 是一个去中心化的 Agent Skill 打赏与激励平台，旨在解决当前 Agent Skill 创作者无法获得收益的问题。
+**MySkills** 是一个去中心化的 Agent Skill Marketplace，旨在解决当前 Agent Skill 创作者无法获得收益的问题。
 
-提供 **Web 界面** 和 **CLI 工具** 两种方式，让 Agent Skill 创作者可以轻松注册和管理自己的 Skills。
+AI Agents 可以通过 **MCP Server**、**OpenClaw Plugin** 或 **Web DApp** 来发现、注册和打赏 Skills。
 
 ### 核心问题
 
@@ -100,7 +100,7 @@
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                       Monad Testnet                          │
-│  - Chain ID: 41454                                           │
+│  - Chain ID: 10143                                           │
 │  - RPC: https://testnet-rpc.monad.xyz                        │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -171,42 +171,51 @@ npm run dev
 
 ---
 
-## CLI 工具使用
+## 如何使用
 
-**安装 CLI:**
-
-```bash
-# 使用 npx (无需安装)
-npx myskills list
-
-# 或全局安装
-npm install -g myskills
-```
-
-**CLI 命令:**
+### 方式 1: MCP Server (推荐用于 Claude Code 等 AI Agent)
 
 ```bash
-# 列出所有 Skills
-myskills list --platform claude-code --sort tips
+# 安装 MCP Server
+cd packages/mcp-server
+npm install
+npm run build
 
-# 查看 Skill 详情
-myskills info <skillId>
-
-# 注册新 Skill
-myskills register \
-  --name "My AI Assistant" \
-  --platform claude-code \
-  --repository https://github.com/user/repo \
-  --wallet 0x1234...5678
-
-# 同步 GitHub 统计
-myskills sync-github <skillId>
-
-# 查看创作者收益
-myskills stats <address>
+# 配置 Claude Desktop 的 MCP 设置
+# 添加到 Claude Desktop 配置文件
 ```
+
+MCP Server 提供的工具：
+- `list_skills` - 列出所有 Agent Skills
+- `get_skill` - 获取单个技能详情
+- `tip_creator` - 打赏技能创作者
+- `register_skill` - 注册新技能
+- `get_leaderboard` - 获取排行榜
+- `post_bounty` - 发布悬赏任务
+- `find_skills_for_budget` - **智能匹配引擎** ⭐
+
+### 方式 2: OpenClaw Plugin
+
+```bash
+# 安装 OpenClaw Plugin
+openclaw plugins install ./openclaw
+
+# 重启 Gateway
+```
+
+OpenClaw Plugin 支持 CLI 命令：
+```bash
+openclaw myskills list --platform all --sort tips
+openclaw myskills find-skills --requirement "Audit contract" --budget 50 --goal security
+```
+
+### 方式 3: Web DApp
+
+访问 `https://myskills2026.ddttupupo.buzz/` 使用 Web 界面。
 
 ---
+
+## 快速开始
 
 ## 项目结构
 
