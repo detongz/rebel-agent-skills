@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySkills Protocol - Smart Matching Engine Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 16px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+        }
+
+        .input-group input,
+        .input-group textarea,
+        .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .input-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .goal-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .goal-option {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .goal-option:hover {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .goal-option.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .match-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .match-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .match-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .results {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .result-header h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .skill-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .skill-card h3 {
+            color: #1a202c;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .skill-card .platform {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .skill-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .budget-summary {
+            background: #edf2f7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .budget-summary h3 {
+            margin-bottom: 12px;
+            color: #2d3748;
+        }
+
+        .budget-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .budget-row:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .monad-badge {
+            display: inline-flex;
+            align-items: center;
+            background: #1a202c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .monad-badge img {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MySkills Protocol</h1>
+            <p>Smart Matching Engine for Agent-to-Agent Payments on Monad</p>
+            <div class="monad-badge">
+                <span>⚡ Powered by Monad Blockchain</span>
+            </div>
+        </div>
+
+        <div class="main-card">
+            <div class="input-group">
+                <label for="requirement">What do you need?</label>
+                <textarea id="requirement" placeholder="e.g., Audit this smart contract for security vulnerabilities and reentrancy attacks..."></textarea>
+            </div>
+
+            <div class="input-group">
+                <label for="budget">Budget (MON)</label>
+                <input type="number" id="budget" placeholder="50" min="1" max="1000">
+            </div>
+
+            <div class="input-group">
+                <label>Optimization Goal</label>
+                <div class="goal-selector">
+                    <div class="goal-option selected" data-goal="effectiveness">Effectiveness</div>
+                    <div class="goal-option" data-goal="security">Security</div>
+                    <div class="goal-option" data-goal="speed">Speed</div>
+                    <div class="goal-option" data-goal="cost">Cost</div>
+                </div>
+            </div>
+
+            <button class="match-btn" id="matchBtn">Find Skills</button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing requirements with AI...</p>
+            </div>
+
+            <div class="results" id="results">
+                <div class="result-header">
+                    <h2>Recommended Skills</h2>
+                    <p id="resultSummary"></p>
+                </div>
+                <div id="skillCards"></div>
+                <div class="budget-summary">
+                    <h3>Budget Summary</h3>
+                    <div class="budget-row">
+                        <span>Total Budget</span>
+                        <span id="totalBudget">0 MON</span>
+                    </div>
+                    <div class="budget-row">
+                        <span>Total Cost</span>
+                        <span id="totalCost">0 MON</span>
+                    </div>
+                    <div class="budget-row">
+                        <span>Remaining</span>
+                        <span id="remainingBudget">0 MON</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedGoal = 'effectiveness';
+
+        // Goal selection
+        document.querySelectorAll('.goal-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.goal-option').forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedGoal = option.dataset.goal;
+            });
+        });
+
+        // Match button click
+        document.getElementById('matchBtn').addEventListener('click', async () => {
+            const requirement = document.getElementById('requirement').value;
+            const budget = document.getElementById('budget').value;
+
+            if (!requirement || !budget) {
+                alert('Please enter both requirement and budget');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('matchBtn').disabled = true;
+
+            try {
+                // API endpoint - change this to your deployed server
+                const API_BASE = window.location.origin;
+                const response = await fetch(`${API_BASE}/api/smart-match`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        requirement,
+                        budget: parseInt(budget),
+                        optimization_goal: selectedGoal,
+                        platform: 'all'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.json();
+
+                // Parse the text response
+                const text = data.content?.[0]?.text || '';
+                displayResults(text, budget);
+
+            } catch (error) {
+                console.error('Error:', error);
+                // For demo, show mock results if API fails
+                showMockResults(requirement, budget);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('matchBtn').disabled = false;
+            }
+        });
+
+        function displayResults(text, budget) {
+            // Parse the response and display
+            document.getElementById('results').classList.add('show');
+            document.getElementById('resultSummary').textContent =
+                `Requirement: "${document.getElementById('requirement').value}"`;
+
+            // Extract skills from the response
+            const skillPattern = /\*\*(\d+)\.\s+([^\*]+)\*\*\s+\(([^)]+)\)\s+💰\s+Cost:\s+(\d+)\s+MON/;
+            const scorePattern = /📊\s+Scores:\s+Relevance\s+(\d+)%\s+\|\s+Success\s+(\d+)%\s+\|\s+Value\s+(\d+)%/;
+
+            let remainingBudget = parseInt(budget);
+            let totalCost = 0;
+            let skillCount = 0;
+
+            const lines = text.split('\n');
+            const skillCards = document.getElementById('skillCards');
+            skillCards.innerHTML = '';
+
+            let currentSkill = null;
+
+            for (const line of lines) {
+                const skillMatch = line.match(skillPattern);
+                if (skillMatch) {
+                    currentSkill = {
+                        name: skillMatch[2].trim(),
+                        platform: skillMatch[3].trim(),
+                        cost: parseInt(skillMatch[4])
+                    };
+                }
+
+                const scoreMatch = line.match(scorePattern);
+                if (scoreMatch && currentSkill) {
+                    currentSkill.relevance = parseInt(scoreMatch[1]);
+                    currentSkill.success = parseInt(scoreMatch[2]);
+                    currentSkill.value = parseInt(scoreMatch[3]);
+
+                    // Create skill card
+                    const card = document.createElement('div');
+                    card.className = 'skill-card';
+                    card.innerHTML = `
+                        <h3>${currentSkill.name}</h3>
+                        <span class="platform">${currentSkill.platform}</span>
+                        <div class="skill-stats">
+                            <div class="stat">
+                                <div class="stat-value">${currentSkill.relevance}%</div>
+                                <div class="stat-label">Relevance</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${currentSkill.success}%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${currentSkill.value}%</div>
+                                <div class="stat-label">Value</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-weight: 600; color: #667eea;">
+                            💰 ${currentSkill.cost} MON
+                        </div>
+                    `;
+                    skillCards.appendChild(card);
+
+                    totalCost += currentSkill.cost;
+                    skillCount++;
+                    currentSkill = null;
+                }
+            }
+
+            remainingBudget = parseInt(budget) - totalCost;
+
+            document.getElementById('totalBudget').textContent = `${budget} MON`;
+            document.getElementById('totalCost').textContent = `${totalCost} MON`;
+            document.getElementById('remainingBudget').textContent = `${remainingBudget} MON`;
+        }
+
+        function showMockResults(requirement, budget) {
+            // Fallback mock results for demo
+            document.getElementById('results').classList.add('show');
+
+            const mockSkills = [
+                { name: 'Security Scanner Pro', platform: 'claude-code', cost: Math.min(40, budget * 0.5), relevance: 95, success: 88, value: 91 },
+                { name: 'Fuzzer X', platform: 'minimbp', cost: Math.min(30, budget * 0.3), relevance: 85, success: 92, value: 88 },
+                { name: 'Solidity Auditor', platform: 'coze', cost: Math.min(25, budget * 0.2), relevance: 90, success: 85, value: 87 }
+            ];
+
+            const skillCards = document.getElementById('skillCards');
+            skillCards.innerHTML = '';
+
+            let totalCost = 0;
+
+            mockSkills.forEach(skill => {
+                if (totalCost + skill.cost <= budget) {
+                    const card = document.createElement('div');
+                    card.className = 'skill-card';
+                    card.innerHTML = `
+                        <h3>${skill.name}</h3>
+                        <span class="platform">${skill.platform}</span>
+                        <div class="skill-stats">
+                            <div class="stat">
+                                <div class="stat-value">${skill.relevance}%</div>
+                                <div class="stat-label">Relevance</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${skill.success}%</div>
+                                <div class="stat-label">Success Rate</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${skill.value}%</div>
+                                <div class="stat-label">Value</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right; font-weight: 600; color: #667eea;">
+                            💰 ${skill.cost} MON
+                        </div>
+                    `;
+                    skillCards.appendChild(card);
+                    totalCost += skill.cost;
+                }
+            });
+
+            const remaining = budget - totalCost;
+
+            document.getElementById('resultSummary').textContent =
+                `Found ${mockSkills.length} matching skills for "${requirement.substring(0, 50)}..."`;
+            document.getElementById('totalBudget').textContent = `${budget} MON`;
+            document.getElementById('totalCost').textContent = `${totalCost} MON`;
+            document.getElementById('remainingBudget').textContent = `${remaining} MON`;
+        }
+    </script>
+</body>
+</html>

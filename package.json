@@ -32,6 +32,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
     "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@sinclair/typebox": "^0.34.48",
     "@x402/core": "^2.3.0",
     "@x402/evm": "^2.3.0",
     "@x402/fetch": "^2.3.0",

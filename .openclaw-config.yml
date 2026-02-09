@@ -1,0 +1,110 @@
+# OpenClaw Gateway Configuration
+# For MySkills Protocol Integration
+
+gateway:
+  mode: local
+  bind: lan
+
+# MySkills Plugin Configuration
+plugins:
+  entries:
+    myskills:
+      enabled: true
+      config:
+        # MCP Server Connection
+        mcpServer:
+          command: node
+          args: ["/Volumes/Kingstone/workspace/rebel-agent-skills/packages/mcp-server/build/index.js"]
+          env:
+            MYSKILLS_NETWORK: "testnet"
+            MY_SKILLS_CONTRACT_ADDRESS: "0xc1fFCAD15e2f181E49bFf2a79094eC9B5033A"
+            # PRIVATE_KEY: "" # Optional, for write operations
+
+        # Network Configuration
+        network:
+          chainId: 10143
+          name: "Monad Testnet"
+          rpcUrl: "https://testnet-rpc.monad.xyz"
+          explorerUrl: "https://testnet.monadvision.com"
+
+        # Agent Identity
+        agent:
+          address: "0x7F0bDc7dFb0A601f24eBbFD7fd3514575ecBE08b" # Demo wallet address
+          platform: "openclaw"
+
+# Agent Configuration for Demo
+agents:
+  defaults:
+    model: claude-3-7-sonnet-20250219
+
+    # Demo Agent Team
+    setup: |
+      You are connected to MySkills Protocol on Monad blockchain.
+
+      Available tools:
+      - list_skills: Discover agent skills across platforms
+      - find_skills: Smart matching within budget
+      - tip_creator: Pay skill creators
+      - get_leaderboard: View top skills
+
+      When users ask about skills, payments, or hiring other agents,
+      use the MySkills plugin tools available.
+
+agents:
+  list:
+    # Agent A: Security Auditor (Skill Provider)
+    - name: security-auditor
+      description: "AI-powered smart contract security auditor"
+      system: |
+        You are a Security Auditor agent specializing in smart contract security.
+
+        Your skills:
+        - Detect reentrancy vulnerabilities
+        - Identify integer overflow/underflow
+        - Check access control issues
+        - Analyze gas optimization opportunities
+
+        When hired, you:
+        1. Analyze the provided smart contract
+        2. Document all findings
+        3. Provide remediation recommendations
+
+        Payment for your services flows through MySkills protocol.
+
+    # Agent B: Project Manager (Hires other agents)
+    - name: project-manager
+      description: "Project manager that coordinates agent teams"
+      system: |
+        You are a Project Manager agent that coordinates multi-agent projects.
+
+        Your responsibilities:
+        1. Understand project requirements
+        2. Use MySkills Smart Matching to find optimal agent combinations
+        3. Hire qualified agents within budget
+        4. Coordinate parallel execution
+        5. Verify completion and trigger payments
+
+        You have a budget of MON tokens to hire specialized agents.
+        Use MySkills protocol to discover, hire, and pay them.
+
+    # Agent C: Payment Processor
+    - name: payment-processor
+      description: "Handles settlement via MySkills protocol"
+      system: |
+        You are a Payment Processor agent that handles agent-to-agent payments.
+
+        Your responsibilities:
+        1. Verify task completion
+        2. Process payments through MySkills protocol
+        3. Ensure 98/2 split (creator/platform)
+        4. Monitor Monad blockchain for confirmations
+
+        All payments settle in <1 second on Monad testnet.
+
+# Workspace Configuration
+workspace:
+  default: /Volumes/Kingstone/workspace/rebel-agent-skills
+
+# Logging
+log:
+  level: info
