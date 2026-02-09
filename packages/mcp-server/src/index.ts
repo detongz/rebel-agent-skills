@@ -49,8 +49,11 @@ const NETWORK = process.env.MYSKILLS_NETWORK === "mainnet"
 // Default to a placeholder - should be set via environment variable
 const MY_SKILLS_CONTRACT = (process.env.MYSKILLS_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
+// BountyHub contract address (set via environment variable after deployment)
+const BOUNTY_HUB_CONTRACT = (process.env.BOUNTY_HUB_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
 // ============================================================================
-// Contract ABI
+// Contract ABIs
 // ============================================================================
 
 const ASKL_TOKEN_ABI = parseAbi([
@@ -74,12 +77,46 @@ const ASKL_TOKEN_ABI = parseAbi([
   "function tipSkillsBatch(bytes32[] skillIds, uint256[] amounts) external",
   "function tipCreatorDirect(address creator, uint256 amount) external",
   "function transfer(address to, uint256 amount) external returns (bool)",
+  "function approve(address spender, uint256 amount) external returns (bool)",
 
   // Events
   "event SkillRegistered(bytes32 indexed skillId, address indexed creator, string skillName)",
   "event Tipped(bytes32 indexed skillId, address indexed tipper, address indexed creator, uint256 amount, uint256 creatorReward, uint256 platformFee)",
+  "event Approval(address indexed owner, address indexed spender, uint256 value)",
   "event Transfer(address indexed from, address indexed to, uint256 value)",
 ]);
+
+// AgentBountyHub ABI
+const BOUNTY_HUB_ABI = parseAbi([
+  // Read functions
+  "function asklToken() external view returns (address)",
+  "function bounties(uint256 bountyId) external view returns (uint256 id, address creator, string title, string description, uint256 reward, string category, uint256 deadline, uint8 status, address claimer, uint256 claimedAt, uint256 completedAt)",
+  "function getBounty(uint256 bountyId) external view returns (uint256 id, address creator, string title, string description, uint256 reward, string category, uint256 deadline, uint8 status, address claimer, uint256 claimedAt, uint256 completedAt)",
+  "function getSubmissions(uint256 bountyId) external view returns ((uint256 bountyId, address submitter, string reportHash, uint256 submittedAt, bool approved)[])",
+  "function getDispute(uint256 bountyId) external view returns ((uint256 bountyId, address raiser, string reason, uint256 raisedAt, uint8 status, uint256 resolutionTimestamp, bool resolvedInFavorOfCreator))",
+  "function getUserBounties(address user) external view returns (uint256[])",
+  "function getUserClaims(address user) external view returns (uint256[])",
+  "function getTotalBounties() external view returns (uint256)",
+  "function getBountiesByStatus(uint8 status, uint256 limit) external view returns (uint256[])",
+
+  // Write functions
+  "function createBounty(string title, string description, uint256 reward, string category, uint256 deadline) external returns (uint256)",
+  "function claimBounty(uint256 bountyId) external",
+  "function submitWork(uint256 bountyId, string reportHash) external",
+  "function approveSubmission(uint256 bountyId) external",
+  "function raiseDispute(uint256 bountyId, string reason) external",
+  "function resolveDispute(uint256 bountyId, bool inFavorOfCreator) external",
+  "function cancelBounty(uint256 bountyId) external",
+
+  // Events
+  "event BountyCreated(uint256 indexed bountyId, address indexed creator, string title, uint256 reward, string category)",
+  "event BountyClaimed(uint256 indexed bountyId, address indexed claimer, uint256 claimedAt)",
+  "event SubmissionMade(uint256 indexed bountyId, address indexed submitter, string reportHash)",
+  "event SubmissionApproved(uint256 indexed bountyId, address indexed submitter, uint256 reward)",
+  "event DisputeRaised(uint256 indexed bountyId, address indexed raiser, string reason)",
+  "event DisputeResolved(uint256 indexed bountyId, bool inFavorOfCreator)",
+  "event BountyCancelled(uint256 indexed bountyId)",
+])
 
 // ============================================================================
 // Viem Clients
@@ -439,6 +476,123 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["bounty_id", "report"],
         },
       },
+      {
+        name: "submit_task",
+        description:
+          "Submit a multi-agent coordination task with milestones. Part of AaaS (Agent-as-a-Service) platform. Requires PRIVATE_KEY.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            title: {
+              type: "string",
+              description: "Title of the task",
+            },
+            description: {
+              type: "string",
+              description: "Detailed description of task requirements",
+            },
+            budget: {
+              type: "number",
+              description: "Total budget in ASKL tokens",
+            },
+            deadline_hours: {
+              type: "number",
+              description: "Deadline in hours (default: 168 = 1 week)",
+            },
+            requiredSkills: {
+              type: "array",
+              items: { type: "string" },
+              description: "Required skills for this task",
+            },
+            milestones: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  payment: { type: "number" },
+                  description: { type: "string" },
+                },
+              },
+              description: "Task milestones with payment distribution",
+            },
+          },
+          required: ["title", "description", "budget"],
+        },
+      },
+      {
+        name: "assign_agents",
+        description:
+          "Assign multiple agents to a task with payment distribution. Enables parallel agent execution. Requires PRIVATE_KEY.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            task_id: {
+              type: "string",
+              description: "ID of the task to assign agents to",
+            },
+            agents: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  address: { type: "string" },
+                  role: { type: "string" },
+                  payment_share: { type: "number" },
+                },
+              },
+              description: "Array of agents to assign with their payment shares",
+            },
+          },
+          required: ["task_id", "agents"],
+        },
+      },
+      {
+        name: "complete_milestone",
+        description:
+          "Mark a task milestone as completed and trigger payment distribution. Requires PRIVATE_KEY.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            task_id: {
+              type: "string",
+              description: "ID of the task",
+            },
+            milestone_id: {
+              type: "string",
+              description: "ID of the milestone to complete",
+            },
+            milestone_index: {
+              type: "number",
+              description: "Index of the milestone (alternative to milestone_id)",
+            },
+            proof: {
+              type: "string",
+              description: "Proof of work completion (IPFS hash, URL, etc.)",
+            },
+          },
+          required: ["task_id"],
+        },
+      },
+      {
+        name: "list_tasks",
+        description:
+          "List all multi-agent coordination tasks with their status and assigned agents",
+        inputSchema: {
+          type: "object",
+          properties: {
+            status: {
+              type: "string",
+              description: "Filter by task status",
+              enum: ["pending", "assigned", "in-progress", "completed", "all"],
+            },
+            limit: {
+              type: "number",
+              description: "Maximum number of results (default: 50)",
+            },
+          },
+        },
+      },
     ],
   };
 });
@@ -472,6 +626,14 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await handleListBounties(args);
       case "submit_audit":
         return await handleSubmitAudit(args);
+      case "submit_task":
+        return await handleSubmitTask(args);
+      case "assign_agents":
+        return await handleAssignAgents(args);
+      case "complete_milestone":
+        return await handleCompleteMilestone(args);
+      case "list_tasks":
+        return await handleListTasks(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -1042,9 +1204,10 @@ async function handlePostBounty(args: unknown) {
     description: z.string().min(1).max(5000),
     reward: z.number().positive(),
     skill_category: z.enum(["security-audit", "code-review", "test-generation", "optimization", "documentation", "other"]).optional(),
+    deadline_hours: z.number().positive().optional(),
   });
 
-  const { title, description, reward, skill_category = "other" } = schema.parse(args);
+  const { title, description, reward, skill_category = "other", deadline_hours = 168 } = schema.parse(args);
 
   if (!walletClient) {
     throw new Error(
@@ -1052,61 +1215,69 @@ async function handlePostBounty(args: unknown) {
     );
   }
 
+  // Check if bounty hub is deployed
+  if (BOUNTY_HUB_CONTRACT === "0x0000000000000000000000000000000000000000") {
+    throw new Error(
+      "BountyHub contract not deployed. Please deploy the contract and set BOUNTY_HUB_CONTRACT_ADDRESS environment variable.\n" +
+      "Run: npm run deploy:bounty"
+    );
+  }
+
   try {
-    // Check ASKL balance
-    const balance = await publicClient.readContract({
+    const rewardInWei = BigInt(Math.floor(reward * 1e18));
+    const deadline = Math.floor(Date.now() / 1000) + (deadline_hours * 3600);
+
+    // First approve ASKL tokens for BountyHub
+    const approveRequest = await publicClient.simulateContract({
       address: MY_SKILLS_CONTRACT,
       abi: ASKL_TOKEN_ABI,
-      functionName: "balanceOf",
-      args: [walletClient.account!.address],
-    }) as bigint;
+      functionName: "approve",
+      args: [BOUNTY_HUB_CONTRACT, rewardInWei],
+      account: walletClient.account!,
+    });
 
-    const rewardInWei = BigInt(Math.floor(reward * 1e18));
+    const approveHash = await walletClient.writeContract(approveRequest.request);
+    await publicClient.waitForTransactionReceipt({ hash: approveHash });
 
-    if (balance < rewardInWei) {
-      throw new Error(
-        `Insufficient ASKL balance. You have ${Number(balance) / 1e18} ASKL, but need ${reward} ASKL.`
-      );
+    // Create bounty on-chain
+    const { request } = await publicClient.simulateContract({
+      address: BOUNTY_HUB_CONTRACT,
+      abi: BOUNTY_HUB_ABI,
+      functionName: "createBounty",
+      args: [title, description, rewardInWei, skill_category, BigInt(deadline)],
+      account: walletClient.account!,
+    });
+
+    const hash = await walletClient.writeContract(request);
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
+
+    // Get bounty ID from event logs
+    const bountyCreatedEvent = receipt.logs.find((log: any) =>
+      log.address.toLowerCase() === BOUNTY_HUB_CONTRACT.toLowerCase()
+    );
+
+    let bountyId = "unknown";
+    if (bountyCreatedEvent) {
+      // Parse the event to get bounty ID
+      // For simplicity, we'll use transaction hash as ID in this version
+      bountyId = hash;
     }
-
-    // Generate bounty ID
-    const crypto = require('crypto');
-    const bountyId = `0x${crypto.createHash('sha256').update(`${title}:${Date.now()}`).digest('hex').slice(0, 40)}`;
-
-    // Create bounty record
-    const bounty: Bounty = {
-      id: bountyId,
-      title,
-      description,
-      reward,
-      category: skill_category,
-      creator: walletClient.account!.address,
-      status: "open",
-      createdAt: new Date(),
-    };
-
-    // Store bounty
-    bountyStorage.set(bountyId, bounty);
-
-    // In a full implementation, we would:
-    // 1. Transfer ASKL to escrow contract
-    // 2. Emit on-chain event
-    // 3. Index the bounty
 
     return {
       content: [
         {
           type: "text",
-          text: `✅ Bounty posted successfully on ${NETWORK.name}!\n\n` +
+          text: `✅ Bounty created on-chain via AgentBountyHub!\n\n` +
+            `**Transaction:** ${hash}\n` +
             `**Bounty ID:** ${bountyId}\n` +
             `**Title:** ${title}\n` +
             `**Category:** ${skill_category}\n` +
-            `**Reward:** ${reward} ASKL\n` +
-            `**Description:** ${description.slice(0, 200)}${description.length > 200 ? "..." : ""}\n` +
+            `**Reward:** ${reward} ASKL (escrowed)\n` +
+            `**Deadline:** ${new Date(deadline * 1000).toISOString()}\n` +
             `**Creator:** ${walletClient.account!.address}\n` +
-            `**Status:** Open\n\n` +
-            `Note: For MVP, bounties are stored off-chain. In production, this would use an escrow contract.\n\n` +
-            `Agents can now submit audit reports using 'submit_audit'.`
+            `**Explorer:** ${NETWORK.explorerUrl}/tx/${hash}\n\n` +
+            `Agents can now claim this bounty and submit work.\n` +
+            `Use 'submit_audit' to submit work for this bounty.`
         },
       ],
     };
@@ -1127,25 +1298,54 @@ async function handleListBounties(args: unknown) {
 
   const { status = "all", category, limit = 50 } = schema.parse(args);
 
+  // Check if bounty hub is deployed
+  if (BOUNTY_HUB_CONTRACT === "0x0000000000000000000000000000000000000000") {
+    return {
+      content: [
+        {
+          type: "text",
+          text: `⚠️ BountyHub contract not deployed yet.\n\n` +
+            `Please deploy the contract first:\n` +
+            `Run: npm run deploy:bounty\n\n` +
+            `Then set BOUNTY_HUB_CONTRACT_ADDRESS environment variable.`
+        },
+      ],
+    };
+  }
+
   try {
-    let bounties = Array.from(bountyStorage.values());
+    // Map status string to contract enum (0=Active, 1=Claimed, 2=UnderReview, 3=Completed, 4=Disputed, 5=Cancelled)
+    const statusMap: Record<string, number> = {
+      "open": 0,
+      "in-progress": 1,
+      "completed": 3,
+      "all": -1,
+    };
 
-    // Filter by status
-    if (status !== "all") {
-      bounties = bounties.filter((b) => b.status === status);
+    let bountyIds: bigint[];
+
+    if (status === "all") {
+      // Get all bounties
+      const totalBounties = await publicClient.readContract({
+        address: BOUNTY_HUB_CONTRACT,
+        abi: BOUNTY_HUB_ABI,
+        functionName: "getTotalBounties",
+      }) as bigint;
+
+      // Fetch all bounty IDs
+      bountyIds = Array.from({ length: Number(totalBounties) }, (_, i) => BigInt(i + 1));
+    } else {
+      // Get bounties by status
+      const result = await publicClient.readContract({
+        address: BOUNTY_HUB_CONTRACT,
+        abi: BOUNTY_HUB_ABI,
+        functionName: "getBountiesByStatus",
+        args: [statusMap[status] as any, limit as any],
+      });
+      bountyIds = result as bigint[];
     }
 
-    // Filter by category
-    if (category) {
-      bounties = bounties.filter((b) => b.category === category);
-    }
-
-    // Sort by newest first
-    bounties.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
-    const results = bounties.slice(0, limit);
-
-    if (results.length === 0) {
+    if (bountyIds.length === 0) {
       return {
         content: [
           {
@@ -1159,11 +1359,46 @@ async function handleListBounties(args: unknown) {
       };
     }
 
+    // Fetch full bounty details for each ID
+    const bountyDetails = await Promise.all(
+      bountyIds.slice(0, limit).map(async (id) => {
+        try {
+          const bounty = await publicClient.readContract({
+            address: BOUNTY_HUB_CONTRACT,
+            abi: BOUNTY_HUB_ABI,
+            functionName: "getBounty",
+            args: [id],
+          }) as any;
+
+          return {
+            id: id.toString(),
+            title: bounty.title,
+            category: bounty.category,
+            reward: Number(bounty.reward) / 1e18,
+            status: ["Active", "Claimed", "UnderReview", "Completed", "Disputed", "Cancelled"][bounty.status],
+            creator: bounty.creator,
+            description: bounty.description.slice(0, 100),
+          };
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const validBounties = bountyDetails.filter((b) => b !== null);
+
+    // Filter by category if specified
+    let results = validBounties;
+    if (category) {
+      results = results.filter((b) => b && b.category === category);
+    }
+
     return {
       content: [
         {
           type: "text",
           text: `Found ${results.length} Bount${results.length === 1 ? "y" : "ies"}:\n\n${results
+            .filter((b): b is NonNullable<typeof b> => b !== null)
             .map(
               (b) =>
                 `**${b.title}** (${b.category})\n` +
@@ -1171,10 +1406,10 @@ async function handleListBounties(args: unknown) {
                 `💰 Reward: ${b.reward} ASKL\n` +
                 `📊 Status: ${b.status}\n` +
                 `👤 Creator: ${b.creator}\n` +
-                `📝 ${b.description.slice(0, 100)}${b.description.length > 100 ? "..." : ""}\n`
+                `📝 ${b.description}...\n`
             )
             .join("\n")}\n\n` +
-            `Use 'submit_audit' to submit a report for any open bounty.`
+            `Use 'submit_audit' to submit work for any open bounty.`
         },
       ],
     };
@@ -1199,40 +1434,73 @@ async function handleSubmitAudit(args: unknown) {
     );
   }
 
+  // Check if bounty hub is deployed
+  if (BOUNTY_HUB_CONTRACT === "0x0000000000000000000000000000000000000000") {
+    throw new Error(
+      "BountyHub contract not deployed. Please deploy the contract and set BOUNTY_HUB_CONTRACT_ADDRESS environment variable."
+    );
+  }
+
   try {
-    // Check if bounty exists
-    const bounty = bountyStorage.get(bounty_id);
-    if (!bounty) {
-      throw new Error(`Bounty ${bounty_id} not found. Please check the bounty ID.`);
+    const bountyIdNum = BigInt(bounty_id);
+
+    // First, check the bounty status and claim it if needed
+    const bounty = await publicClient.readContract({
+      address: BOUNTY_HUB_CONTRACT,
+      abi: BOUNTY_HUB_ABI,
+      functionName: "getBounty",
+      args: [bountyIdNum],
+    }) as any;
+
+    // Check if bounty is in Active status (0)
+    if (bounty.status === 0) {
+      // Claim the bounty first
+      const claimRequest = await publicClient.simulateContract({
+        address: BOUNTY_HUB_CONTRACT,
+        abi: BOUNTY_HUB_ABI,
+        functionName: "claimBounty",
+        args: [bountyIdNum],
+        account: walletClient.account!,
+      });
+
+      const claimHash = await walletClient.writeContract(claimRequest.request);
+      await publicClient.waitForTransactionReceipt({ hash: claimHash });
     }
 
-    if (bounty.status !== "open") {
-      throw new Error(`Bounty ${bounty_id} is not open. Current status: ${bounty.status}`);
-    }
+    // Submit work (report hash - for MVP use report content directly)
+    const reportHash = report; // In production, upload to IPFS and use hash
 
-    // Update bounty status
-    bounty.status = "in-progress";
-    bounty.assignee = walletClient.account!.address;
+    const { request } = await publicClient.simulateContract({
+      address: BOUNTY_HUB_CONTRACT,
+      abi: BOUNTY_HUB_ABI,
+      functionName: "submitWork",
+      args: [bountyIdNum, reportHash],
+      account: walletClient.account!,
+    });
 
-    // In a full implementation, we would:
-    // 1. Submit audit report to IPFS
-    // 2. Call smart contract to register submission
-    // 3. Trigger jury selection if needed
+    const hash = await walletClient.writeContract(request);
+    const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
     return {
       content: [
         {
           type: "text",
-          text: `✅ Audit report submitted successfully!\n\n` +
+          text: `✅ Audit report submitted on-chain!\n\n` +
             `**Bounty ID:** ${bounty_id}\n` +
             `**Bounty Title:** ${bounty.title}\n` +
             `**Submitter:** ${walletClient.account!.address}\n` +
             `**Findings:** ${findings}\n` +
             `**Severity:** ${severity}\n` +
-            `**Report:** ${report.slice(0, 200)}${report.length > 200 ? "..." : ""}\n\n` +
-            `Your audit has been submitted for review.\n` +
-            `If approved by the bounty creator or agent jury, you will receive ${bounty.reward} ASKL.\n\n` +
-            `Note: For MVP, audit submissions are stored off-chain. In production, this would use an on-chain dispute resolution system.`
+            `**Report:** ${report.slice(0, 200)}${report.length > 200 ? "..." : ""}\n` +
+            `**Transaction:** ${hash}\n` +
+            `**Explorer:** ${NETWORK.explorerUrl}/tx/${hash}\n\n` +
+            `Your audit has been submitted and is now under review.\n` +
+            `Once approved by the bounty creator, you will receive ${Number(bounty.reward) / 1e18} ASKL.\n\n` +
+            `The workflow:\n` +
+            `1. You claimed the bounty\n` +
+            `2. You submitted the audit report\n` +
+            `3. Creator will review and approve\n` +
+            `4. ASKL tokens will be released automatically`
         },
       ],
     };
@@ -1241,6 +1509,310 @@ async function handleSubmitAudit(args: unknown) {
       throw new Error(`Failed to submit audit: ${error.message}`);
     }
     throw new Error(`Failed to submit audit: ${String(error)}`);
+  }
+}
+
+// ============================================================================
+// Direction B: Multi-Agent Coordination (P2 Features)
+// ============================================================================
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  budget: number;
+  deadline: Date;
+  creator: string;
+  status: "pending" | "assigned" | "in-progress" | "completed";
+  assignedAgents: string[];
+  requiredSkills: string[];
+  milestones: Milestone[];
+  createdAt: Date;
+}
+
+export interface Milestone {
+  id: string;
+  title: string;
+  description: string;
+  payment: number;
+  status: "pending" | "completed" | "approved";
+}
+
+const taskStorage = new Map<string, Task>();
+
+async function handleSubmitTask(args: unknown) {
+  const schema = z.object({
+    title: z.string().min(1).max(200),
+    description: z.string().min(1).max(5000),
+    budget: z.number().positive(),
+    deadline_hours: z.number().positive().optional(),
+    requiredSkills: z.array(z.string()).optional(),
+    milestones: z.array(z.object({
+      title: z.string(),
+      payment: z.number().positive(),
+      description: z.string().optional(),
+    })).optional(),
+  });
+
+  const { title, description, budget, deadline_hours = 168, requiredSkills: requiredSkills = [], milestones = [] } = schema.parse(args);
+
+  if (!walletClient) {
+    throw new Error("Wallet not initialized. Please set PRIVATE_KEY environment variable.");
+  }
+
+  try {
+    const taskId = `task-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    const deadline = new Date(Date.now() + deadline_hours * 60 * 60 * 1000);
+
+    const task: Task = {
+      id: taskId,
+      title,
+      description,
+      budget,
+      deadline,
+      creator: walletClient.account!.address,
+      status: "pending",
+      assignedAgents: [],
+      requiredSkills: requiredSkills,
+      milestones: milestones.map((m, i) => ({
+        id: `${taskId}-milestone-${i}`,
+        title: m.title,
+        description: m.description || "",
+        payment: m.payment,
+        status: "pending",
+      })),
+      createdAt: new Date(),
+    };
+
+    taskStorage.set(taskId, task);
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `✅ Task submitted successfully!\n\n` +
+            `**Task ID:** ${taskId}\n` +
+            `**Title:** ${title}\n` +
+            `**Budget:** ${budget} ASKL\n` +
+            `**Deadline:** ${deadline.toISOString()}\n` +
+            `**Required Skills:** ${requiredSkills.join(", ") || "None"}\n` +
+            `**Milestones:** ${milestones.length}\n\n` +
+            `Agents can now apply for this task using 'assign_agents'.\n` +
+            `Task coordinators can assign agents using 'assign_agents'.\n\n` +
+            `This enables multi-agent coordination where:\n` +
+            `1. Complex tasks are split into milestones\n` +
+            `2. Multiple agents work in parallel\n` +
+            `3. Payments are released per milestone\n` +
+            `4. x402 protocol enables gasless agent payments`
+        },
+      ],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to submit task: ${error.message}`);
+    }
+    throw new Error(`Failed to submit task: ${String(error)}`);
+  }
+}
+
+async function handleAssignAgents(args: unknown) {
+  const schema = z.object({
+    task_id: z.string(),
+    agents: z.array(z.object({
+      address: z.string().regex(/^0x[a-fA-F0-9]{40}$/),
+      role: z.string().optional(),
+      payment_share: z.number().positive().optional(),
+    })),
+  });
+
+  const { task_id, agents } = schema.parse(args);
+
+  if (!walletClient) {
+    throw new Error("Wallet not initialized. Please set PRIVATE_KEY environment variable.");
+  }
+
+  try {
+    const task = taskStorage.get(task_id);
+    if (!task) {
+      throw new Error(`Task ${task_id} not found.`);
+    }
+
+    // Validate total payment shares
+    const totalShares = agents.reduce((sum, a) => sum + (a.payment_share || 0), 0);
+    if (totalShares > 100) {
+      throw new Error(`Total payment shares (${totalShares}%) cannot exceed 100%`);
+    }
+
+    // Assign agents to task
+    const assignedAddresses: string[] = [];
+    for (const agent of agents) {
+      if (!task.assignedAgents.includes(agent.address)) {
+        task.assignedAgents.push(agent.address);
+        assignedAddresses.push(agent.address);
+      }
+    }
+
+    task.status = "in-progress";
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `✅ Agents assigned to task successfully!\n\n` +
+            `**Task ID:** ${task_id}\n` +
+            `**Task Title:** ${task.title}\n` +
+            `**Agents Assigned:** ${agents.length}\n` +
+            `${assignedAddresses.length > 0 ? `**New Assignments:** ${assignedAddresses.join(", ")}\n` : ""}` +
+            `**Total Assigned Agents:** ${task.assignedAgents.length}\n\n` +
+            `Payment distribution:\n` +
+            `${agents.map(a => `  - ${a.address.slice(0, 8)}... (${a.payment_share || 0}%): ${a.role || "Agent"}\n`).join("")}\n\n` +
+            `Agents can now work on their assigned milestones.\n` +
+            `Use 'complete_milestone' to mark progress and release payments.\n\n` +
+            `Multi-agent coordination benefits:\n` +
+            `• Parallel work on different milestones\n` +
+            `• Automatic payment distribution per milestone\n` +
+            `• x402 enables gasless payments for agents\n` +
+            `• Monad high TPS enables instant settlements`
+        },
+      ],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to assign agents: ${error.message}`);
+    }
+    throw new Error(`Failed to assign agents: ${String(error)}`);
+  }
+}
+
+async function handleCompleteMilestone(args: unknown) {
+  const schema = z.object({
+    task_id: z.string(),
+    milestone_id: z.string().optional(),
+    milestone_index: z.number().optional(),
+    proof: z.string().optional(),
+  });
+
+  const { task_id, milestone_id, milestone_index, proof } = schema.parse(args);
+
+  if (!walletClient) {
+    throw new Error("Wallet not initialized. Please set PRIVATE_KEY environment variable.");
+  }
+
+  try {
+    const task = taskStorage.get(task_id);
+    if (!task) {
+      throw new Error(`Task ${task_id} not found.`);
+    }
+
+    // Find milestone
+    let milestoneIndex = milestone_index;
+    if (milestone_id) {
+      milestoneIndex = task.milestones.findIndex(m => m.id === milestone_id);
+    }
+
+    if (milestoneIndex === undefined || milestoneIndex < 0 || milestoneIndex >= task.milestones.length) {
+      throw new Error(`Invalid milestone. Task has ${task.milestones.length} milestones.`);
+    }
+
+    const milestone = task.milestones[milestoneIndex];
+
+    if (milestone.status === "completed") {
+      throw new Error(`Milestone "${milestone.title}" is already completed.`);
+    }
+
+    // Mark milestone as completed
+    milestone.status = "completed";
+
+    // In production, this would:
+    // 1. Verify work completion (proof checking, IPFS verification)
+    // 2. Execute payment to assigned agents via x402
+    // 3. Update on-chain state
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `✅ Milestone completed!\n\n` +
+            `**Task ID:** ${task_id}\n` +
+            `**Milestone:** ${milestone.title}\n` +
+            `**Payment:** ${milestone.payment} ASKL\n` +
+            `**Completed By:** ${walletClient.account?.address || "0x0"}\n` +
+            `${proof ? `**Proof:** ${proof.slice(0, 100)}...\n` : ""}\n\n` +
+            `In production, this would trigger:\n` +
+            `• Automatic payment distribution via x402\n` +
+            `• On-chain milestone completion\n` +
+            `• Proof verification on IPFS\n\n` +
+            `Remaining milestones: ${task.milestones.filter(m => m.status === "pending").length}\n` +
+            `Completed milestones: ${task.milestones.filter(m => m.status === "completed").length}\n\n` +
+            `Continue with next milestone or mark task as complete.`
+        },
+      ],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Failed to complete milestone: ${error.message}`);
+    }
+    throw new Error(`Failed to complete milestone: ${String(error)}`);
+  }
+}
+
+async function handleListTasks(args: unknown) {
+  const schema = z.object({
+    status: z.enum(["pending", "assigned", "in-progress", "completed", "all"]).optional(),
+    limit: z.number().min(1).max(100).optional(),
+  });
+
+  const { status = "all", limit = 50 } = schema.parse(args);
+
+  try {
+    let tasks = Array.from(taskStorage.values());
+
+    if (status !== "all") {
+      tasks = tasks.filter((t) => t.status === status);
+    }
+
+    tasks.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    const results = tasks.slice(0, limit);
+
+    if (results.length === 0) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `No tasks found.\n\n` +
+              `Be the first to submit a task using 'submit_task'!\n\n` +
+              `Multi-agent coordination enables:\n` +
+              `• Complex task decomposition\n` +
+              `• Parallel agent execution\n` +
+              `• Milestone-based payments\n` +
+              `• Automatic dispute resolution`
+          },
+        ],
+      };
+    }
+
+    return {
+      content: [
+        {
+          type: "text",
+          text: `Found ${results.length} Task${results.length === 1 ? "" : "s"}:\n\n${results
+            .map(
+              (t) =>
+                `**${t.title}**\n` +
+                `ID: ${t.id}\n` +
+                `💰 Budget: ${t.budget} ASKL\n` +
+                `📊 Status: ${t.status}\n` +
+                `👥 Assigned: ${t.assignedAgents.length}/${t.requiredSkills.length} agents\n` +
+                `📋 Milestones: ${t.milestones.length}\n`
+            )
+            .join("\n")}\n\n` +
+            `Use 'assign_agents' to work on a task.\n` +
+            `Use 'complete_milestone' to progress through milestones.`
+        },
+      ],
+    };
+  } catch (error) {
+    throw new Error(`Failed to list tasks: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

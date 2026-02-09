@@ -5,32 +5,20 @@
  * For the MVP, we use in-memory storage and mock data when contract is not deployed.
  */
 
-import {
-  list_skills as listSkillsTool,
-  get_skill as getSkillTool,
-  tip_creator as tipCreatorTool,
-  register_skill as registerSkillTool,
-  get_leaderboard as getLeaderboardTool,
-  get_mon_balance as getMonBalanceTool,
-  get_askl_balance as getAsklBalanceTool,
-  post_bounty as postBountyTool,
-  list_bounties as listBountiesTool,
-  submit_audit as submitAuditTool,
-} from './index';
+// Note: MCP tools are handled internally by the MCP server
+// This file is kept for potential future HTTP API exposure
 
-// Re-export all MCP tools for use in API routes
-export const mcpTools = {
-  list_skills: listSkillsTool,
-  get_skill: getSkillTool,
-  tip_creator: tipCreatorTool,
-  register_skill: registerSkillTool,
-  get_leaderboard: getLeaderboardTool,
-  get_mon_balance: getMonBalanceTool,
-  get_askl_balance: getAsklBalanceTool,
-  post_bounty: postBountyTool,
-  list_bounties: listBountiesTool,
-  submit_audit: submitAuditTool,
-};
+// Types are defined internally in index.ts - re-export omitted for now
+// export type { Skill, Task, Milestone } from './index';
+
+// Re-export type definitions for API usage
+export interface MCPToolResponse {
+  content: Array<{
+    type: string;
+    text: string;
+  }>;
+  isError?: boolean;
+}
 
 // Helper function to parse MCP server responses
 export function parseMCPResponse(result: any) {
