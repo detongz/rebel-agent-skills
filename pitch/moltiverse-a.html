@@ -1,27 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MySkills - Where AI Agents Hire and Pay Each Other | Moltiverse Track 1 & 2</title>
+  <title>myskills - Monad Hackathon 2026</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-primary: #000000;
       --bg-secondary: #0a0a0a;
+      --bg-tertiary: #141414;
       --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-bg-strong: rgba(255, 255, 255, 0.12);
       --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-border-strong: rgba(255, 255, 255, 0.25);
       --glow-green: rgba(34, 197, 94, 0.4);
       --glow-cyan: rgba(34, 211, 238, 0.3);
       --text-primary: #ffffff;
       --text-secondary: #e5e7eb;
       --text-muted: #9ca3af;
+      --text-dim: #6b7280;
     }
 
-    * { font-family: 'Inter', -apple-system, sans-serif; box-sizing: border-box; }
+    * {
+      font-family: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+      box-sizing: border-box;
+    }
 
-    html, body { padding: 0; margin: 0; min-height: 100vh; overflow-x: hidden; }
+    html, body {
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
     body {
       background: var(--bg-primary);
@@ -30,13 +42,18 @@
       position: relative;
     }
 
+    /* Dynamic background */
     body::before {
       content: '';
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background:
         radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.15), transparent),
-        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(34, 211, 238, 0.1), transparent);
+        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(34, 211, 238, 0.1), transparent),
+        radial-gradient(ellipse 60% 40% at 0% 80%, rgba(34, 197, 94, 0.08), transparent);
       pointer-events: none;
       z-index: 0;
     }
@@ -56,636 +73,470 @@
       border: 1px solid var(--glass-border);
       border-radius: 16px;
       backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
     }
 
-    .highlight-border {
-      border: 2px solid rgba(34, 197, 94, 0.5);
-      box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+    .glass-card-strong {
+      background: var(--glass-bg-strong);
+      border: 1px solid var(--glass-border-strong);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08);
     }
 
+    .glow-green {
+      box-shadow: 0 0 60px rgba(34, 197, 94, 0.3);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .float { animation: float 3s ease-in-out infinite; }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+      50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.5); }
+    }
+    .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+
+    .progress-bar {
+      transition: width 0.3s ease;
+      background: linear-gradient(90deg, #22c55e, #22d3ee);
+    }
+
+    .stat-card {
+      background: var(--glass-bg-strong);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+    }
+
+    /* Print styles - 16:9 aspect ratio for PDF export */
     @media print {
-      @page { margin: 0; size: 1920px 1080px; }
+      @page {
+        margin: 0;
+        size: 1920px 1080px;
+      }
       .slide {
         display: flex !important;
         page-break-after: always;
+        page-break-before: always;
         width: 1920px;
         height: 1080px;
         overflow: hidden;
       }
       .slide:first-child { page-break-before: avoid; }
-      #progress, #prevBtn, #nextBtn { display: none !important; }
+      .slide:last-child { page-break-after: avoid; }
+      body { overflow: visible !important; }
+      #progress, #prevBtn, #nextBtn, .fixed { display: none !important; }
+      .float, .pulse-glow { animation: none !important; }
     }
   </style>
 </head>
 <body class="min-h-screen text-white overflow-hidden relative z-10">
+  <!-- 进度条 -->
   <div class="fixed top-0 left-0 w-full h-1 z-50" style="background: rgba(255,255,255,0.1);">
-    <div id="progress" class="h-full" style="width: 8.33%; background: linear-gradient(90deg, #22c55e, #22d3ee);"></div>
+    <div id="progress" class="progress-bar h-full" style="width: 9.09%;"></div>
   </div>
 
+  <!-- 幻灯片容器 -->
   <div id="presentation" class="h-screen w-full relative">
 
-    <!-- Slide 1: Hook - Agent App Store -->
+    <!-- Slide 1: 封面 -->
     <div class="slide active flex-col items-center justify-center h-full px-8">
-      <div class="text-center max-w-6xl">
-        <div class="flex items-center justify-center gap-3 mb-6">
-          <span class="px-4 py-1.5 rounded-full text-sm font-semibold" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">TRACK 1: Payments</span>
-          <span class="text-gray-600">+</span>
-          <span class="px-4 py-1.5 rounded-full text-sm font-semibold" style="background: rgba(34, 211, 238, 0.2); color: #22d3ee;">TRACK 2: Symbiosis</span>
+      <div class="text-center">
+        <div class="text-8xl mb-8 float">💎</div>
+        <h1 class="text-7xl font-black mb-6 gradient-text tracking-tight">myskills</h1>
+        <p class="text-3xl text-gray-400 mb-4 font-semibold">Agent Skill 创作者激励平台</p>
+        <p class="text-xl text-gray-500 mb-8">让创作者有收益，让用户有方向</p>
+        <div class="glass-card-strong p-6 max-w-3xl mx-auto mb-8">
+          <p class="text-2xl text-green-400 font-bold mb-2">"就像 Agent Skills 的 GitHub Sponsors"</p>
+          <p class="text-gray-400">任何人都可以用 $ASKL 打赏创作者<br/>创作者收到 98%，平台只收 2%</p>
         </div>
-
-        <div class="text-8xl mb-6">🏪</div>
-        <h1 class="text-7xl font-black mb-4 gradient-text">MySkills</h1>
-        <p class="text-4xl text-gray-400 mb-4 font-semibold">Agent Skill App Store on Monad</p>
-        <p class="text-2xl text-cyan-400 mb-8 font-bold">"Where AI Agents Hire and Pay Each Other"</p>
-
-        <div class="glass-card highlight-border p-8 max-w-4xl mx-auto mb-8">
-          <p class="text-2xl text-white mb-4 font-bold">Like App Store, but for AI Agent Skills</p>
-          <p class="text-xl text-gray-400">One Registry · All Platforms · Instant Payments</p>
-        </div>
-
-        <div class="grid grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">
-          <div class="glass-card p-5">
-            <p class="text-3xl font-black text-green-400 mb-1">🧠</p>
-            <p class="text-xs text-gray-500">Smart Matching</p>
-          </div>
-          <div class="glass-card p-5">
-            <p class="text-3xl font-black text-cyan-400 mb-1">🤝</p>
-            <p class="text-xs text-gray-500">Agent→Agent</p>
-          </div>
-          <div class="glass-card p-5">
-            <p class="text-3xl font-black text-orange-400 mb-1">🌐</p>
-            <p class="text-xs text-gray-500">Cross-Platform</p>
-          </div>
-          <div class="glass-card p-5">
-            <p class="text-3xl font-black text-white mb-1">⚡</p>
-            <p class="text-xs text-gray-500">&lt;1s on Monad</p>
-          </div>
-        </div>
-
         <div class="flex gap-4 justify-center text-sm">
-          <span class="px-5 py-2.5 rounded-full glass-card text-green-400 font-medium">Claude Code</span>
-          <span class="px-5 py-2.5 rounded-full glass-card text-cyan-400 font-medium">Coze</span>
-          <span class="px-5 py-2.5 rounded-full glass-card text-orange-400 font-medium">Manus</span>
-          <span class="px-5 py-2.5 rounded-full glass-card text-white font-medium">MiniMax</span>
+          <span class="px-5 py-2.5 rounded-full glass-card text-green-400 font-medium">一键打赏</span>
+          <span class="px-5 py-2.5 rounded-full glass-card text-cyan-400 font-medium">排行榜</span>
+          <span class="px-5 py-2.5 rounded-full glass-card text-white font-medium">Monad</span>
         </div>
       </div>
     </div>
 
-    <!-- Slide 2: Real User Problem -->
+    <!-- Slide 2: Problem -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">😰 The Real Problem</h2>
+      <h2 class="text-5xl font-bold mb-12">😰 现在的问题</h2>
+      <div class="grid grid-cols-3 gap-8 max-w-6xl">
+        <div class="glass-card-strong p-8 text-center">
+          <div class="text-5xl mb-4">🎲</div>
+          <h3 class="text-2xl font-bold mb-4 text-red-400">用户痛点</h3>
+          <p class="text-gray-400 mb-4">不知道哪个 Skill 好</p>
+          <p class="text-sm text-gray-500">"用到一个烂 Agent<br/>浪费半天时间"</p>
+          <div class="mt-4 p-3 rounded-lg" style="background: rgba(0,0,0,0.3);">
+            <p class="text-xs text-gray-400">400+ Agent Skills</p>
+            <p class="text-xs text-red-400">0 个评分</p>
+          </div>
+        </div>
+        <div class="glass-card-strong p-8 text-center">
+          <div class="text-5xl mb-4">😶</div>
+          <h3 class="text-2xl font-bold mb-4 text-green-400">创作者痛点</h3>
+          <p class="text-gray-400 mb-4">没有收益</p>
+          <p class="text-sm text-gray-500">"写了 Agent 没人知道<br/>0 收入"</p>
+          <div class="mt-4 p-3 rounded-lg" style="background: rgba(0,0,0,0.3);">
+            <p class="text-xs text-gray-400">Claude Code / Manus</p>
+            <p class="text-xs text-red-400">创作者 0 收益</p>
+          </div>
+        </div>
+        <div class="glass-card-strong p-8 text-center">
+          <div class="text-5xl mb-4">📊</div>
+          <h3 class="text-2xl font-bold mb-4 text-cyan-400">行业痛点</h3>
+          <p class="text-gray-400 mb-4">没有激励机制</p>
+          <p class="text-sm text-gray-500">"好 Agent 消失了<br/>因为创作者没动力继续"</p>
+          <div class="mt-4 p-3 rounded-lg" style="background: rgba(0,0,0,0.3);">
+            <p class="text-xs text-gray-400">代码有 GitHub Sponsors</p>
+            <p class="text-xs text-red-400">Agent Skills 没有</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Solution -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🚀 解决方案</h2>
       <div class="max-w-5xl w-full">
-        <div class="glass-card highlight-border p-10 mb-8">
+        <div class="glass-card-strong p-12 glow-green mb-8">
           <div class="text-center mb-8">
-            <p class="text-3xl font-black gradient-text mb-4">Meet Zhang, Math Teacher</p>
-            <p class="text-xl text-gray-400">She has hundreds of PDF math problems to organize every week</p>
+            <p class="text-3xl font-bold gradient-text mb-4">GitHub Sponsors + App Store 评分 + 排行榜</p>
+            <p class="text-xl text-gray-400">= myskills</p>
           </div>
-
-          <div class="grid grid-cols-2 gap-6">
-            <div class="p-6 rounded-lg" style="background: rgba(239, 68, 68, 0.1);">
-              <h4 class="font-bold mb-3 text-red-400">Manual Process</h4>
-              <p class="text-sm text-gray-400">"I spend 30 minutes per PDF. Typing equations, formatting LaTeX, categorizing by difficulty..."</p>
-            </div>
-            <div class="p-6 rounded-lg" style="background: rgba(239, 68, 68, 0.1);">
-              <h4 class="font-bold mb-3 text-red-400">No Solution</h4>
-              <p class="text-sm text-gray-400">"There ARE agent skills that can help - LaTeX recognition, PDF parsing. But I can't find them!"</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6">
-          <div class="glass-card p-6 text-center">
-            <div class="text-4xl mb-4">🔍</div>
-            <h3 class="text-xl font-bold mb-3 text-orange-400">Discovery Problem</h3>
-            <p class="text-sm text-gray-500">"Which skill should I use?"<br/>400+ skills, zero guidance</p>
-          </div>
-          <div class="glass-card p-6 text-center">
-            <div class="text-4xl mb-4">💸</div>
-            <h3 class="text-xl font-bold mb-3 text-yellow-400">Monetization Problem</h3>
-            <p class="text-sm text-gray-500">"Why would I build skills?"<br/>Creators earn nothing</p>
-          </div>
-          <div class="glass-card p-6 text-center">
-            <div class="text-4xl mb-4">📱</div>
-            <h3 class="text-xl font-bold mb-3 text-gray-400">Platform Lock-in</h3>
-            <p class="text-sm text-gray-500">"Skills stuck in one platform"<br/>Claude ≠ Coze ≠ Manus</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 3: Our Solution -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">🚀 The Solution</h2>
-      <div class="max-w-5xl w-full">
-        <div class="glass-card highlight-border p-12 mb-8">
-          <div class="text-center mb-8">
-            <p class="text-4xl font-black gradient-text mb-4">MySkills = Agent Skill App Store</p>
-            <p class="text-xl text-gray-400">Smart Matching + Tipping + Cross-Platform</p>
-          </div>
-
-          <div class="flex items-center justify-center gap-4 text-lg flex-wrap mb-8">
-            <span class="px-6 py-3 rounded-lg" style="background: rgba(34, 197, 94, 0.2);">User describes need</span>
-            <span class="text-3xl">→</span>
-            <span class="px-6 py-3 rounded-lg" style="background: rgba(34, 211, 238, 0.2);">🧠 Smart Matching</span>
-            <span class="text-3xl">→</span>
-            <span class="px-6 py-3 rounded-lg" style="background: rgba(255, 255, 255, 0.1);">Best skills found</span>
-            <span class="text-3xl">→</span>
-            <span class="px-6 py-3 rounded-lg" style="background: rgba(34, 197, 94, 0.2);">Agents work</span>
-            <span class="text-3xl">→</span>
-            <span class="px-6 py-3 rounded-lg" style="background: rgba(34, 211, 238, 0.2);">Auto-pay</span>
-          </div>
-
-          <div class="text-center">
-            <p class="text-lg text-gray-400">Budget: $0.005 | Time: 30 seconds | Accuracy: 96%</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-6">
-          <div class="glass-card p-6 text-center">
-            <p class="text-5xl mb-3">🧠</p>
-            <p class="font-bold text-green-400 mb-2">Smart Matching</p>
-            <p class="text-xs text-gray-500">AI finds optimal skills within budget</p>
-          </div>
-          <div class="glass-card p-6 text-center">
-            <p class="text-5xl mb-3">💰</p>
-            <p class="font-bold text-cyan-400 mb-2">Tipping</p>
-            <p class="text-xs text-gray-500">98% to creators, 2% to platform</p>
-          </div>
-          <div class="glass-card p-6 text-center">
-            <p class="text-5xl mb-3">🌐</p>
-            <p class="font-bold text-white mb-2">Cross-Platform</p>
-            <p class="text-xs text-gray-500">One registry, all platforms</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 4: Smart Matching Engine -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-10">🧠 Smart Matching Engine</h2>
-      <div class="max-w-5xl w-full">
-        <div class="glass-card highlight-border p-8 mb-6" style="border-color: rgba(34, 197, 94, 0.5);">
-          <div class="text-center mb-6">
-            <p class="text-2xl text-green-400 font-black mb-3">⭐ CORE INNOVATION ⭐</p>
-            <p class="text-xl text-white font-bold">AI-Powered Agent Skill Discovery</p>
-            <p class="text-sm text-gray-500 mt-2">No manual search. Agents find optimal skills automatically.</p>
-          </div>
-
-          <div class="rounded-lg p-6 mb-6" style="background: rgba(0,0,0,0.5);">
-            <p class="text-center text-gray-400 mb-3 text-sm">Agent Request: "Audit this smart contract, budget 50 MON"</p>
+          <div class="grid grid-cols-3 gap-6 mt-12">
             <div class="text-center">
-              <div class="inline-flex items-center gap-3 text-lg">
-                <span class="text-green-400 font-bold">400+ skills</span>
-                <span class="text-gray-600">→</span>
-                <span class="text-cyan-400 font-bold">NLP keywords</span>
-                <span class="text-gray-600">→</span>
-                <span class="text-green-400 font-bold">Optimal combo</span>
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.15);">
+                <span class="text-3xl">💰</span>
               </div>
+              <h4 class="font-bold mb-2">创作者收益</h4>
+              <p class="text-xs text-gray-500">98% 打赏直达<br/>即时到账</p>
+            </div>
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 211, 238, 0.15);">
+                <span class="text-3xl">🏆</span>
+              </div>
+              <h4 class="font-bold mb-2">排行榜</h4>
+              <p class="text-xs text-gray-500">铂金/黄金/白银<br/>透明排名</p>
+            </div>
+            <div class="text-center">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(255, 255, 255, 0.1);">
+                <span class="text-3xl">📊</span>
+              </div>
+              <h4 class="font-bold mb-2">CLI 工具</h4>
+              <p class="text-xs text-gray-500">myskills list<br/>一键查询</p>
             </div>
           </div>
-
-          <div class="grid grid-cols-3 gap-3 mb-4">
-            <div class="text-center p-4 rounded-lg" style="background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.3);">
-              <p class="font-bold text-green-400 mb-1">Solidity Auditor</p>
-              <p class="text-xs text-gray-500">Relevance: 95% | Cost: 30 MON</p>
-            </div>
-            <div class="text-center p-4 rounded-lg" style="background: rgba(34, 211, 238, 0.15); border: 1px solid rgba(34, 211, 238, 0.3);">
-              <p class="font-bold text-cyan-400 mb-1">Fuzzing Tool</p>
-              <p class="text-xs text-gray-500">Relevance: 88% | Cost: 15 MON</p>
-            </div>
-            <div class="text-center p-4 rounded-lg" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
-              <p class="font-bold text-white mb-1">Gas Analyzer</p>
-              <p class="text-xs text-gray-500">Relevance: 72% | Cost: 5 MON</p>
-            </div>
-          </div>
-          <p class="text-center text-gray-400 text-sm">Total: 50 MON | Budget: 100% utilized | Max value achieved</p>
         </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <div class="glass-card p-6" style="background: rgba(34, 197, 94, 0.1);">
-            <p class="font-bold text-green-400 mb-2 text-lg">🎯 Multi-Dimensional Scoring</p>
-            <p class="text-sm text-gray-400 mb-2">Relevance × Success Rate × Cost Effectiveness</p>
-            <p class="text-xs text-gray-500">Not just keyword matching — holistic skill evaluation</p>
-          </div>
-          <div class="glass-card p-6" style="background: rgba(34, 211, 238, 0.1);">
-            <p class="font-bold text-cyan-400 mb-2 text-lg">📦 Budget Optimization</p>
-            <p class="text-sm text-gray-400 mb-2">Knapsack Algorithm for Maximum Value</p>
-            <p class="text-xs text-gray-500">Optimizes skill combination within budget constraints</p>
-          </div>
+        <div class="text-center text-gray-500">
+          <p class="text-lg">一次打赏，多方受益</p>
         </div>
       </div>
     </div>
 
-    <!-- Slide 5: Agent-to-Agent Payment Demo -->
+    <!-- Slide 4: Why Now -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-10">🤝 Agent-to-Agent Payment Demo</h2>
-      <div class="max-w-5xl w-full">
-        <div class="glass-card highlight-border p-8 mb-6" style="border-color: rgba(34, 211, 238, 0.3);">
-          <div class="text-center mb-6">
-            <p class="text-xl text-cyan-400 font-bold">Watch Agents Hire and Pay Each Other</p>
-            <p class="text-sm text-gray-500">No human intervention. Pure agent economy.</p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-8 mb-6">
-            <div class="space-y-4">
-              <div class="flex gap-3">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0 font-bold" style="background: rgba(249, 115, 22, 0.2);">1</div>
-                <div class="flex-1">
-                  <p class="text-orange-400 text-sm font-bold">Agent A (Project Manager)</p>
-                  <p class="text-gray-500 text-xs">"I need to audit this DeFi protocol"</p>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0 font-bold" style="background: rgba(34, 211, 238, 0.2);">2</div>
-                <div class="flex-1">
-                  <p class="text-cyan-400 text-sm font-bold">Uses MySkills Protocol</p>
-                  <p class="text-gray-500 text-xs">Finds 3 agents: Auditor, Fuzzer, Reviewer</p>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm flex-shrink-0 font-bold" style="background: rgba(34, 197, 94, 0.2);">3</div>
-                <div class="flex-1">
-                  <p class="text-green-400 text-sm font-bold">All Agents Work in Parallel</p>
-                  <p class="text-gray-500 text-xs">Sandbox execution. Results verified.</p>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-center justify-center">
-              <div class="text-center">
-                <div class="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 211, 238, 0.2);">
-                  <span class="text-4xl">💸</span>
-                </div>
-                <p class="text-2xl font-black text-cyan-400 mb-2">Auto-Pay</p>
-                <p class="text-sm text-gray-500">98% to creators<br/>&lt;1s on Monad<br/>Gas: $0.001</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-card p-6" style="background: rgba(34, 211, 238, 0.1);">
-          <div class="text-center mb-3">
-            <p class="text-lg font-bold text-cyan-400">🎯 Key Value: Agent Autonomy</p>
-          </div>
-          <div class="grid grid-cols-3 gap-4 text-center text-sm">
-            <div>
-              <p class="font-bold text-green-400">Find Skills</p>
-              <p class="text-xs text-gray-500">Via Smart Matching</p>
-            </div>
-            <div>
-              <p class="font-bold text-orange-400">Hire Agents</p>
-              <p class="text-xs text-gray-500">Automatic escrow</p>
-            </div>
-            <div>
-              <p class="font-bold text-cyan-400">Verify & Pay</p>
-              <p class="text-xs text-gray-500">Results verified first</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 6: Tipping & Payments -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">💰 Agent-to-Agent Payments</h2>
+      <h2 class="text-5xl font-bold mb-12">⏰ 为什么现在做？</h2>
       <div class="max-w-4xl w-full">
-        <div class="glass-card p-10 text-center mb-8" style="border: 1px solid rgba(34, 197, 94, 0.3);">
-          <p class="text-6xl font-black gradient-text mb-4">98 / 2</p>
-          <p class="text-xl text-gray-400">Creator / Platform Split</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-8 mb-8">
-          <div class="glass-card p-8 text-center">
-            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
-              <span class="text-3xl">🤖</span>
+        <div class="glass-card-strong p-10 glow-green">
+          <div class="text-center mb-8">
+            <div class="text-6xl mb-4">🚀</div>
+            <p class="text-3xl font-bold gradient-text mb-4">Agent Skills API 刚开放 (2025)</p>
+            <p class="text-xl text-gray-400">处于生态爆发前夜</p>
+          </div>
+          <div class="grid grid-cols-2 gap-6 mt-10">
+            <div class="p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <h4 class="font-bold mb-3 text-green-400">✅ GitHub Sponsors 成功</h4>
+              <p class="text-sm text-gray-400">开放者获得收入 → 更多的项目 → 生态繁荣</p>
             </div>
-            <p class="font-bold text-green-400 text-3xl mb-2">98%</p>
-            <p class="text-sm text-gray-500">To Skill Creator</p>
-            <p class="text-xs text-gray-600 mt-2">Instant on-chain payment</p>
-          </div>
-          <div class="glass-card p-8 text-center">
-            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(255, 255, 255, 0.05);">
-              <span class="text-2xl">🏪</span>
+            <div class="p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <h4 class="font-bold mb-3 text-cyan-400">🎯 我们的窗口</h4>
+              <p class="text-sm text-gray-400">现在做打赏平台 = 定义 Agent Skills 激励标准</p>
             </div>
-            <p class="font-bold text-gray-400 text-3xl mb-2">2%</p>
-            <p class="text-sm text-gray-500">Platform Fee</p>
-            <p class="text-xs text-gray-600 mt-2">Sustains infrastructure</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-4 text-center text-sm">
-          <div class="glass-card p-4">
-            <p class="font-bold gradient-text mb-1">&lt;1s Confirmation</p>
-            <p class="text-xs text-gray-500">Monad speed</p>
-          </div>
-          <div class="glass-card p-4">
-            <p class="font-bold gradient-text mb-1">$0.001 Gas</p>
-            <p class="text-xs text-gray-500">Micro-payments viable</p>
-          </div>
-          <div class="glass-card p-4">
-            <p class="font-bold gradient-text mb-1">Transparent</p>
-            <p class="text-xs text-gray-500">All on-chain</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 7: Cross-Platform Value -->
+    <!-- Slide 5: 打赏机制 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">🌐 One Registry, All Platforms</h2>
+      <h2 class="text-5xl font-bold mb-12">💸 打赏机制</h2>
       <div class="max-w-5xl w-full">
-        <div class="glass-card highlight-border p-10 mb-8" style="border-color: rgba(249, 115, 22, 0.4);">
+        <div class="glass-card-strong p-10 mb-8">
           <div class="text-center mb-8">
-            <p class="text-2xl text-orange-400 font-bold mb-4">KEY DIFFERENTIATOR</p>
-            <p class="text-xl text-white">Cross-Platform Agent Skill Monetization</p>
-            <p class="text-sm text-gray-500 mt-2">No more platform silos. One skill, multiple revenue streams.</p>
+            <p class="text-6xl font-black gradient-text mb-4">98 / 2</p>
+            <p class="text-xl text-gray-400">创作者 / 平台 分账比例</p>
           </div>
-
-          <div class="grid grid-cols-4 gap-6 mb-8">
+          <div class="flex items-center justify-center gap-8">
             <div class="text-center">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
-                <span class="text-2xl">🟢</span>
+              <div class="w-32 h-32 rounded-full flex items-center justify-center mx-auto mb-4" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 211, 238, 0.2)); border: 2px solid rgba(34, 197, 94, 0.5);">
+                <span class="text-4xl">👨‍💻</span>
               </div>
-              <p class="font-bold text-green-400 mb-1">Claude Code</p>
-              <p class="text-xs text-gray-500">MCP Server</p>
+              <p class="font-bold text-green-400 text-xl">创作者</p>
+              <p class="text-3xl font-black text-white">98%</p>
             </div>
+            <div class="text-4xl text-gray-600">←</div>
             <div class="text-center">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style="background: rgba(34, 211, 238, 0.2);">
-                <span class="text-2xl">🔵</span>
+              <div class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4" style="background: rgba(255, 255, 255, 0.05);">
+                <span class="text-2xl">🔥</span>
               </div>
-              <p class="font-bold text-cyan-400 mb-1">Coze</p>
-              <p class="text-xs text-gray-500">Plugin</p>
+              <p class="font-bold text-gray-400">平台</p>
+              <p class="text-2xl font-bold text-gray-500">2%</p>
+              <p class="text-xs text-gray-600">销毁</p>
             </div>
-            <div class="text-center">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style="background: rgba(249, 115, 22, 0.2);">
-                <span class="text-2xl">🟠</span>
-              </div>
-              <p class="font-bold text-orange-400 mb-1">Manus</p>
-              <p class="text-xs text-gray-500">Integration</p>
-            </div>
-            <div class="text-center">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style="background: rgba(255, 255, 255, 0.1);">
-                <span class="text-2xl">⚪</span>
-              </div>
-              <p class="font-bold text-white mb-1">MiniMax</p>
-              <p class="text-xs text-gray-500">API Access</p>
-            </div>
-          </div>
-
-          <div class="p-6 rounded-lg text-center" style="background: rgba(249, 115, 22, 0.1);">
-            <p class="text-gray-400">
-              <span class="text-orange-400 font-bold">Register Once → Earn Everywhere</span><br/>
-              <span class="text-sm">Agent developers build once, monetize across all agent platforms</span>
-            </p>
           </div>
         </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <div class="glass-card p-6" style="background: rgba(239, 68, 68, 0.1);">
-            <p class="font-bold text-red-400 mb-2">❌ Platform Silos</p>
-            <p class="text-xs text-gray-500">Each platform locks in its own skills. No cross-platform revenue.</p>
+        <div class="grid grid-cols-3 gap-6">
+          <div class="stat-card p-6 text-center">
+            <p class="font-bold gradient-text mb-2">即时到账</p>
+            <p class="text-xs text-gray-500">链上交易，无需等待</p>
           </div>
-          <div class="glass-card p-6" style="background: rgba(34, 197, 94, 0.1);">
-            <p class="font-bold text-green-400 mb-2">✅ MySkills Unified</p>
-            <p class="text-xs text-gray-500">One registry on Monad. All platforms. Instant payments.</p>
+          <div class="stat-card p-6 text-center">
+            <p class="font-bold gradient-text mb-2">透明可查</p>
+            <p class="text-xs text-gray-500">所有记录上链</p>
+          </div>
+          <div class="stat-card p-6 text-center">
+            <p class="font-bold gradient-text mb-2">跨平台</p>
+            <p class="text-xs text-gray-500">一次注册，多平台收益</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 8: Why Monad -->
+    <!-- Slide 6: 产品形态 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">⚡ Why ONLY Monad Works</h2>
-      <div class="max-w-5xl w-full">
-        <div class="glass-card highlight-border p-10 mb-8">
-          <div class="text-center mb-8">
-            <p class="text-3xl font-black gradient-text mb-4">Agent Micro-Payments Need Speed</p>
-            <p class="text-xl text-gray-400">10,000 TPS · &lt;1s Finality · $0.001 Gas</p>
+      <h2 class="text-5xl font-bold mb-12">🎨 产品形态</h2>
+      <div class="max-w-6xl w-full grid grid-cols-3 gap-6 mb-8">
+        <div class="glass-card p-6 text-center">
+          <div class="text-4xl mb-4">🏆</div>
+          <h3 class="text-xl font-bold mb-3">排行榜</h3>
+          <p class="text-gray-400 text-sm">铂金/黄金/白银/青铜<br/>实时更新</p>
+        </div>
+        <div class="glass-card p-6 text-center">
+          <div class="text-4xl mb-4">💎</div>
+          <h3 class="text-xl font-bold mb-3">Skill 详情</h3>
+          <p class="text-gray-400 text-sm">打赏统计<br/>GitHub 数据</p>
+        </div>
+        <div class="glass-card p-6 text-center">
+          <div class="text-4xl mb-4">🖥️</div>
+          <h3 class="text-xl font-bold mb-3">CLI 工具</h3>
+          <p class="text-gray-400 text-sm">命令行查询<br/>myskills list</p>
+        </div>
+      </div>
+      <div class="max-w-4xl w-full">
+        <p class="text-gray-500 mb-4">创作者可以</p>
+        <div class="glass-card-strong p-6">
+          <div class="grid grid-cols-4 gap-4 text-center">
+            <div>
+              <p class="text-2xl font-bold gradient-text">注册 Skill</p>
+              <p class="text-xs text-gray-500">一站式配置</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold gradient-text">接收打赏</p>
+              <p class="text-xs text-gray-500">98% 直达钱包</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold gradient-text">查看排行</p>
+              <p class="text-xs text-gray-500">透明竞争</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold gradient-text">同步数据</p>
+              <p class="text-xs text-gray-500">GitHub 统计</p>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="grid grid-cols-3 gap-6 mb-8">
-            <div class="text-center p-6 rounded-lg" style="background: rgba(34, 197, 94, 0.1);">
-              <p class="text-5xl font-black text-green-400 mb-2">10,000+</p>
+    <!-- Slide 7: CLI 工具 -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🖥️ CLI 工具</h2>
+      <div class="max-w-5xl w-full">
+        <div class="glass-card-strong p-10 mb-8">
+          <h3 class="text-2xl font-bold mb-6 text-center">myskills - 命令行工具</h3>
+          <p class="text-gray-400 text-center mb-8">创作者和用户都可以通过 CLI 查询和管理 Skills</p>
+          <div class="rounded-xl p-6 font-mono text-sm" style="background: rgba(0,0,0,0.5);">
+            <p class="text-green-400 mb-2"># 查看所有 Skills</p>
+            <p class="text-gray-300 mb-4">npx myskills list --sort tips</p>
+            <p class="text-green-400 mb-2"># 查看 Skill 详情</p>
+            <p class="text-gray-300 mb-4">npx myskills info &lt;skillId&gt;</p>
+            <p class="text-green-400 mb-2"># 注册新 Skill</p>
+            <p class="text-gray-300 mb-4">npx myskills register --name "My AI" --platform claude-code</p>
+            <p class="text-green-400 mb-2"># 同步 GitHub 统计</p>
+            <p class="text-gray-300">npx myskills sync-github</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-6">
+          <div class="stat-card p-6 text-center">
+            <p class="font-bold gradient-text mb-2">跨平台</p>
+            <p class="text-xs text-gray-500">Coze / Claude Code / Manus / MiniMax</p>
+          </div>
+          <div class="stat-card p-6 text-center">
+            <p class="font-bold gradient-text mb-2">易集成</p>
+            <p class="text-xs text-gray-500">npm 包，一键安装</p>
+          </div>
+          <div class="stat-card p-6 text-center">
+            <p class="font-bold gradient-text mb-2">开源</p>
+            <p class="text-xs text-gray-500">MIT License</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: 技术架构 -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">⚡ 为什么选择 Monad</h2>
+      <div class="max-w-5xl w-full">
+        <div class="glass-card-strong p-10 mb-8 glow-green">
+          <div class="text-center mb-8">
+            <div class="text-6xl mb-4">⚡</div>
+            <p class="text-3xl font-bold gradient-text mb-4">超高性能 = 丝滑打赏体验</p>
+            <p class="text-xl text-gray-400">Monad 让支付像发消息一样快</p>
+          </div>
+          <div class="grid grid-cols-3 gap-6 mt-10">
+            <div class="text-center p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <p class="text-4xl font-black text-green-400 mb-2">10,000+</p>
               <p class="text-sm text-gray-400">TPS</p>
-              <p class="text-xs text-gray-600 mt-2">Ethereum: 15 TPS<br/><span class="text-green-400">667x faster</span></p>
+              <p class="text-xs text-gray-600 mt-2">交易吞吐量</p>
             </div>
-            <div class="text-center p-6 rounded-lg" style="background: rgba(34, 211, 238, 0.1);">
-              <p class="text-5xl font-black text-cyan-400 mb-2">&lt; 1s</p>
-              <p class="text-sm text-gray-400">Finality</p>
-              <p class="text-xs text-gray-600 mt-2">Ethereum: ~12s<br/><span class="text-cyan-400">12x faster</span></p>
+            <div class="text-center p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <p class="text-4xl font-black text-cyan-400 mb-2">&lt; 1s</p>
+              <p class="text-sm text-gray-400">确认时间</p>
+              <p class="text-xs text-gray-600 mt-2">打赏即时到账</p>
             </div>
-            <div class="text-center p-6 rounded-lg" style="background: rgba(34, 197, 94, 0.1);">
-              <p class="text-5xl font-black text-white mb-2">$0.001</p>
-              <p class="text-sm text-gray-400">Gas</p>
-              <p class="text-xs text-gray-600 mt-2">Ethereum: ~$50<br/><span class="text-white">50,000x cheaper</span></p>
-            </div>
-          </div>
-
-          <div class="glass-card p-6 text-center" style="background: rgba(0,0,0,0.5);">
-            <p class="text-lg">
-              <span class="text-red-400">Ethereum:</span> $50 gas = $50 minimum payment (not viable)<br>
-              <span class="text-green-400">Monad:</span> $0.001 gas = <span class="text-white font-bold">$0.005 payments are economically viable</span>
-            </p>
-          </div>
-        </div>
-
-        <div class="text-center">
-          <p class="text-gray-500">Agent App Store is ONLY possible on Monad</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 8: What's Built -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">✅ What We've Built</h2>
-      <div class="max-w-4xl w-full">
-        <div class="grid grid-cols-3 gap-6 mb-10">
-          <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
-              <span class="text-3xl text-green-400">✓</span>
-            </div>
-            <p class="font-bold text-lg">Smart Contracts</p>
-            <p class="text-xs text-gray-500 mt-1">Tipping + Escrow</p>
-            <p class="text-xs text-gray-600 mt-1">Deployed on Monad</p>
-          </div>
-          <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
-              <span class="text-3xl text-green-400">✓</span>
-            </div>
-            <p class="font-bold text-lg">MCP Server</p>
-            <p class="text-xs text-gray-500 mt-1">Smart Matching Engine</p>
-            <p class="text-xs text-gray-600 mt-1">For Claude Code</p>
-          </div>
-          <div class="text-center">
-            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
-              <span class="text-3xl text-green-400">✓</span>
-            </div>
-            <p class="font-bold text-lg">Web DApp</p>
-            <p class="text-xs text-gray-500 mt-1">Browse + Tip</p>
-            <p class="text-xs text-gray-600 mt-1">Live demo available</p>
-          </div>
-        </div>
-
-        <div class="glass-card p-8 mb-8">
-          <h3 class="text-xl font-bold mb-6 text-green-400">Core Features</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✓</span>
-              <p>Smart Matching Engine (NLP + scoring)</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✓</span>
-              <p>Agent-to-agent tipping (98/2 split)</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✓</span>
-              <p>Cross-platform skill registry</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✓</span>
-              <p>Leaderboard & statistics</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✓</span>
-              <p>OpenClaw plugin integration</p>
-            </div>
-            <div class="flex items-center gap-3">
-              <span class="text-green-400">✓</span>
-              <p>&lt;1s payment on Monad</p>
+            <div class="text-center p-6 rounded-xl" style="background: rgba(0,0,0,0.3);">
+              <p class="text-4xl font-black text-white mb-2">$0.001</p>
+              <p class="text-sm text-gray-400">Gas 费用</p>
+              <p class="text-xs text-gray-600 mt-2">微支付友好</p>
             </div>
           </div>
         </div>
-
-        <div class="glass-card p-6 text-center" style="background: rgba(34, 197, 94, 0.1);">
-          <p class="text-lg">
-            <span class="text-green-400 font-bold">Full working demo.</span> Smart contracts deployed. All features tested.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Slide 9: Why We Win -->
-    <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-10">🏆 Why We Win Both Tracks</h2>
-      <div class="max-w-6xl w-full">
-        <div class="glass-card highlight-border p-8 mb-6" style="border-color: rgba(34, 197, 94, 0.5);">
-          <div class="text-center mb-6">
-            <p class="text-xl text-green-400 font-bold">Track 1 (Payments) + Track 2 (Agent Symbiosis)</p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-6">
-            <div class="p-5 rounded-lg" style="background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3);">
-              <p class="text-orange-400 font-bold mb-3">Track 1: Agent-Native Payments</p>
-              <div class="space-y-2 text-sm">
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Instant agent-to-agent payments</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>MCP Server: Agent-callable API</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Smart contracts on Monad</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Micro-payments viable ($0.001 gas)</p>
-              </div>
-            </div>
-            <div class="p-5 rounded-lg" style="background: rgba(34, 211, 238, 0.1); border: 1px solid rgba(34, 211, 238, 0.3);">
-              <p class="text-cyan-400 font-bold mb-3">Track 2: Agent Symbiosis</p>
-              <div class="space-y-2 text-sm">
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Smart Matching Engine (Core Innovation)</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Agent Skill Marketplace</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Cross-platform integration</p>
-                <p class="flex items-center gap-2"><span class="text-green-400">✓</span>Agents hire & pay other agents</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div class="grid grid-cols-2 gap-6">
-          <div class="glass-card p-5">
-            <p class="font-bold text-red-400 mb-2 text-sm">What Others Will Do</p>
-            <p class="text-xs text-gray-500">"I built an agent that X" — single purpose, no coordination</p>
+          <div class="glass-card p-6">
+            <h4 class="font-bold mb-4 text-green-400">智能合约</h4>
+            <ul class="text-sm text-gray-400 space-y-2">
+              <li>• ERC20 $ASKL 代币</li>
+              <li>• Skill 注册表</li>
+              <li>• 自动 98/2 分账</li>
+              <li>• 链上打赏记录</li>
+            </ul>
           </div>
-          <div class="glass-card p-5">
-            <p class="font-bold text-green-400 mb-2 text-sm">What We Do</p>
-            <p class="text-xs text-gray-500">"I built the App Store where agents hire and pay each other" — infrastructure</p>
+          <div class="glass-card p-6">
+            <h4 class="font-bold mb-4 text-cyan-400">核心功能</h4>
+            <ul class="text-sm text-gray-400 space-y-2">
+              <li>• Skills 目录浏览</li>
+              <li>• 实时排行榜</li>
+              <li>• 一键打赏</li>
+              <li>• CLI 工具集成</li>
+            </ul>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 10: Business Model -->
+    <!-- Slide 9: MVP 进展 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <h2 class="text-5xl font-bold mb-12">💎 Sustainable Economics</h2>
+      <h2 class="text-5xl font-bold mb-12">✅ MVP 进展</h2>
       <div class="max-w-4xl w-full">
-        <div class="glass-card p-10 text-center mb-8" style="border: 1px solid rgba(34, 197, 94, 0.3);">
-          <p class="text-7xl font-black gradient-text mb-4">98 / 2</p>
-          <p class="text-2xl text-gray-400">Creator / Platform Split</p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-8 mb-8">
-          <div class="glass-card p-8 text-center">
-            <div class="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
-              <span class="text-4xl">🤖</span>
+        <div class="grid grid-cols-3 gap-6 mb-12">
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+              <span class="text-2xl text-green-400">✓</span>
             </div>
-            <p class="font-bold text-green-400 text-3xl mb-2">98%</p>
-            <p class="text-sm text-gray-500">To Skill Creator</p>
-            <p class="text-xs text-gray-600 mt-2">Incentivizes quality work</p>
+            <p class="font-bold">智能合约</p>
+            <p class="text-xs text-gray-500">ASKLToken.sol 已部署</p>
           </div>
-          <div class="glass-card p-8 text-center">
-            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(255, 255, 255, 0.05);">
-              <span class="text-3xl">🏪</span>
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+              <span class="text-2xl text-green-400">✓</span>
             </div>
-            <p class="font-bold text-gray-400 text-3xl mb-2">2%</p>
-            <p class="text-sm text-gray-500">Platform Fee</p>
-            <p class="text-xs text-gray-600 mt-2">Sustains infrastructure</p>
+            <p class="font-bold">前端页面</p>
+            <p class="text-xs text-gray-500">Next.js + RainbowKit</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+              <span class="text-2xl text-green-400">✓</span>
+            </div>
+            <p class="font-bold">打赏功能</p>
+            <p class="text-xs text-gray-500">98% 直达创作者</p>
           </div>
         </div>
-
-        <div class="glass-card p-6 text-center" style="background: rgba(34, 197, 94, 0.1);">
-          <p class="text-lg">
-            <span class="text-green-400 font-bold">Lower than App Store (30%)</span> because we're infrastructure, not a gatekeeper
-          </p>
+        <div class="glass-card-strong p-8">
+          <h3 class="text-xl font-bold mb-6">功能清单</h3>
+          <div class="grid grid-cols-2 gap-6 text-sm">
+            <div class="space-y-2">
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> Skills 目录</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 钱包连接</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 打赏功能</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 排行榜</p>
+            </div>
+            <div class="space-y-2">
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> CLI 工具</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> GitHub 同步</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 演示视频</p>
+              <p class="flex items-center gap-2"><span class="text-green-400">✓</span> 16:9 Pitch</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Slide 11: Call to Action -->
+    <!-- Slide 10: 团队 -->
     <div class="slide flex-col items-center justify-center h-full px-8">
-      <div class="text-center max-w-5xl">
-        <div class="text-8xl mb-6">🏪</div>
-        <h1 class="text-6xl font-black mb-4 gradient-text">Agent Skill App Store</h1>
-        <p class="text-3xl text-gray-400 mb-8">Where AI Agents Hire and Pay Each Other</p>
-
-        <div class="glass-card highlight-border p-8 max-w-3xl mx-auto mb-8">
-          <h3 class="text-2xl font-bold mb-5">Try the Demo</h3>
-          <div class="space-y-2">
-            <div class="flex items-center justify-center gap-4">
-              <span class="text-green-400">→</span>
-              <p class="text-lg">myskills2026.ddttupupo.buzz</p>
+      <h2 class="text-5xl font-bold mb-12">👥 团队</h2>
+      <div class="max-w-4xl w-full">
+        <div class="grid grid-cols-2 gap-8">
+          <div class="glass-card-strong p-8 text-center">
+            <div class="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center text-4xl" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 211, 238, 0.3));">
+              👨‍💼
             </div>
-            <div class="flex items-center justify-center gap-4">
-              <span class="text-cyan-400">→</span>
-              <p class="text-lg">github.com/detongz/agent-reward-hub</p>
+            <h3 class="text-xl font-bold mb-2">产品经理</h3>
+            <p class="text-gray-400 text-sm mb-4">办公文档识别产品负责人</p>
+            <p class="text-gray-500 text-xs">期待做 Agent 破亿的应用</p>
+          </div>
+          <div class="glass-card-strong p-8 text-center">
+            <div class="w-24 h-24 mx-auto mb-4 rounded-full flex items-center justify-center text-4xl" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.3), rgba(255, 255, 255, 0.1));">
+              👨‍💻
             </div>
-            <div class="flex items-center justify-center gap-4">
-              <span class="text-white">→</span>
-              <p class="text-lg">npm install @myskills/mcp-server</p>
-            </div>
+            <h3 class="text-xl font-bold mb-2">全栈开发</h3>
+            <p class="text-gray-400 text-sm mb-4">AI Agent 工程师</p>
+            <p class="text-gray-500 text-xs">Web3 + 全栈开发经验</p>
           </div>
         </div>
-
-        <div class="glass-card p-6 max-w-4xl mx-auto mb-8" style="background: rgba(249, 115, 22, 0.1);">
-          <p class="text-orange-400 font-bold mb-2">🚀 Coming Feb 28 (Monad Blitz Pro)</p>
-          <p class="text-sm text-gray-400">GitHub Skills Discovery · Sandbox Security · End-to-End Agent Workflows</p>
+        <div class="mt-12 text-center">
+          <p class="text-gray-400 mb-4">"我们都是 AI 开发者，切身感受到这个痛点"</p>
+          <p class="text-sm text-gray-600">Monad Hackathon 2026 · Rebel in Paradise</p>
         </div>
+      </div>
+    </div>
 
-        <div class="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
+    <!-- Slide 11: 结尾 -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <div class="text-center">
+        <div class="text-8xl mb-8">💎</div>
+        <h1 class="text-6xl font-black mb-6 gradient-text">myskills</h1>
+        <p class="text-3xl text-gray-400 mb-4 font-semibold">Agent Skill 创作者激励平台</p>
+        <p class="text-xl text-gray-500 mb-12">让创作者有收益，让用户有方向</p>
+        <div class="glass-card-strong p-8 max-w-2xl mx-auto mb-12">
+          <h3 class="text-2xl font-bold mb-4">谢谢评委！</h3>
+          <p class="text-gray-400">欢迎体验 DEMO</p>
+        </div>
+        <div class="flex gap-8 justify-center text-sm">
           <div>
-            <p class="font-bold text-white">Track</p>
-            <p class="text-gray-500">Track 1 + Track 2</p>
+            <p class="font-bold text-white">部署链</p>
+            <p class="text-gray-500">Monad Testnet</p>
           </div>
           <div>
-            <p class="font-bold text-white">Network</p>
-            <p class="text-gray-500">Monad Testnet (10143)</p>
+            <p class="font-bold text-white">GitHub</p>
+            <p class="text-gray-500">github.com/detongz/agent-reward-hub</p>
           </div>
           <div>
-            <p class="font-bold text-white">Status</p>
-            <p class="text-gray-500">Live Demo</p>
+            <p class="font-bold text-white">CLI</p>
+            <p class="text-gray-500">npx myskills list</p>
           </div>
         </div>
       </div>
@@ -693,51 +544,72 @@
 
   </div>
 
-  <button id="prevBtn" class="fixed left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card flex items-center justify-center text-white z-50">
+  <!-- 导航按钮 -->
+  <button id="prevBtn" class="fixed left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card flex items-center justify-center text-white transition z-50 hover:border-green-400">
     ‹
   </button>
-  <button id="nextBtn" class="fixed right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card flex items-center justify-center text-white z-50">
+  <button id="nextBtn" class="fixed right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card flex items-center justify-center text-white transition z-50 hover:border-green-400">
     ›
   </button>
 
+  <!-- 页码 -->
   <div class="fixed bottom-8 right-8 text-gray-600 text-sm z-50">
-    <span id="currentSlide">1</span> / <span id="totalSlides">12</span>
+    <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
   </div>
 
   <script>
     let currentSlide = 0;
     const slides = document.querySelectorAll('.slide');
     const totalSlides = slides.length;
+    const progress = document.getElementById('progress');
+    const currentSlideEl = document.getElementById('currentSlide');
+    const totalSlidesEl = document.getElementById('totalSlides');
 
-    document.getElementById('totalSlides').textContent = totalSlides;
+    totalSlidesEl.textContent = 11;
 
     function showSlide(n) {
       slides[currentSlide].classList.remove('active');
       currentSlide = (n + totalSlides) % totalSlides;
       slides[currentSlide].classList.add('active');
-      document.getElementById('progress').style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
-      document.getElementById('currentSlide').textContent = currentSlide + 1;
+      progress.style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+      currentSlideEl.textContent = currentSlide + 1;
     }
 
-    function nextSlide() { showSlide(currentSlide + 1); }
-    function prevSlide() { showSlide(currentSlide - 1); }
+    function nextSlide() {
+      showSlide(currentSlide + 1);
+    }
+
+    function prevSlide() {
+      showSlide(currentSlide - 1);
+    }
 
     document.getElementById('nextBtn').addEventListener('click', nextSlide);
     document.getElementById('prevBtn').addEventListener('click', prevSlide);
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
-      else if (e.key === 'ArrowLeft') prevSlide();
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      } else if (e.key === 'Escape') {
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        }
+      }
     });
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('button')) {
-        e.clientX > window.innerWidth / 2 ? nextSlide() : prevSlide();
+      if (!e.target.closest('button') && e.clientX > window.innerWidth / 2) {
+        nextSlide();
+      } else if (!e.target.closest('button') && e.clientX < window.innerWidth / 2) {
+        prevSlide();
       }
     });
 
     document.documentElement.addEventListener('dblclick', () => {
-      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      }
     });
   </script>
 </body>
