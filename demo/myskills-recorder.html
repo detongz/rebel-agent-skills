@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySkills Protocol - Demo Video Recorder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * { font-family: 'Inter', -apple-system, sans-serif; box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #canvas {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .slide {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #22c55e, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        #recording {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+            border-radius: 8px;
+            color: #22c55e;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #recording.recording {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <button id="recording">▶ Start Recording</button>
+    <canvas id="canvas" width="1920" height="1080"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const recordBtn = document.getElementById('recording');
+
+        let mediaRecorder;
+        let recordedChunks = [];
+        let isRecording = false;
+
+        // Slides data
+        const slides = [
+            {
+                type: 'hero',
+                title: 'MySkills Protocol',
+                subtitle: 'Agent Skill App Store on Monad',
+                tagline: '"Where AI Agents Hire and Pay Each Other"',
+                duration: 12000
+            },
+            {
+                type: 'features',
+                title: 'Smart Matching Engine',
+                features: [
+                    'NLP Keyword Extraction',
+                    'Multi-Dimensional Scoring',
+                    'Budget Optimization (Knapsack Algorithm)',
+                    'Parallel Agent Coordination'
+                ],
+                duration: 15000
+            },
+            {
+                type: 'stats',
+                title: 'Agent-to-Agent Payment',
+                stats: [
+                    { label: 'Confirmation', value: '< 1s' },
+                    { label: 'Gas Cost', value: '$0.001' },
+                    { label: 'Creator Share', value: '98%' },
+                    { label: 'Platform Fee', value: '2%' }
+                ],
+                duration: 15000
+            },
+            {
+                type: 'value',
+                title: 'Cross-Platform Value',
+                platforms: ['Claude Code', 'Coze', 'Manus', 'MiniMax'],
+                tagline: 'Build Once, Earn Everywhere',
+                duration: 15000
+            },
+            {
+                type: 'cta',
+                title: 'MySkills Protocol',
+                subtitle: 'Where Agents Hire Agents',
+                url: 'myskills2026.ddttupupo.buzz',
+                duration: 15000
+            }
+        ];
+
+        let currentSlide = 0;
+        let slideStartTime = 0;
+        let animationFrame;
+
+        function drawRoundedRect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawSlide(slide, progress) {
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, -100, 0,
+                canvas.width / 2, canvas.height / 2, canvas.height
+            );
+            gradient.addColorStop(0, 'rgba(34, 197, 94, 0.1)');
+            gradient.addColorStop(1, 'rgba(10, 10, 10, 1)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const alpha = Math.min(1, progress * 2);
+
+            if (slide.type === 'hero') {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.font = '120px sans-serif';
+                ctx.fillText('🏪', canvas.width / 2, canvas.height / 2 - 150);
+                ctx.font = '900 80px Inter';
+                ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`;
+                ctx.fillText('MySkills', canvas.width / 2, canvas.height / 2);
+                ctx.font = '600 36px Inter';
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+                ctx.fillText(slide.subtitle, canvas.width / 2, canvas.height / 2 + 60);
+                ctx.font = '500 28px Inter';
+                ctx.fillStyle = `rgba(34, 211, 238, ${alpha})`;
+                ctx.fillText(slide.tagline, canvas.width / 2, canvas.height / 2 + 120);
+            } else if (slide.type === 'features') {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`;
+                ctx.font = '700 56px Inter';
+                ctx.fillText(slide.title, canvas.width / 2, 200);
+                slide.features.forEach((feature, i) => {
+                    const delay = i * 0.1;
+                    const itemProgress = Math.max(0, Math.min(1, (progress - delay) * 3));
+                    const y = 350 + i * 100;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${itemProgress * 0.1})`;
+                    drawRoundedRect(canvas.width / 2 - 400, y - 30, 800, 60, 12);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${itemProgress})`;
+                    ctx.font = '500 28px Inter';
+                    ctx.fillText(`✓ ${feature}`, canvas.width / 2, y + 8);
+                });
+            } else if (slide.type === 'stats') {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`;
+                ctx.font = '700 56px Inter';
+                ctx.fillText(slide.title, canvas.width / 2, 180);
+                slide.stats.forEach((stat, i) => {
+                    const delay = i * 0.1;
+                    const itemProgress = Math.max(0, Math.min(1, (progress - delay) * 3));
+                    const x = 300 + i * 400;
+                    const y = canvas.height / 2;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${itemProgress * 0.1})`;
+                    drawRoundedRect(x - 120, y - 60, 240, 120, 16);
+                    ctx.fillStyle = `rgba(34, 211, 238, ${itemProgress})`;
+                    ctx.font = '700 40px Inter';
+                    ctx.fillText(stat.value, x, y - 10);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${itemProgress * 0.7})`;
+                    ctx.font = '500 20px Inter';
+                    ctx.fillText(stat.label, x, y + 30);
+                });
+            } else if (slide.type === 'value') {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`;
+                ctx.font = '700 56px Inter';
+                ctx.fillText(slide.title, canvas.width / 2, 180);
+                slide.platforms.forEach((platform, i) => {
+                    const delay = i * 0.1;
+                    const itemProgress = Math.max(0, Math.min(1, (progress - delay) * 3));
+                    const y = 350 + i * 100;
+                    ctx.fillStyle = `rgba(255, 255, 255, ${itemProgress})`;
+                    ctx.font = '600 32px Inter';
+                    ctx.fillText(platform, canvas.width / 2, y);
+                });
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.font = '500 24px Inter';
+                ctx.fillText(slide.tagline, canvas.width / 2, canvas.height - 200);
+            } else if (slide.type === 'cta') {
+                ctx.textAlign = 'center';
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.font = '100px sans-serif';
+                ctx.fillText('🚀', canvas.width / 2, canvas.height / 2 - 100);
+                ctx.font = '700 64px Inter';
+                ctx.fillStyle = `rgba(34, 197, 94, ${alpha})`;
+                ctx.fillText(slide.title, canvas.width / 2, canvas.height / 2);
+                ctx.font = '600 36px Inter';
+                ctx.fillStyle = `rgba(34, 211, 238, ${alpha})`;
+                ctx.fillText(slide.subtitle, canvas.width / 2, canvas.height / 2 + 60);
+                ctx.font = '400 24px Inter';
+                ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.7})`;
+                ctx.fillText(slide.url, canvas.width / 2, canvas.height - 200);
+            }
+
+            // Progress bar
+            const totalDuration = slides.reduce((sum, s) => sum + s.duration, 0);
+            const elapsed = slides.slice(0, currentSlide).reduce((sum, s) => sum + s.duration, 0) + (Date.now() - slideStartTime);
+            const progressWidth = Math.min(100, (elapsed / totalDuration) * 100);
+            ctx.fillStyle = `rgba(34, 197, 94, 0.5)`;
+            ctx.fillRect(0, canvas.height - 4, canvas.width * (progressWidth / 100), 4);
+        }
+
+        function render() {
+            const now = Date.now();
+            const elapsed = now - slideStartTime;
+            const slide = slides[currentSlide];
+            const progress = Math.min(1, elapsed / slide.duration);
+
+            drawSlide(slide, progress);
+
+            if (elapsed >= slide.duration) {
+                currentSlide = (currentSlide + 1) % slides.length;
+                slideStartTime = now;
+            }
+
+            animationFrame = requestAnimationFrame(render);
+        }
+
+        function startRecording() {
+            recordedChunks = [];
+            const stream = canvas.captureStream(30);
+
+            const options = { mimeType: 'video/webm;codecs=vp9' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options.mimeType = 'video/webm';
+            }
+
+            mediaRecorder = new MediaRecorder(stream, options);
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'myskills-demo.mp4';
+                a.click();
+                URL.revokeObjectURL(url);
+
+                recordBtn.textContent = '▶ Start Recording';
+                recordBtn.classList.remove('recording');
+                isRecording = false;
+            };
+
+            mediaRecorder.start();
+
+            // Record for 75 seconds
+            setTimeout(() => {
+                if (mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+            }, 75000);
+
+            recordBtn.textContent = '⏹ Stop Recording';
+            recordBtn.classList.add('recording');
+            isRecording = true;
+        }
+
+        recordBtn.addEventListener('click', () => {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                }
+            }
+        });
+
+        // Auto-start slideshow
+        slideStartTime = Date.now();
+        render();
+    </script>
+</body>
+</html>

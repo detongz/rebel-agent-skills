@@ -27,7 +27,8 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/hardhat-upgrades": "^3.9.1",
     "hardhat": "^2.22.0",
-    "playwright": "^1.58.2"
+    "playwright": "^1.58.2",
+    "puppeteer-core": "^24.37.2"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
