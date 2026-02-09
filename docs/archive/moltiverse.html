@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySkills - Agent-to-Agent Payment Protocol | Moltiverse Hackathon</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #0a0a0a;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glow-purple: rgba(168, 85, 247, 0.4);
+      --glow-cyan: rgba(34, 211, 238, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #e5e7eb;
+      --text-muted: #9ca3af;
+    }
+
+    * { font-family: 'Inter', -apple-system, sans-serif; box-sizing: border-box; }
+
+    html, body { padding: 0; margin: 0; min-height: 100vh; overflow-x: hidden; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(168, 85, 247, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(34, 211, 238, 0.1), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .slide { display: none; }
+    .slide.active { display: flex; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #a855f7, #22d3ee, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+    }
+
+    @media print {
+      @page { margin: 0; size: 1920px 1080px; }
+      .slide {
+        display: flex !important;
+        page-break-after: always;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+      }
+      .slide:first-child { page-break-before: avoid; }
+      #progress, #prevBtn, #nextBtn { display: none !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen text-white overflow-hidden relative z-10">
+  <div class="fixed top-0 left-0 w-full h-1 z-50" style="background: rgba(255,255,255,0.1);">
+    <div id="progress" class="h-full" style="width: 11.11%; background: linear-gradient(90deg, #a855f7, #22d3ee);"></div>
+  </div>
+
+  <div id="presentation" class="h-screen w-full relative">
+
+    <!-- Slide 1: Cover -->
+    <div class="slide active flex-col items-center justify-center h-full px-8">
+      <div class="text-center">
+        <div class="text-8xl mb-8">🤖</div>
+        <h1 class="text-7xl font-black mb-6 gradient-text">MySkills</h1>
+        <p class="text-3xl text-gray-400 mb-4 font-semibold">Agent-to-Agent Payment Protocol</p>
+        <p class="text-xl text-gray-500 mb-8">The missing infrastructure for Agent Economy</p>
+        <div class="glass-card p-6 max-w-3xl mx-auto mb-8">
+          <p class="text-2xl text-purple-400 font-bold mb-2">"GitHub Sponsors for AI Agents"</p>
+          <p class="text-gray-400">Agents paying agents. Building the value transfer layer.</p>
+        </div>
+        <div class="flex gap-4 justify-center text-sm">
+          <span class="px-5 py-2.5 rounded-full glass-card text-purple-400 font-medium">MCP Server</span>
+          <span class="px-5 py-2.5 rounded-full glass-card text-cyan-400 font-medium">OpenClaw</span>
+          <span class="px-5 py-2.5 rounded-full glass-card text-white font-medium">Monad</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: The Problem -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">😰 The Missing Piece</h2>
+      <div class="grid grid-cols-3 gap-8 max-w-6xl">
+        <div class="glass-card p-8 text-center">
+          <div class="text-5xl mb-4">🆘</div>
+          <h3 class="text-2xl font-bold mb-4 text-purple-400">No Monetization</h3>
+          <p class="text-gray-400 mb-4">Agent skill creators earn $0</p>
+          <p class="text-sm text-gray-500">"Build useful skills → get nothing → stop building"</p>
+        </div>
+        <div class="glass-card p-8 text-center">
+          <div class="text-5xl mb-4">🔀</div>
+          <h3 class="text-2xl font-bold mb-4 text-cyan-400">Fragmented</h3>
+          <p class="text-gray-400 mb-4">Skills scattered across platforms</p>
+          <p class="text-sm text-gray-500">Claude Code, Coze, Manus, MiniMax...</p>
+        </div>
+        <div class="glass-card p-8 text-center">
+          <div class="text-5xl mb-4">🤷</div>
+          <h3 class="text-2xl font-bold mb-4 text-white">No Discovery</h3>
+          <p class="text-gray-400 mb-4">Users can't find good skills</p>
+          <p class="text-sm text-gray-500">"400+ skills, 0 reviews, 0 rankings"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Our Solution -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🚀 Agent-to-Agent Payments</h2>
+      <div class="max-w-5xl w-full">
+        <div class="glass-card p-12 mb-8" style="border: 1px solid rgba(168, 85, 247, 0.3);">
+          <div class="text-center mb-8">
+            <p class="text-3xl font-bold gradient-text mb-4">The First A2A Payment Protocol</p>
+            <p class="text-xl text-gray-400">Not just humans paying agents. Agents paying agents.</p>
+          </div>
+          <div class="text-center">
+            <div class="inline-flex items-center gap-8 text-lg">
+              <span class="text-purple-400">Agent A</span>
+              <span class="text-4xl">→</span>
+              <span class="text-cyan-400">$MON</span>
+              <span class="text-4xl">→</span>
+              <span class="text-white">Agent B</span>
+              <span class="text-4xl">→</span>
+              <span class="text-purple-400">Creator C</span>
+            </div>
+            <p class="text-gray-500 mt-4">Value flows through the agent network</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-6">
+          <div class="glass-card p-6 text-center">
+            <p class="font-bold text-purple-400 mb-2">🔌 MCP Server</p>
+            <p class="text-xs text-gray-500">AI agents query & tip</p>
+          </div>
+          <div class="glass-card p-6 text-center">
+            <p class="font-bold text-cyan-400 mb-2">⚡ OpenClaw</p>
+            <p class="text-xs text-gray-500">Drag-and-drop install</p>
+          </div>
+          <div class="glass-card p-6 text-center">
+            <p class="font-bold text-white mb-2">💎 CLI Tools</p>
+            <p class="text-xs text-gray-500">npx myskills list</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Why This Track -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🎯 Perfect for Agent Track</h2>
+      <div class="max-w-4xl w-full">
+        <div class="glass-card p-10 mb-8" style="border: 1px solid rgba(168, 85, 247, 0.3);">
+          <div class="text-center mb-6">
+            <p class="text-2xl text-purple-400 font-bold mb-4">Judges Want: Agent Coordination & Interaction</p>
+          </div>
+          <div class="space-y-4">
+            <div class="flex items-center gap-4">
+              <span class="text-2xl text-green-400">✓</span>
+              <p class="text-lg">We demonstrate <strong class="text-white">agents coordinating</strong> through value transfer</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-2xl text-green-400">✓</span>
+              <p class="text-lg">We enable <strong class="text-white">agent-to-agent transactions</strong> autonomously</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="text-2xl text-green-400">✓</span>
+              <p class="text-lg">We build <strong class="text-white">agent infrastructure</strong>, not just a tool</p>
+            </div>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-gray-500">Differentiation: "Not an agent tool. The agent economy's payment layer."</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: MCP Server -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🔌 MCP Server Integration</h2>
+      <div class="max-w-5xl w-full">
+        <div class="glass-card p-10 mb-8">
+          <p class="text-center text-xl text-gray-400 mb-6">Model Context Protocol - The standard for AI tool integration</p>
+          <div class="rounded-lg p-6 font-mono text-sm" style="background: rgba(0,0,0,0.5);">
+            <p class="text-purple-400 mb-2"># Available Tools</p>
+            <p class="text-gray-300 mb-1">• list_skills - Query all skills (filter by platform, sort)</p>
+            <p class="text-gray-300 mb-1">• get_skill - Get skill details</p>
+            <p class="text-gray-300 mb-1">• tip_creator - Send MON tips</p>
+            <p class="text-gray-300 mb-1">• register_skill - Register new skill</p>
+            <p class="text-gray-300 mb-1">• get_leaderboard - Top skills ranking</p>
+            <p class="text-gray-300">• get_mon_balance - Check MON balance</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-6">
+          <div class="glass-card p-6 text-center">
+            <p class="text-purple-400 font-bold mb-2">Claude Desktop</p>
+            <p class="text-xs text-gray-500">Native MCP support</p>
+          </div>
+          <div class="glass-card p-6 text-center">
+            <p class="text-cyan-400 font-bold mb-2">Any MCP Client</p>
+            <p class="text-xs text-gray-500">Protocol standard</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Demo Scenario -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🎬 Demo: Agent Tipping Flow</h2>
+      <div class="max-w-4xl w-full">
+        <div class="glass-card p-8">
+          <div class="space-y-6">
+            <div class="flex gap-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0" style="background: rgba(168, 85, 247, 0.2);">1</div>
+              <div>
+                <p class="font-bold text-purple-400 mb-1">User asks Agent to review code</p>
+                <p class="text-sm text-gray-500">"Help me audit this Solidity contract"</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0" style="background: rgba(34, 211, 238, 0.2);">2</div>
+              <div>
+                <p class="font-bold text-cyan-400 mb-1">Agent uses a Skill from MySkills</p>
+                <p class="text-sm text-gray-500">Found "solidity-auditor" skill with 500+ tips</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0" style="background: rgba(168, 85, 247, 0.2);">3</div>
+              <div>
+                <p class="font-bold text-purple-400 mb-1">Agent automatically tips creator</p>
+                <p class="text-sm text-gray-500">Via MCP: tip_creator("solidity-auditor", 10 MON)</p>
+              </div>
+            </div>
+            <div class="flex gap-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl flex-shrink-0" style="background: rgba(34, 211, 238, 0.2);">4</div>
+              <div>
+                <p class="font-bold text-cyan-400 mb-1">Transaction confirms in &lt;1s on Monad</p>
+                <p class="text-sm text-gray-500">Creator receives 9.8 MON, 0.2 MON burned</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="text-center mt-6">
+          <p class="text-gray-500">Agents autonomously rewarding value creators</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Why Monad -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">⚡ Why Monad?</h2>
+      <div class="max-w-5xl w-full">
+        <div class="glass-card p-10 mb-8" style="border: 1px solid rgba(168, 85, 247, 0.3);">
+          <div class="text-center mb-8">
+            <p class="text-3xl font-bold gradient-text mb-4">High-Performance = Micro-Payments at Scale</p>
+            <p class="text-xl text-gray-400">Monad is the ONLY chain that makes agent micropayments viable</p>
+          </div>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="text-center p-6">
+              <p class="text-4xl font-black text-purple-400 mb-2">10,000+</p>
+              <p class="text-sm text-gray-400">TPS</p>
+              <p class="text-xs text-gray-600 mt-2">vs Ethereum's 15</p>
+            </div>
+            <div class="text-center p-6">
+              <p class="text-4xl font-black text-cyan-400 mb-2">&lt; 1s</p>
+              <p class="text-sm text-gray-400">Finality</p>
+              <p class="text-xs text-gray-600 mt-2">Instant confirmation</p>
+            </div>
+            <div class="text-center p-6">
+              <p class="text-4xl font-black text-white mb-2">$0.001</p>
+              <p class="text-sm text-gray-400">Gas Cost</p>
+              <p class="text-xs text-gray-600 mt-2">Micro-payments work</p>
+            </div>
+          </div>
+        </div>
+        <div class="text-center">
+          <p class="text-gray-500">Agent payments need speed + scale + low cost. Monad delivers all three.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: What's Built -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">✅ What We've Built</h2>
+      <div class="max-w-4xl w-full">
+        <div class="grid grid-cols-3 gap-6 mb-12">
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+              <span class="text-2xl text-green-400">✓</span>
+            </div>
+            <p class="font-bold">Smart Contracts</p>
+            <p class="text-xs text-gray-500">Deployed on Monad Testnet</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+              <span class="text-2xl text-green-400">✓</span>
+            </div>
+            <p class="font-bold">Web App</p>
+            <p class="text-xs text-gray-500">Next.js + RainbowKit</p>
+          </div>
+          <div class="text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(34, 197, 94, 0.2);">
+              <span class="text-2xl text-green-400">✓</span>
+            </div>
+            <p class="font-bold">CLI Tool</p>
+            <p class="text-xs text-gray-500">npx myskills list</p>
+          </div>
+        </div>
+        <div class="glass-card p-8">
+          <h3 class="text-xl font-bold mb-6 text-purple-400">Current Implementation:</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex items-center gap-3">
+              <span class="text-green-400">✓</span>
+              <p>Tipping Protocol (Live)</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-400">✓</span>
+              <p>Skill Registry (Live)</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-green-400">✓</span>
+              <p>Leaderboard (Live)</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-purple-400">→</span>
+              <p>MCP Server (In Development)</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-purple-400">→</span>
+              <p>Agent Bounty System (Planned)</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="text-gray-400">→</span>
+              <p>Live Demo Available</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Tokenomics -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">💎 Simple Tokenomics</h2>
+      <div class="max-w-4xl w-full">
+        <div class="glass-card p-10 text-center mb-8">
+          <p class="text-6xl font-black gradient-text mb-4">98 / 2</p>
+          <p class="text-xl text-gray-400">Creator / Platform Split</p>
+        </div>
+        <div class="grid grid-cols-2 gap-8">
+          <div class="glass-card p-6 text-center">
+            <div class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(168, 85, 247, 0.2);">
+              <span class="text-3xl">👨‍💻</span>
+            </div>
+            <p class="font-bold text-purple-400 text-xl">98%</p>
+            <p class="text-sm text-gray-500">To Creator</p>
+            <p class="text-xs text-gray-600 mt-2">Instant on-chain payment</p>
+          </div>
+          <div class="glass-card p-6 text-center">
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style="background: rgba(255, 255, 255, 0.05);">
+              <span class="text-2xl">🔥</span>
+            </div>
+            <p class="font-bold text-gray-400 text-xl">2%</p>
+            <p class="text-sm text-gray-500">Burned</p>
+            <p class="text-xs text-gray-600 mt-2">Deflationary model</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 10: Why We Win -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <h2 class="text-5xl font-bold mb-12">🏆 Why We Win</h2>
+      <div class="max-w-4xl w-full">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="glass-card p-6">
+            <div class="text-3xl mb-4">🎯</div>
+            <h3 class="font-bold mb-2 text-purple-400">Perfect Fit</h3>
+            <p class="text-sm text-gray-400">We ARE the Agent Track criteria</p>
+          </div>
+          <div class="glass-card p-6">
+            <div class="text-3xl mb-4">🚀</div>
+            <h3 class="font-bold mb-2 text-cyan-400">Not Vaporware</h3>
+            <p class="text-sm text-gray-400">Working product, not a concept</p>
+          </div>
+          <div class="glass-card p-6">
+            <div class="text-3xl mb-4">🔧</div>
+            <h3 class="font-bold mb-2 text-white">AI-Native</h3>
+            <p class="text-sm text-gray-400">Built BY agents, FOR agents</p>
+          </div>
+        </div>
+        <div class="mt-8 glass-card p-6">
+          <p class="text-center text-lg">
+            <span class="text-purple-400 font-bold">Most projects:</span> "I built an agent tool"<br>
+            <span class="text-cyan-400 font-bold">MySkills:</span> "I built the agent economy's payment layer"
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 11: Thank You -->
+    <div class="slide flex-col items-center justify-center h-full px-8">
+      <div class="text-center">
+        <div class="text-8xl mb-8">🤖</div>
+        <h1 class="text-6xl font-black mb-6 gradient-text">Thank You!</h1>
+        <p class="text-3xl text-gray-400 mb-4">Let agents pay agents.</p>
+        <div class="glass-card p-8 max-w-2xl mx-auto mb-12">
+          <h3 class="text-2xl font-bold mb-4">Try the Demo</h3>
+          <p class="text-gray-400">myskills.monad | github.com/detongz/agent-reward-hub</p>
+        </div>
+        <div class="flex gap-8 justify-center text-sm">
+          <div>
+            <p class="font-bold text-white">Track</p>
+            <p class="text-gray-500">Agent Track</p>
+          </div>
+          <div>
+            <p class="font-bold text-white">Network</p>
+            <p class="text-gray-500">Monad Testnet</p>
+          </div>
+          <div>
+            <p class="font-bold text-white">MCP</p>
+            <p class="text-gray-500">@myskills/mcp-server</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button id="prevBtn" class="fixed left-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card flex items-center justify-center text-white z-50">
+    ‹
+  </button>
+  <button id="nextBtn" class="fixed right-8 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass-card flex items-center justify-center text-white z-50">
+    ›
+  </button>
+
+  <div class="fixed bottom-8 right-8 text-gray-600 text-sm z-50">
+    <span id="currentSlide">1</span> / <span id="totalSlides">11</span>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    document.getElementById('totalSlides').textContent = totalSlides;
+
+    function showSlide(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (n + totalSlides) % totalSlides;
+      slides[currentSlide].classList.add('active');
+      document.getElementById('progress').style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+      document.getElementById('currentSlide').textContent = currentSlide + 1;
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+
+    document.getElementById('nextBtn').addEventListener('click', nextSlide);
+    document.getElementById('prevBtn').addEventListener('click', prevSlide);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+      else if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) {
+        e.clientX > window.innerWidth / 2 ? nextSlide() : prevSlide();
+      }
+    });
+
+    document.documentElement.addEventListener('dblclick', () => {
+      document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    });
+  </script>
+</body>
+</html>
