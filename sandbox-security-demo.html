@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySkills Sandbox - Security Verification for AI Agents</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #000000;
+      --bg-secondary: #0a0a0a;
+      --bg-tertiary: #141414;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-bg-strong: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-border-strong: rgba(255, 255, 255, 0.15);
+      --glow-green: rgba(34, 197, 94, 0.4);
+      --glow-red: rgba(239, 68, 68, 0.3);
+      --glow-yellow: rgba(234, 179, 8, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #e5e7eb;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+    }
+
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.08), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 50%, rgba(34, 211, 238, 0.05), transparent),
+        radial-gradient(ellipse 60% 40% at 0% 80%, rgba(239, 68, 68, 0.05), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      backdrop-filter: blur(20px);
+    }
+
+    .glass-card-strong {
+      background: var(--glass-bg-strong);
+      border: 1px solid var(--glass-border-strong);
+      border-radius: 20px;
+      backdrop-filter: blur(20px);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #22c55e, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-text-red {
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-text-yellow {
+      background: linear-gradient(135deg, #eab308, #f97316);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .code-font {
+      font-family: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Consolas', monospace;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(0); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateY(100%); opacity: 0; }
+    }
+
+    .scan-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #22c55e, transparent);
+      animation: scan 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .pulse {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .spinner {
+      animation: spin 1s linear infinite;
+    }
+
+    .hidden { display: none; }
+    .show { display: block; }
+
+    .risk-high { border-color: rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.1); }
+    .risk-medium { border-color: rgba(234, 179, 8, 0.5); background: rgba(234, 179, 8, 0.1); }
+    .risk-low { border-color: rgba(34, 197, 94, 0.3); background: rgba(34, 197, 94, 0.05); }
+  </style>
+</head>
+<body class="min-h-screen text-white overflow-x-hidden relative z-10">
+  <div class="container max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <div class="flex items-center justify-center gap-3 mb-6">
+        <span class="px-4 py-1.5 rounded-full text-sm font-semibold" style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">BLITZ PRO 2026</span>
+        <span class="text-gray-600">|</span>
+        <span class="px-4 py-1.5 rounded-full text-sm font-semibold" style="background: rgba(234, 179, 8, 0.2); color: #eab308;">SECURITY TRACK</span>
+      </div>
+      <div class="text-6xl mb-4">🛡️</div>
+      <h1 class="text-5xl font-black mb-4 gradient-text">MySkills Sandbox</h1>
+      <p class="text-2xl text-gray-400 mb-2">Comprehensive Security Verification for AI Agents</p>
+      <p class="text-lg text-gray-500">"Just like App Store review ensures safety, MySkills Sandbox ensures Agent safety"</p>
+    </div>
+
+    <!-- Main Card -->
+    <div class="glass-card-strong p-8 mb-8">
+      <!-- Input Section -->
+      <div id="inputSection">
+        <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+          <span>🔍</span> Verify Agent Security
+        </h2>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Agent ID / Address</label>
+            <input type="text" id="agentId" placeholder="0x1234... or agent-name"
+              class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none code-font text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-400 mb-2">Verification Type</label>
+            <select id="verifyType" class="w-full px-4 py-3 rounded-lg bg-black/50 border border-gray-700 focus:border-green-500 focus:outline-none">
+              <option value="comprehensive">Comprehensive Security Audit</option>
+              <option value="code">Code Analysis Only</option>
+              <option value="behavior">Behavior Sandbox Only</option>
+              <option value="privacy">Privacy Audit Only</option>
+            </select>
+          </div>
+        </div>
+        <button id="startBtn" onclick="startVerification()"
+          class="w-full py-4 rounded-lg font-bold text-lg transition-all"
+          style="background: linear-gradient(135deg, #22c55e, #22d3ee); color: black;">
+          🚀 Start Security Verification
+        </button>
+      </div>
+
+      <!-- Scanning Section -->
+      <div id="scanningSection" class="hidden">
+        <div class="text-center py-12">
+          <div class="w-20 h-20 mx-auto mb-6 rounded-full border-4 border-green-500 border-t-transparent spinner"></div>
+          <h3 class="text-2xl font-bold mb-2">Analyzing Agent Security...</h3>
+          <p class="text-gray-400 mb-8" id="scanStatus">Initializing security scanner...</p>
+
+          <!-- Progress Steps -->
+          <div class="max-w-md mx-auto space-y-4 text-left" id="scanSteps">
+            <div class="flex items-center gap-3 text-gray-500">
+              <span class="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-sm">1</span>
+              <span>Code Security Analysis</span>
+            </div>
+            <div class="flex items-center gap-3 text-gray-500">
+              <span class="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-sm">2</span>
+              <span>Behavior Sandbox Verification</span>
+            </div>
+            <div class="flex items-center gap-3 text-gray-500">
+              <span class="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-sm">3</span>
+              <span>Data Privacy Audit</span>
+            </div>
+            <div class="flex items-center gap-3 text-gray-500">
+              <span class="w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center text-sm">4</span>
+              <span>Generating Report...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="hidden">
+        <!-- Score Header -->
+        <div class="text-center mb-8">
+          <div class="text-7xl font-black gradient-text mb-2" id="overallScore">82</div>
+          <p class="text-xl text-gray-400">Overall Security Score</p>
+          <div class="inline-flex items-center gap-2 mt-3 px-4 py-2 rounded-full" style="background: rgba(234, 179, 8, 0.2);">
+            <span class="w-2 h-2 rounded-full bg-yellow-500 pulse"></span>
+            <span class="text-yellow-400 font-semibold">Moderate Risk - 2 Issues Found</span>
+          </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <!-- Code Security -->
+          <div class="glass-card-strong p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold flex items-center gap-2">
+                <span class="text-2xl">📊</span> Code Security
+              </h4>
+              <span class="text-2xl font-bold text-green-400">85</span>
+            </div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between text-gray-400">
+                <span>Smart Contract Vulnerabilities</span>
+                <span class="text-green-400">✓ Pass</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Malicious Code Patterns</span>
+                <span class="text-green-400">✓ Pass</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Dependency Security</span>
+                <span class="text-yellow-400">⚠ Warning</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Code Quality</span>
+                <span class="text-green-400">85/100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Behavior Sandbox -->
+          <div class="glass-card-strong p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold flex items-center gap-2">
+                <span class="text-2xl">⚙️</span> Behavior Sandbox
+              </h4>
+              <span class="text-2xl font-bold text-yellow-400">78</span>
+            </div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between text-gray-400">
+                <span>File System Access</span>
+                <span class="text-green-400">✓ Normal</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Network Requests</span>
+                <span class="text-yellow-400">⚠ External API</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>API Calls</span>
+                <span class="text-green-400">✓ Safe</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Resource Usage</span>
+                <span class="text-green-400">✓ Normal</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy Audit -->
+          <div class="glass-card-strong p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold flex items-center gap-2">
+                <span class="text-2xl">🔒</span> Privacy Audit
+              </h4>
+              <span class="text-2xl font-bold text-green-400">88</span>
+            </div>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between text-gray-400">
+                <span>Data Leak Detection</span>
+                <span class="text-green-400">✓ None</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Encryption</span>
+                <span class="text-green-400">✓ Enabled</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Third-party Sharing</span>
+                <span class="text-green-400">✓ None</span>
+              </div>
+              <div class="flex justify-between text-gray-400">
+                <span>Log Safety</span>
+                <span class="text-yellow-400">⚠ Review</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Report -->
+        <div class="glass-card-strong p-6 mb-6">
+          <h4 class="font-bold text-xl mb-4 flex items-center gap-2">
+            <span>📋</span> Security Report Details
+          </h4>
+
+          <!-- High Risk -->
+          <div class="risk-high rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <span class="text-red-500 text-xl">🔴</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-red-400 mb-1">Medium Risk (1 item)</h5>
+                <p class="text-sm text-gray-300 mb-2">Dependency package <code class="code-font bg-black/30 px-1 rounded">lodash@4.17.15</code> has known CVE</p>
+                <p class="text-xs text-gray-400">💡 Recommendation: Upgrade to version 4.17.21 or later</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Medium Risk -->
+          <div class="risk-medium rounded-lg p-4 mb-4">
+            <div class="flex items-start gap-3">
+              <span class="text-yellow-500 text-xl">🟡</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-yellow-400 mb-1">Low Risk (2 items)</h5>
+                <div class="space-y-2 text-sm">
+                  <p class="text-gray-300">• External API call to <code class="code-font bg-black/30 px-1 rounded">api.thirdparty.com</code> detected</p>
+                  <p class="text-gray-300">• Logs may contain partial user input data</p>
+                </div>
+                <p class="text-xs text-gray-400 mt-2">💡 Recommendations: Review API usage, add to whitelist; implement log sanitization</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Passed Items -->
+          <div class="risk-low rounded-lg p-4">
+            <div class="flex items-start gap-3">
+              <span class="text-green-500 text-xl">✅</span>
+              <div class="flex-1">
+                <h5 class="font-bold text-green-400 mb-2">Passed Checks</h5>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-gray-300">
+                  <span>• No malicious code</span>
+                  <span>• No data leaks</span>
+                  <span>• Normal resource usage</span>
+                  <span>• Proper encryption</span>
+                  <span>• Safe file access</span>
+                  <span>• No infinite loops</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-4">
+          <button onclick="downloadReport()" class="flex-1 py-3 rounded-lg font-semibold border border-gray-600 hover:border-green-500 transition-colors">
+            📥 Download Report
+          </button>
+          <button onclick="recalculateFix()" class="flex-1 py-3 rounded-lg font-semibold transition-colors"
+            style="background: rgba(34, 197, 94, 0.2); color: #22c55e;">
+            🔄 Recalculate After Fix
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Value Proposition -->
+    <div class="grid md:grid-cols-3 gap-6 text-center">
+      <div class="glass-card p-6">
+        <div class="text-3xl mb-2">🏢</div>
+        <h4 class="font-bold mb-1">For Enterprises</h4>
+        <p class="text-sm text-gray-400">Use third-party agents with confidence</p>
+      </div>
+      <div class="glass-card p-6">
+        <div class="text-3xl mb-2">💰</div>
+        <h4 class="font-bold mb-1">For Developers</h4>
+        <p class="text-sm text-gray-400">Earn $10-50 per security audit</p>
+      </div>
+      <div class="glass-card p-6">
+        <div class="text-3xl mb-2">🌐</div>
+        <h4 class="font-bold mb-1">For Ecosystem</h4>
+        <p class="text-sm text-gray-400">Safer agents for everyone</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-12 text-gray-500 text-sm">
+      <p>Powered by <span class="text-green-400 font-semibold">Monad Blockchain</span> • Lightning-fast security verification</p>
+      <p class="mt-1">myskillsboss2026.ddttupupo.buzz</p>
+    </div>
+
+  </div>
+
+  <script>
+    function startVerification() {
+      document.getElementById('inputSection').classList.add('hidden');
+      document.getElementById('scanningSection').classList.remove('hidden');
+
+      const steps = document.querySelectorAll('#scanSteps > div');
+      const statuses = [
+        'Scanning for smart contract vulnerabilities...',
+        'Monitoring behavior in isolated sandbox...',
+        'Analyzing data flows and privacy patterns...',
+        'Compiling security assessment report...'
+      ];
+
+      let currentStep = 0;
+      const interval = setInterval(() => {
+        if (currentStep < steps.length) {
+          steps[currentStep].classList.remove('text-gray-500');
+          steps[currentStep].classList.add('text-green-400');
+          steps[currentStep].querySelector('span:first-child').innerHTML = '✓';
+
+          if (currentStep < statuses.length) {
+            document.getElementById('scanStatus').textContent = statuses[currentStep];
+          }
+          currentStep++;
+        } else {
+          clearInterval(interval);
+          setTimeout(() => {
+            document.getElementById('scanningSection').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
+          }, 500);
+        }
+      }, 1200);
+    }
+
+    function downloadReport() {
+      const report = `
+MySkills Security Verification Report
+=====================================
+
+Agent ID: ${document.getElementById('agentId').value || '0x1234...'}
+Verification Date: ${new Date().toISOString()}
+Verification Type: Comprehensive Security Audit
+
+OVERALL SCORE: 82/100 (Moderate Risk)
+
+---
+CODE SECURITY: 85/100
+✓ No smart contract vulnerabilities detected
+✓ No malicious code patterns found
+⚠ Dependency package lodash@4.17.15 has known CVE
+✓ Code quality: 85/100
+
+BEHAVIOR SANDBOX: 78/100
+✓ File system access: Normal
+⚠ External API call detected: api.thirdparty.com
+✓ API calls: Safe
+✓ Resource usage: Normal
+
+PRIVACY AUDIT: 88/100
+✓ No data leakage detected
+✓ Encryption enabled
+✓ No third-party data sharing
+⚠ Logs may contain user input data
+
+---
+RECOMMENDATIONS:
+1. Upgrade lodash to 4.17.21 or later
+2. Review and whitelist api.thirdparty.com
+3. Implement log sanitization
+
+---
+Generated by MySkills Sandbox
+Powered by Monad Blockchain
+      `.trim();
+
+      const blob = new Blob([report], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'security-report.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function recalculateFix() {
+      document.getElementById('resultsSection').classList.add('hidden');
+      document.getElementById('scanningSection').classList.remove('hidden');
+
+      // Reset steps
+      const steps = document.querySelectorAll('#scanSteps > div');
+      steps.forEach(step => {
+        step.classList.remove('text-green-400');
+        step.classList.add('text-gray-500');
+        step.querySelector('span:first-child').textContent = step.querySelector('span:first-child').textContent.replace('✓', parseInt(step.querySelector('span:first-child').textContent) || '');
+      });
+
+      document.getElementById('scanStatus').textContent = 'Re-scanning after fixes...';
+
+      // Simulate rescanning with better results
+      setTimeout(() => {
+        document.getElementById('overallScore').textContent = '95';
+        document.querySelector('#resultsSection .inline-flex').innerHTML = '<span class="w-2 h-2 rounded-full bg-green-500"></span><span class="text-green-400 font-semibold">Secure - All Issues Resolved</span>';
+        document.getElementById('scanningSection').classList.add('hidden');
+        document.getElementById('resultsSection').classList.remove('hidden');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
