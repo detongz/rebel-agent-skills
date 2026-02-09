@@ -23,6 +23,32 @@
             margin: 0 auto;
         }
 
+        .lang-switch {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .lang-switch button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 5px;
+            transition: all 0.2s;
+        }
+
+        .lang-switch button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .lang-switch button.active {
+            background: white;
+            color: #667eea;
+        }
+
         .header {
             background: white;
             border-radius: 16px;
@@ -266,64 +292,75 @@
             margin-right: 8px;
             border-radius: 50%;
         }
+
+        /* Language toggle styles */
+        .lang-hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Language Switcher -->
+        <div class="lang-switch">
+            <button id="langEn" class="active" onclick="setLanguage('en')">EN</button>
+            <button id="langZh" onclick="setLanguage('zh')">中文</button>
+        </div>
+
         <div class="header">
-            <h1>MySkills Protocol</h1>
-            <p>Smart Matching Engine for Agent-to-Agent Payments on Monad</p>
+            <h1 data-en="MySkills Protocol" data-zh="MySkills 协议">MySkills Protocol</h1>
+            <p data-en="Smart Matching Engine for Agent-to-Agent Payments on Monad" data-zh="Monad区块链上的Agent-to-Agent支付智能匹配引擎">Smart Matching Engine for Agent-to-Agent Payments on Monad</p>
             <div class="monad-badge">
-                <span>⚡ Powered by Monad Blockchain</span>
+                <span data-en="⚡ Powered by Monad Blockchain" data-zh="⚡ 基于Monad区块链">⚡ Powered by Monad Blockchain</span>
             </div>
         </div>
 
         <div class="main-card">
             <div class="input-group">
-                <label for="requirement">What do you need?</label>
-                <textarea id="requirement" placeholder="e.g., Audit this smart contract for security vulnerabilities and reentrancy attacks..."></textarea>
+                <label data-en="What do you need?" data-zh="你需要什么？">What do you need?</label>
+                <textarea id="requirement" data-en-placeholder="e.g., Audit this smart contract for security vulnerabilities..." data-zh-placeholder="例如：审计这个智能合约的安全漏洞..."></textarea>
             </div>
 
             <div class="input-group">
-                <label for="budget">Budget (MON)</label>
+                <label data-en="Budget (MON)" data-zh="预算 (MON)">Budget (MON)</label>
                 <input type="number" id="budget" placeholder="50" min="1" max="1000">
             </div>
 
             <div class="input-group">
-                <label>Optimization Goal</label>
+                <label data-en="Optimization Goal" data-zh="优化目标">Optimization Goal</label>
                 <div class="goal-selector">
-                    <div class="goal-option selected" data-goal="effectiveness">Effectiveness</div>
-                    <div class="goal-option" data-goal="security">Security</div>
-                    <div class="goal-option" data-goal="speed">Speed</div>
-                    <div class="goal-option" data-goal="cost">Cost</div>
+                    <div class="goal-option selected" data-en="Effectiveness" data-zh="综合效果" data-goal="effectiveness">Effectiveness</div>
+                    <div class="goal-option" data-en="Security" data-zh="安全性" data-goal="security">Security</div>
+                    <div class="goal-option" data-en="Speed" data-zh="速度" data-goal="speed">Speed</div>
+                    <div class="goal-option" data-en="Cost" data-zh="成本" data-goal="cost">Cost</div>
                 </div>
             </div>
 
-            <button class="match-btn" id="matchBtn">Find Skills</button>
+            <button class="match-btn" id="matchBtn" data-en="Find Skills" data-zh="查找技能">Find Skills</button>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Analyzing requirements with AI...</p>
+                <p data-en="Analyzing requirements with AI..." data-zh="AI正在分析需求...">Analyzing requirements with AI...</p>
             </div>
 
             <div class="results" id="results">
                 <div class="result-header">
-                    <h2>Recommended Skills</h2>
+                    <h2 data-en="Recommended Skills" data-zh="推荐技能">Recommended Skills</h2>
                     <p id="resultSummary"></p>
                 </div>
                 <div id="skillCards"></div>
                 <div class="budget-summary">
-                    <h3>Budget Summary</h3>
+                    <h3 data-en="Budget Summary" data-zh="预算汇总">Budget Summary</h3>
                     <div class="budget-row">
-                        <span>Total Budget</span>
+                        <span data-en="Total Budget" data-zh="总预算">Total Budget</span>
                         <span id="totalBudget">0 MON</span>
                     </div>
                     <div class="budget-row">
-                        <span>Total Cost</span>
+                        <span data-en="Total Cost" data-zh="总成本">Total Cost</span>
                         <span id="totalCost">0 MON</span>
                     </div>
                     <div class="budget-row">
-                        <span>Remaining</span>
+                        <span data-en="Remaining" data-zh="剩余">Remaining</span>
                         <span id="remainingBudget">0 MON</span>
                     </div>
                 </div>
@@ -332,6 +369,62 @@
     </div>
 
     <script>
+        let currentLang = 'en';
+
+        // Language translations
+        const translations = {
+            en: {
+                placeholder: "e.g., Audit this smart contract for security vulnerabilities and reentrancy attacks...",
+                summaryTemplate: `Requirement: "{requirement}"`,
+                mockSummaryTemplate: `Found {count} matching skills for "{requirement}"...`
+            },
+            zh: {
+                placeholder: "例如：审计这个智能合约的安全漏洞和重入攻击...",
+                summaryTemplate: `需求："{requirement}"`,
+                mockSummaryTemplate: `找到 {count} 个匹配的技能，针对 "{requirement}"...`
+            }
+        };
+
+        // Language switch function
+        function setLanguage(lang) {
+            currentLang = lang;
+
+            // Update active button
+            document.querySelectorAll('.lang-switch button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('lang' + (lang === 'en' ? 'En' : 'Zh')).classList.add('active');
+
+            // Update all text content
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const text = el.getAttribute('data-' + lang);
+                if (text) {
+                    el.textContent = text;
+                }
+            });
+
+            // Update placeholders
+            const requirementEl = document.getElementById('requirement');
+            const placeholder = requirementEl.getAttribute('data-' + lang + '-placeholder');
+            if (placeholder) {
+                requirementEl.placeholder = placeholder;
+            }
+
+            // Update HTML lang attribute
+            document.documentElement.lang = lang;
+
+            // Update results if showing
+            const resultsEl = document.getElementById('results');
+            if (resultsEl.classList.contains('show')) {
+                // Re-display results with new language
+                const budget = document.getElementById('budget').value;
+                const requirement = document.getElementById('requirement').value;
+                if (requirement && budget) {
+                    showMockResults(requirement, parseInt(budget));
+                }
+            }
+        }
+
         let selectedGoal = 'effectiveness';
 
         // Goal selection
@@ -349,7 +442,7 @@
             const budget = document.getElementById('budget').value;
 
             if (!requirement || !budget) {
-                alert('Please enter both requirement and budget');
+                alert(currentLang === 'en' ? 'Please enter both requirement and budget' : '请输入需求和预算');
                 return;
             }
 
@@ -359,7 +452,7 @@
             document.getElementById('matchBtn').disabled = true;
 
             try {
-                // API endpoint - change this to your deployed server
+                // API endpoint
                 const API_BASE = window.location.origin;
                 const response = await fetch(`${API_BASE}/api/smart-match`, {
                     method: 'POST',
@@ -397,8 +490,10 @@
         function displayResults(text, budget) {
             // Parse the response and display
             document.getElementById('results').classList.add('show');
+
+            const summaryTemplate = translations[currentLang].summaryTemplate;
             document.getElementById('resultSummary').textContent =
-                `Requirement: "${document.getElementById('requirement').value}"`;
+                summaryTemplate.replace('{requirement}', document.getElementById('requirement').value);
 
             // Extract skills from the response
             const skillPattern = /\*\*(\d+)\.\s+([^\*]+)\*\*\s+\(([^)]+)\)\s+💰\s+Cost:\s+(\d+)\s+MON/;
@@ -439,15 +534,15 @@
                         <div class="skill-stats">
                             <div class="stat">
                                 <div class="stat-value">${currentSkill.relevance}%</div>
-                                <div class="stat-label">Relevance</div>
+                                <div class="stat-label">${currentLang === 'en' ? 'Relevance' : '相关性'}</div>
                             </div>
                             <div class="stat">
                                 <div class="stat-value">${currentSkill.success}%</div>
-                                <div class="stat-label">Success Rate</div>
+                                <div class="stat-label">${currentLang === 'en' ? 'Success Rate' : '成功率'}</div>
                             </div>
                             <div class="stat">
                                 <div class="stat-value">${currentSkill.value}%</div>
-                                <div class="stat-label">Value</div>
+                                <div class="stat-label">${currentLang === 'en' ? 'Value' : '价值'}</div>
                             </div>
                         </div>
                         <div style="text-align: right; font-weight: 600; color: #667eea;">
@@ -474,9 +569,9 @@
             document.getElementById('results').classList.add('show');
 
             const mockSkills = [
-                { name: 'Security Scanner Pro', platform: 'claude-code', cost: Math.min(40, budget * 0.5), relevance: 95, success: 88, value: 91 },
-                { name: 'Fuzzer X', platform: 'minimbp', cost: Math.min(30, budget * 0.3), relevance: 85, success: 92, value: 88 },
-                { name: 'Solidity Auditor', platform: 'coze', cost: Math.min(25, budget * 0.2), relevance: 90, success: 85, value: 87 }
+                { name: currentLang === 'en' ? 'Security Scanner Pro' : '安全扫描专家', platform: 'claude-code', cost: Math.min(40, budget * 0.5), relevance: 95, success: 88, value: 91 },
+                { name: currentLang === 'en' ? 'Fuzzer X' : '模糊测试专家', platform: 'minimbp', cost: Math.min(30, budget * 0.3), relevance: 85, success: 92, value: 88 },
+                { name: currentLang === 'en' ? 'Solidity Auditor' : 'Solidity审计师', platform: 'coze', cost: Math.min(25, budget * 0.2), relevance: 90, success: 85, value: 87 }
             ];
 
             const skillCards = document.getElementById('skillCards');
@@ -494,15 +589,15 @@
                         <div class="skill-stats">
                             <div class="stat">
                                 <div class="stat-value">${skill.relevance}%</div>
-                                <div class="stat-label">Relevance</div>
+                                <div class="stat-label">${currentLang === 'en' ? 'Relevance' : '相关性'}</div>
                             </div>
                             <div class="stat">
                                 <div class="stat-value">${skill.success}%</div>
-                                <div class="stat-label">Success Rate</div>
+                                <div class="stat-label">${currentLang === 'en' ? 'Success Rate' : '成功率'}</div>
                             </div>
                             <div class="stat">
                                 <div class="stat-value">${skill.value}%</div>
-                                <div class="stat-label">Value</div>
+                                <div class="stat-label">${currentLang === 'en' ? 'Value' : '价值'}</div>
                             </div>
                         </div>
                         <div style="text-align: right; font-weight: 600; color: #667eea;">
@@ -516,8 +611,10 @@
 
             const remaining = budget - totalCost;
 
+            const mockSummaryTemplate = translations[currentLang].mockSummaryTemplate;
             document.getElementById('resultSummary').textContent =
-                `Found ${mockSkills.length} matching skills for "${requirement.substring(0, 50)}..."`;
+                mockSummaryTemplate.replace('{count}', mockSkills.length).replace('{requirement}', requirement.substring(0, 50));
+
             document.getElementById('totalBudget').textContent = `${budget} MON`;
             document.getElementById('totalCost').textContent = `${totalCost} MON`;
             document.getElementById('remainingBudget').textContent = `${remaining} MON`;
