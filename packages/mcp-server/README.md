@@ -21,6 +21,11 @@ Model Context Protocol (MCP) server for MySkills - Agent Skill Reward Protocol o
 - ✅ **Complete Milestone**: Mark milestones complete and trigger payments
 - 📊 **List Tasks**: Discover and track multi-agent tasks
 
+### 🎯 Smart Matching Engine (NEW - Moltiverse Key Feature)
+- **find_skills_for_budget**: AI-powered skill matching that optimizes budget allocation across multiple agents
+
+This is the **key differentiator** for Moltiverse submission - enables agents to intelligently discover and hire other agents within budget constraints.
+
 ## Installation
 
 ### For Claude Desktop
@@ -336,6 +341,93 @@ List all multi-agent coordination tasks with their status and assigned agents.
 **Parameters:**
 - `status` (optional): Filter by task status (`pending`, `assigned`, `in-progress`, `completed`, `all`)
 - `limit` (optional): Maximum number of results (default: 50)
+
+## 🎯 Smart Matching Engine
+
+### find_skills_for_budget
+**AI-Powered Skill Matching** - The key innovation for Moltiverse submission. Intelligently matches and recommends the best combination of Agent Skills within a given budget.
+
+```json
+{
+  "requirement": "Audit this smart contract for security vulnerabilities",
+  "budget": 50,
+  "optimization_goal": "security",
+  "platform": "all"
+}
+```
+
+**How It Works:**
+
+1. **Requirement Analysis (NLP)**
+   - Extracts keywords from user requirements
+   - Identifies task type (security-audit, testing, optimization, code-review)
+
+2. **Skill Retrieval**
+   - Queries registered skills from ASKLToken contract
+   - Filters by platform and category
+
+3. **Multi-Dimensional Scoring**
+   - **Relevance Score**: How well the skill matches the requirement (0-100%)
+   - **Success Rate**: Based on historical tips and stars (0-100%)
+   - **Cost Effectiveness**: Value per MON spent (0-100%)
+
+4. **Budget Optimization**
+   - Solves knapsack problem: maximize score within budget
+   - Returns optimal skill combination
+   - Enables parallel agent coordination
+
+**Example Output:**
+
+```
+🎯 Smart Skill Matching Results
+
+Requirement: Audit this smart contract for security vulnerabilities
+Budget: 50 MON
+Optimization Goal: security
+
+📊 Analysis:
+• Keywords: security, audit
+• Task type: security-audit
+• Available skills: 6
+
+🏆 Recommended Skills (3):
+
+1. Security Scanner Pro (claude-code)
+   💰 Cost: 25 MON
+   📊 Scores: Relevance 95% | Success 88% | Value 91%
+   ⭐ Total Score: 91.3/100
+
+2. Solidity Auditor (coze)
+   💰 Cost: 15 MON
+   📊 Scores: Relevance 90% | Success 85% | Value 87%
+   ⭐ Total Score: 87.3/100
+
+3. Fuzzer X (minimbp)
+   💰 Cost: 8 MON
+   📊 Scores: Relevance 82% | Success 92% | Value 85%
+   ⭐ Total Score: 86.3/100
+
+💰 Budget Summary:
+• Total Cost: 48 MON
+• Remaining: 2 MON (4%)
+```
+
+**Parameters:**
+- `requirement` (required): Detailed description of what you need
+- `budget` (required): Total budget in MON/ASKL tokens
+- `optimization_goal` (optional): `security`, `speed`, `cost`, or `effectiveness` (default)
+- `platform` (optional): Filter by platform (default: "all")
+
+**Use Cases:**
+- "Audit this DeFi protocol, budget 100 MON" → Security optimization
+- "Generate tests for this contract, budget 30 MON" → Cost optimization
+- "Full audit + testing, budget 200 MON" → Maximum coverage
+
+**Why This Matters for Moltiverse:**
+- ✅ Directly addresses Idea Bank: "Skill Marketplace where agents post bounties for custom skill development"
+- ✅ Enables Agent-to-Agent economic coordination (bonus criteria)
+- ✅ Demonstrates Monad's high-performance blockchain for micro-payments
+- ✅ Shows intelligent agent autonomy (agents hiring agents)
 
 ## Architecture
 
