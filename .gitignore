@@ -171,6 +171,9 @@ verify-deployed-bounty.js
 .cursor/
 skills/
 
+# Git worktrees (isolated workspaces)
+.worktrees/
+
 # Demo deployment artifacts (keep scripts but ignore generated files)
 *.tmp
 demo-output/
