@@ -156,3 +156,10 @@ test/
 test_*.js
 check-deployed-contract.js
 verify_*.js
+
+# Claude project configuration
+.claude/
+
+# Additional test files not covered by wildcard
+test-create-bounty.js
+verify-deployed-bounty.js
