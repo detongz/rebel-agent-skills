@@ -2,6 +2,7 @@
 ## Math Teacher Uses Agent Skill App Store
 
 **Duration**: 60-90 seconds
+**Format**: 16:9 (1920x1080)
 **Style**: Clean tech demo with real workflow
 
 ---
@@ -10,7 +11,7 @@
 
 **Visual**: OpenClaw Chat UI or simple title card
 
-**TTS**:
+**TTS Narration**:
 "AI agents can now discover, hire, and pay other agents automatically.
 MySkills is the first Agent Skill App Store on Monad blockchain."
 
@@ -24,13 +25,13 @@ MySkills is the first Agent Skill App Store on Monad blockchain."
 
 **On Screen**:
 ```
-[张老师]:
-我有一堆小学奥数题的PDF文件，需要自动识别题目、
-解析公式、整理到我的题库里。谁能帮我？预算5 MON
+[Teacher Zhang]:
+I have hundreds of math competition PDF files that need to be
+organized into my question bank. Can anyone help? Budget: 5 MON
 ```
 
-**TTS**:
-"Meet Zhang, a math teacher. She has hundreds of PDF problems to organize every week.
+**TTS Narration**:
+"Meet Zhang, a math teacher. Every week, she spends hours manually organizing PDF problems into her question bank.
 She asks MySkills for help."
 
 ---
@@ -42,33 +43,33 @@ She asks MySkills for help."
 **On Screen**:
 ```
 [MySkills Plugin]:
-🧠 Smart Matching Engine正在分析...
+🧠 Smart Matching Engine analyzing...
 
-需求: PDF识别 + 公式解析 + 题库整理
-预算: 5 MON
+Request: PDF recognition + Formula parsing + Question bank
+Budget: 5 MON
 
-推荐Skills组合 (预算优化):
+Recommended Skills (Budget Optimized):
 
-1. 📄 教育复杂公式LaTeX识别
-   • 平台: claude-code
-   • 相关性: 96% (完美匹配数学公式)
-   • 价格: 3 MON
+1. 📄 Math Formula LaTeX Recognition
+   • Platform: claude-code
+   • Relevance: 96% (perfect for math formulas)
+   • Price: 3 MON
 
-2. 📋 通用文档识别
-   • 平台: minimbp
-   • 相关性: 88% (支持PDF解析)
-   • 价格: 1.5 MON
+2. 📋 General Document Recognition
+   • Platform: minimbp
+   • Relevance: 88% (PDF parsing support)
+   • Price: 1.5 MON
 
-3. 🎯 办公文档版面识别
-   • 平台: coze
-   • 相关性: 75%
-   • 价格: 0.5 MON
+3. 🎯 Document Layout Recognition
+   • Platform: coze
+   • Relevance: 75%
+   • Price: 0.5 MON
 
-💰 总成本: 5 MON | 预算100%利用
-✅ 推荐指数: 93.2/100
+💰 Total: 5 MON | Budget 100% utilized
+✅ Recommendation Score: 93.2/100
 ```
 
-**TTS**:
+**TTS Narration**:
 "Our Smart Matching Engine analyzes 127 skills, and finds the perfect combination:
 LaTeX recognition for math formulas, PDF parser, and layout analyzer.
 All within her 5 MON budget."
@@ -81,27 +82,27 @@ All within her 5 MON budget."
 
 **On Screen**:
 ```
-[3个Agents并行工作]
+[3 Agents Working in Parallel]
 
-🤖 LaTeX识别专家:
-  ✅ 识别15道题目
-  ✅ 解析方程: x + y = 15
-  ✅ 格式化为LaTeX
+🤖 LaTeX Expert:
+  ✅ 15 problems identified
+  ✅ Equations parsed: x + y = 15
+  ✅ Formatted in LaTeX
 
-🤖 PDF解析专家:
-  ✅ 提取所有页面文字
-  ✅ 识别题目结构
-  ✅ 分类: 计算/应用/思考
+🤖 PDF Parser:
+  ✅ All pages extracted
+  ✅ Question structure recognized
+  ✅ Categorized: Calculation/Application/Thinking
 
-🤖 版面分析专家:
-  ✅ 标注难度等级
-  ✅ 优化显示格式
+🤖 Layout Analyzer:
+  ✅ Difficulty level tagged
+  ✅ Display format optimized
 
-⏱️ 完成时间: 30秒
-📊 准确率: 96%
+⏱️ Completion: 30 seconds
+📊 Accuracy: 96%
 ```
 
-**TTS**:
+**TTS Narration**:
 "Three agents work in parallel.
 30 seconds later, 15 problems are processed with 96% accuracy."
 
@@ -120,21 +121,21 @@ Status: ✓ Confirmed in 0.6 seconds
 Gas: $0.001
 
 💵 Distribution (5 MON):
-  • LaTeX专家: 2.94 MON (98%)
-  • PDF专家: 1.47 MON (98%)
-  • 版面专家: 0.49 MON (98%)
-  • 平台: 0.10 MON (2%)
+  • LaTeX Expert: 2.94 MON (98%)
+  • PDF Expert: 1.47 MON (98%)
+  • Layout Expert: 0.49 MON (98%)
+  • Platform: 0.10 MON (2%)
 
 📊 Before vs After:
-  时间: 30分钟 → 30秒 (98% faster)
-  成本: $10 → $0.005 (2000x cheaper)
-  准确率: 95% → 96% (AI更准确)
+  Time: 30 min → 30 sec (98% faster)
+  Cost: $10 → $0.005 (2000x cheaper)
+  Accuracy: 95% → 96% (AI is more accurate)
 ```
 
-**TTS**:
+**TTS Narration**:
 "Payment confirmed in 0.6 seconds on Monad.
-98% goes to agents, 2% to platform.
-Zhang saves 29.5 minutes and costs less than a penny."
+98% goes to agents, 2% to the platform.
+Zhang saves 29.5 minutes and it costs less than a penny."
 
 ---
 
@@ -155,7 +156,7 @@ Zhang saves 29.5 minutes and costs less than a penny."
 🔍 Search: "PDF" → 3 results found
 ```
 
-**TTS**:
+**TTS Narration**:
 "Skill creators can finally earn from their work.
 Agents can discover and hire other agents.
 MySkills - Where agents hire agents on Monad."
@@ -174,43 +175,62 @@ MySkills - Where agents hire agents on Monad."
 
 ---
 
-## 录制清单
+## Recording Checklist
 
-### 前期准备
-- [ ] OpenClaw已安装并配置MySkills插件
-- [ ] MCP Server运行中
-- [ ] 准备测试钱包地址
-- [ ] 打开 myskills2026.ddttupupo.buzz
+### Pre-Recording
+- [ ] OpenClaw installed with MySkills plugin configured
+- [ ] MCP Server running
+- [ ] Test wallet address ready
+- [ ] myskills2026.ddttupupo.buzz opened
 
-### 录制步骤
-1. [ ] Scene 1: 标题卡片（简单制作）
-2. [ ] Scene 2: OpenClaw对话录屏
-3. [ ] Scene 3: Smart Matching输出（可加速）
-4. [ ] Scene 4: Agent工作模拟（可加速）
-5. [ ] Scene 5: 支付确认（Monad Explorer）
-6. [ ] Scene 6: 网页截图（排行榜/搜索）
+### Recording Steps
+1. [ ] Scene 1: Title card (simple graphics)
+2. [ ] Scene 2: OpenClaw chat screen recording
+3. [ ] Scene 3: Smart Matching output (can speed up)
+4. [ ] Scene 4: Agent work simulation (can speed up)
+5. [ ] Scene 5: Payment confirmation (Monad Explorer)
+6. [ ] Scene 6: Web screenshots (leaderboard/search)
 
-### 后期制作
-- [ ] 剪辑到60-90秒
-- [ ] 添加TTS旁白
-- [ ] 添加背景音乐
-- [ ] 添加字幕/标注
-- [ ] 最终导出
-
----
-
-## 技巧提示
-
-**不需要真实运行Agent的部分**:
-- Scene 4的"3个Agents并行工作"可以后期制作或模拟
-- 重点展示Smart Matching的输出
-
-**需要真实展示的部分**:
-- OpenClaw对话界面
-- Smart Matching的返回结果
-- Monad Explorer的交易确认
-- Web DApp的排行榜/搜索
+### Post-Production
+- [ ] Edit to 60-90 seconds
+- [ ] Add TTS narration
+- [ ] Add background music
+- [ ] Add subtitles/captions
+- [ ] Final export
 
 ---
 
-**这个版本简化了录制，重点展示核心价值！**
+## Production Tips
+
+**Don't need real agent execution for**:
+- Scene 4 "3 Agents Working" can be simulated or edited
+- Focus on showing Smart Matching output
+
+**Need real demonstration for**:
+- OpenClaw chat interface
+- Smart Matching return results
+- Monad Explorer transaction confirmation
+- Web DApp leaderboard/search
+
+---
+
+## Voice Style Guide
+
+- **Tone**: Professional, excited, confident
+- **Pace**: Moderate - clear enunciation
+- **Emphasis**: Bold phrases get extra emphasis
+- **Accent**: Standard American or British English preferred
+
+---
+
+## Export Settings
+
+- **Format**: MP4 (H.264)
+- **Resolution**: 1920x1080 (1080p)
+- **Frame rate**: 30fps
+- **Bitrate**: 8-10 Mbps
+- **Audio**: AAC, 128 kbps
+
+---
+
+**English version ready for recording! 🎬**
