@@ -142,3 +142,17 @@ vite.config.ts.timestamp-*
 # OpenClaw documentation (scraped content)
 docs/openclaw/
 docs/openclawdoc/
+
+# Hardhat build artifacts
+artifacts/
+cache/
+typechain-types/
+coverage.json
+.coverage_cache/
+.coverage_contracts/
+
+# Test files
+test/
+test_*.js
+check-deployed-contract.js
+verify_*.js
