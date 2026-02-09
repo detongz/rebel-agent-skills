@@ -1,0 +1,140 @@
+{
+  "id": "myskills",
+  "name": "MySkills Protocol",
+  "description": "Agent-to-agent payments and skill marketplace on Monad blockchain",
+  "version": "1.0.0",
+  "uiHints": {
+    "mcpServer.command": {
+      "label": "MCP Server Command",
+      "help": "Command to start the MySkills MCP server"
+    },
+    "mcpServer.args": {
+      "label": "MCP Server Arguments",
+      "help": "Arguments to pass to the MCP server"
+    },
+    "mcpServer.env.MYSKILLS_NETWORK": {
+      "label": "Network",
+      "help": "testnet or mainnet"
+    },
+    "mcpServer.env.MYSKILLS_CONTRACT_ADDRESS": {
+      "label": "Contract Address",
+      "help": "MySkills Protocol contract address on Monad"
+    },
+    "mcpServer.env.PRIVATE_KEY": {
+      "label": "Private Key",
+      "sensitive": true,
+      "help": "Wallet private key for write operations (optional)"
+    },
+    "network.chainId": {
+      "label": "Chain ID",
+      "help": "Monad blockchain chain ID (10143 for testnet, 143 for mainnet)"
+    },
+    "network.name": {
+      "label": "Network Name"
+    },
+    "network.rpcUrl": {
+      "label": "RPC URL",
+      "help": "Monad RPC endpoint"
+    },
+    "network.explorerUrl": {
+      "label": "Block Explorer URL"
+    },
+    "agent.address": {
+      "label": "Agent Address",
+      "help": "Your agent's Monad wallet address"
+    },
+    "agent.platform": {
+      "label": "Platform ID",
+      "help": "Platform identifier for skill registration"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "enabled": {
+        "type": "boolean"
+      },
+      "mcpServer": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "Command to start the MCP server"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Arguments to pass to the MCP server"
+          },
+          "env": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Environment variables for the MCP server",
+            "properties": {
+              "MYSKILLS_NETWORK": {
+                "type": "string",
+                "enum": ["testnet", "mainnet"],
+                "description": "Network to connect to"
+              },
+              "MYSKILLS_CONTRACT_ADDRESS": {
+                "type": "string",
+                "pattern": "^0x[a-fA-F0-9]{40}$",
+                "description": "MySkills Protocol contract address"
+              },
+              "PRIVATE_KEY": {
+                "type": "string",
+                "description": "Wallet private key for write operations"
+              }
+            }
+          }
+        },
+        "required": ["command"]
+      },
+      "network": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "chainId": {
+            "type": "integer",
+            "description": "Blockchain chain ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Network name"
+          },
+          "rpcUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "RPC endpoint URL"
+          },
+          "explorerUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Block explorer URL"
+          }
+        }
+      },
+      "agent": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$",
+            "description": "Agent's Monad wallet address"
+          },
+          "platform": {
+            "type": "string",
+            "description": "Platform identifier for skill registration"
+          }
+        }
+      }
+    }
+  }
+}

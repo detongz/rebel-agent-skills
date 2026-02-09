@@ -1,0 +1,56 @@
+{
+  "name": "@myskills/openclaw",
+  "version": "1.0.0",
+  "description": "MySkills Protocol plugin for OpenClaw - Agent-to-agent payments on Monad blockchain",
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "openclaw.plugin.json",
+    "skill.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "myskills",
+    "agent",
+    "blockchain",
+    "monad",
+    "payments"
+  ],
+  "author": "MySkills Team",
+  "license": "MIT",
+  "dependencies": {
+    "@sinclair/typebox": "^0.32.0",
+    "viem": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "peerDependencies": {
+    "openclaw": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "openclaw": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  }
+}
