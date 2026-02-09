@@ -6,7 +6,12 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
+    "test:bounty": "hardhat test test/Bounty.test.js",
+    "test:bounty-v2": "hardhat test test/BountyV2.test.js",
     "deploy": "hardhat run scripts/deploy.js --network monad",
+    "deploy:bounty": "hardhat run scripts/deployBounty.js --network monad",
+    "deploy:bounty-v2": "hardhat run scripts/deployBountyV2.js --network monad",
+    "deploy:all": "./scripts/quickDeploy.sh",
     "node": "hardhat node"
   },
   "keywords": [
@@ -20,11 +25,17 @@
   "license": "MIT",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/hardhat-upgrades": "^3.9.1",
     "hardhat": "^2.22.0",
     "playwright": "^1.58.2"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@x402/core": "^2.3.0",
+    "@x402/evm": "^2.3.0",
+    "@x402/fetch": "^2.3.0",
+    "@x402/next": "^2.3.0",
     "dotenv": "^16.4.0"
   },
   "directories": {

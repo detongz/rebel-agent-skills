@@ -138,5 +138,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Moltiverse knowledge base (scraped content)
-docs/moltiverse-kb/
+
+# OpenClaw documentation (scraped content)
+docs/openclaw/
+docs/openclawdoc/
