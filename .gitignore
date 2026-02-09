@@ -163,3 +163,14 @@ verify_*.js
 # Additional test files not covered by wildcard
 test-create-bounty.js
 verify-deployed-bounty.js
+
+# AI Assistant / IDE configuration
+.agents/
+.cline/
+.continue/
+.cursor/
+skills/
+
+# Demo deployment artifacts (keep scripts but ignore generated files)
+*.tmp
+demo-output/
