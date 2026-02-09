@@ -1,0 +1,317 @@
+/**
+ * AgentBountyHub Smart Contract Integration
+ * On-chain bounty system with escrow, verification, and disputes
+ */
+
+import { ethers, Contract } from 'ethers';
+// Note: wagmiConfig is exported as 'config' from @/lib/wagmi
+// import { config } from '@/lib/wagmi';
+
+// ABI for the Bounty contract
+const BOUNTY_ABI = [
+  // Read functions
+  "function getBounty(uint256 bountyId) external view returns (tuple(uint256 id, address creator, string title, string description, uint256 reward, string category, uint256 deadline, uint8 status, address claimer, uint256 claimedAt, uint256 completedAt))",
+  "function getSubmissions(uint256 bountyId) external view returns (tuple(uint256 bountyId, address submitter, string reportHash, uint256 submittedAt, bool approved)[])",
+  "function getDispute(uint256 bountyId) external view returns (tuple(uint256 bountyId, address raiser, string reason, uint256 raisedAt, uint8 status, uint256 resolutionTimestamp, bool resolvedInFavorOfCreator))",
+  "function getUserBounties(address user) external view returns (uint256[])",
+  "function getUserClaims(address user) external view returns (uint256[])",
+  "function getTotalBounties() external view returns (uint256)",
+  "function getBountiesByStatus(uint8 status, uint256 limit) external view returns (uint256[])",
+  "function asklToken() external view returns (address)",
+
+  // Write functions
+  "function createBounty(string title, string description, uint256 reward, string category, uint256 deadline) external returns (uint256)",
+  "function claimBounty(uint256 bountyId) external",
+  "function submitWork(uint256 bountyId, string reportHash) external",
+  "function approveSubmission(uint256 bountyId) external",
+  "function raiseDispute(uint256 bountyId, string reason) external",
+  "function resolveDispute(uint256 bountyId, bool inFavorOfCreator) external",
+  "function cancelBounty(uint256 bountyId) external",
+
+  // Events
+  "event BountyCreated(uint256 indexed bountyId, address indexed creator, string title, uint256 reward, string category)",
+  "event BountyClaimed(uint256 indexed bountyId, address indexed claimer, uint256 claimedAt)",
+  "event SubmissionMade(uint256 indexed bountyId, address indexed submitter, string reportHash)",
+  "event SubmissionApproved(uint256 indexed bountyId, address indexed submitter, uint256 reward)",
+  "event DisputeRaised(uint256 indexed bountyId, address indexed raiser, string reason)",
+  "event DisputeResolved(uint256 indexed bountyId, bool inFavorOfCreator)",
+  "event BountyCancelled(uint256 indexed bountyId)",
+];
+
+// ASKL Token ABI (for approvals)
+const ASKL_ABI = [
+  "function approve(address spender, uint256 amount) external returns (bool)",
+  "function allowance(address owner, address spender) external view returns (uint256)",
+  "function balanceOf(address account) external view returns (uint256)",
+];
+
+// Contract addresses (update after deployment)
+const CONTRACT_ADDRESSES = {
+  monadTestnet: {
+    bountyHub: process.env.NEXT_PUBLIC_BOUNTY_HUB_ADDRESS || '',
+    asklToken: process.env.NEXT_PUBLIC_ASKL_TOKEN_ADDRESS || '',
+  },
+  localhost: {
+    bountyHub: process.env.NEXT_PUBLIC_BOUNTY_HUB_ADDRESS || '',
+    asklToken: process.env.NEXT_PUBLIC_ASKL_TOKEN_ADDRESS || '',
+  },
+};
+
+// Bounty status enum
+export enum BountyStatus {
+  Active = 0,
+  Claimed = 1,
+  UnderReview = 2,
+  Completed = 3,
+  Disputed = 4,
+  Cancelled = 5,
+}
+
+// Dispute status enum
+export enum DisputeStatus {
+  None = 0,
+  Raised = 1,
+  Resolved = 2,
+}
+
+/**
+ * Get contract instance
+ */
+export function getBountyContract(provider?: any) {
+  if (!window.ethereum && !provider) {
+    throw new Error('No Ethereum provider found');
+  }
+
+  const ethersProvider = provider || new ethers.BrowserProvider(window.ethereum);
+  const address = CONTRACT_ADDRESSES.monadTestnet.bountyHub;
+
+  if (!address) {
+    throw new Error('Bounty Hub contract address not configured');
+  }
+
+  return new Contract(address, BOUNTY_ABI, ethersProvider);
+}
+
+/**
+ * Get contract with signer
+ */
+async function getContractWithSigner() {
+  if (!window.ethereum) {
+    throw new Error('No Ethereum provider found');
+  }
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const address = CONTRACT_ADDRESSES.monadTestnet.bountyHub;
+
+  if (!address) {
+    throw new Error('Bounty Hub contract address not configured');
+  }
+
+  return new Contract(address, BOUNTY_ABI, signer);
+}
+
+/**
+ * Get ASKL token contract
+ */
+async function getASKLTokenContract() {
+  if (!window.ethereum) {
+    throw new Error('No Ethereum provider found');
+  }
+
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  const address = CONTRACT_ADDRESSES.monadTestnet.asklToken;
+
+  if (!address) {
+    throw new Error('ASKL Token contract address not configured');
+  }
+
+  return new Contract(address, ASKL_ABI, signer);
+}
+
+/**
+ * Create a new bounty
+ */
+export async function createBountyOnChain(params: {
+  title: string;
+  description: string;
+  reward: string;
+  category: string;
+  deadline: string;
+}) {
+  const contract = await getContractWithSigner();
+  const tokenContract = await getASKLTokenContract();
+
+  // Convert reward to wei
+  const rewardWei = ethers.parseEther(params.reward);
+
+  // Approve tokens first
+  const approvalTx = await tokenContract.approve(
+    CONTRACT_ADDRESSES.monadTestnet.bountyHub,
+    rewardWei
+  );
+  await approvalTx.wait();
+
+  // Create bounty
+  const deadlineTimestamp = Math.floor(new Date(params.deadline).getTime() / 1000);
+  const tx = await contract.createBounty(
+    params.title,
+    params.description,
+    rewardWei,
+    params.category,
+    deadlineTimestamp
+  );
+
+  const receipt = await tx.wait();
+
+  // Get bounty ID from event
+  const event = receipt.logs.find((log: any) => {
+    try {
+      const parsed = contract.interface.parseLog(log);
+      return parsed.name === 'BountyCreated';
+    } catch {
+      return false;
+    }
+  });
+
+  if (event) {
+    const parsed = contract.interface.parseLog(event);
+    return { success: true, bountyId: parsed.args.bountyId.toString() };
+  }
+
+  return { success: true, bountyId: null };
+}
+
+/**
+ * Claim a bounty
+ */
+export async function claimBountyOnChain(bountyId: string) {
+  const contract = await getContractWithSigner();
+  const tx = await contract.claimBounty(bountyId);
+  await tx.wait();
+  return { success: true };
+}
+
+/**
+ * Submit work for a bounty
+ */
+export async function submitWorkOnChain(bountyId: string, reportHash: string) {
+  const contract = await getContractWithSigner();
+  const tx = await contract.submitWork(bountyId, reportHash);
+  await tx.wait();
+  return { success: true };
+}
+
+/**
+ * Approve a submission
+ */
+export async function approveSubmissionOnChain(bountyId: string) {
+  const contract = await getContractWithSigner();
+  const tx = await contract.approveSubmission(bountyId);
+  await tx.wait();
+  return { success: true };
+}
+
+/**
+ * Raise a dispute
+ */
+export async function raiseDisputeOnChain(bountyId: string, reason: string) {
+  const contract = await getContractWithSigner();
+  const tx = await contract.raiseDispute(bountyId, reason);
+  await tx.wait();
+  return { success: true };
+}
+
+/**
+ * Cancel a bounty
+ */
+export async function cancelBountyOnChain(bountyId: string) {
+  const contract = await getContractWithSigner();
+  const tx = await contract.cancelBounty(bountyId);
+  await tx.wait();
+  return { success: true };
+}
+
+/**
+ * Get bounty details from chain
+ */
+export async function getBountyFromChain(bountyId: string) {
+  const contract = getBountyContract();
+  const bounty = await contract.getBounty(bountyId);
+
+  return {
+    id: bounty.id.toString(),
+    creator: bounty.creator,
+    title: bounty.title,
+    description: bounty.description,
+    reward: ethers.formatEther(bounty.reward),
+    category: bounty.category,
+    deadline: new Date(Number(bounty.deadline) * 1000).toISOString(),
+    status: BountyStatus[bounty.status],
+    claimer: bounty.claimer,
+    claimedAt: bounty.claimedAt ? new Date(Number(bounty.claimedAt) * 1000).toISOString() : null,
+    completedAt: bounty.completedAt ? new Date(Number(bounty.completedAt) * 1000).toISOString() : null,
+  };
+}
+
+/**
+ * Get submissions for a bounty
+ */
+export async function getSubmissionsFromChain(bountyId: string) {
+  const contract = getBountyContract();
+  const submissions = await contract.getSubmissions(bountyId);
+
+  return submissions.map((sub: any) => ({
+    bountyId: sub.bountyId.toString(),
+    submitter: sub.submitter,
+    reportHash: sub.reportHash,
+    submittedAt: new Date(Number(sub.submittedAt) * 1000).toISOString(),
+    approved: sub.approved,
+  }));
+}
+
+/**
+ * Get all bounties for a user
+ */
+export async function getUserBountiesFromChain(userAddress: string) {
+  const contract = getBountyContract();
+  const bountyIds = await contract.getUserBounties(userAddress);
+
+  const bounties = await Promise.all(
+    bountyIds.map((id: string) => getBountyFromChain(id))
+  );
+
+  return bounties;
+}
+
+/**
+ * Get bounties by status
+ */
+export async function getBountiesByStatusFromChain(status: BountyStatus, limit = 50) {
+  const contract = getBountyContract();
+  const bountyIds = await contract.getBountiesByStatus(status, limit);
+
+  const bounties = await Promise.all(
+    bountyIds.map((id: string) => getBountyFromChain(id))
+  );
+
+  return bounties;
+}
+
+/**
+ * Get user's ASKL balance
+ */
+export async function getASKLBalance(userAddress: string) {
+  const contract = getBountyContract();
+  const asklAddress = await contract.asklToken();
+
+  const tokenContract = new Contract(
+    asklAddress,
+    ["function balanceOf(address) view returns (uint256)"],
+    contract.runner
+  );
+
+  const balance = await tokenContract.balanceOf(userAddress);
+  return ethers.formatEther(balance);
+}
