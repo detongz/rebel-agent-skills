@@ -5,6 +5,7 @@ import { useAccount, useWriteContract } from 'wagmi';
 import { parseEther } from 'viem';
 import { useRouter } from 'next/navigation';
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
+import SkillInstallButton from './SkillInstallButton';
 
 interface SkillCardProps {
   skill: {
@@ -243,6 +244,9 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
           </>
         )}
       </button>
+
+      {/* 安装按钮 */}
+      <SkillInstallButton skill={skill} />
     </div>
   );
 }

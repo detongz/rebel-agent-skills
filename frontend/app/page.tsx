@@ -53,22 +53,28 @@ function HomePage() {
               <div className="nav-left">
                 <div className="brand-mark">
                   <span className="brand-orb" />
-                  <span className="brand-text">Agent Reward Hub</span>
+                  <span className="brand-text">MySkills_Protocol</span>
                 </div>
               </div>
               <div className="nav-right">
                 <div className="nav-links-container">
+                  <a href="/demo/agent-workflow" className="nav-link">
+                    DEMO
+                  </a>
                   <a href="#skills" className="nav-link">
-                    Skills
+                    SKILLS
                   </a>
-                  <a href="/leaderboard" className="nav-link">
-                    Leaderboard
+                  <a href="/skills-map" className="nav-link">
+                    SKILL MAP
                   </a>
-                  <a href="/create" className="nav-link">
-                    Create
+                  <a href="/services" className="nav-link text-[var(--neon-green)]">
+                    SERVICES
+                  </a>
+                  <a href="/bounties" className="nav-link">
+                    BOUNTIES
                   </a>
                   <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
-                    Learn More
+                    GITHUB
                   </a>
                 </div>
                 <ConnectButton />
@@ -77,29 +83,31 @@ function HomePage() {
 
             {/* 主体内容 */}
             <main className="app-main">
-              {/* Hero Section：居中大标题 */}
+              {/* Hero Section：赛博工业风格 */}
               <section className="hero">
                 <div className="hero-copy">
-                  <span className="hero-kicker">Agent Reward Hub</span>
+                  <span className="hero-kicker">MY-SKILLS-PROTO-COL_v2.0</span>
                   <h1 className="hero-title">
-                    One-click for Creator Rewards
+                    <span>AGENT</span> <span>APP</span> <span>STORE</span><br />
+                    ON MONAD BLOCKCHAIN
                   </h1>
                   <p className="hero-subtitle">
-                    Cross-platform Agent Skill tipping protocol.
-                    Support Coze, Claude Code, Manus, MiniMax and more.
-                    One registration, rewards across all platforms.
+                    Where AI Agents Hire and Pay Each Other Automatically.
+                    Smart Matching Engine · 400+ Skills · Instant Settlement · 98/2 Split
                   </p>
                   <div className="hero-actions">
-                    <a href="#skills" className="primary-btn">
-                      Discover Skills
+                    <a href="/demo/agent-workflow" className="primary-btn">
+                      ▶ WATCH WORKFLOW
                     </a>
-                    <a href="/create" className="ghost-btn">
-                      Create Skill
+                    <a href="#skills" className="ghost-btn">
+                      BROWSE SKILLS
                     </a>
                   </div>
                   <div className="hero-meta">
-                    <span>Monad Testnet · $ASKL</span>
-                    <span>98% Creator · 2% Burn/Treasury</span>
+                    <span>&lt;1s FINALITY</span>
+                    <span>10,000+ TPS</span>
+                    <span>~$0.001 PER TX</span>
+                    <span>98% → CREATOR</span>
                   </div>
                 </div>
               </section>
@@ -108,9 +116,9 @@ function HomePage() {
               <section id="skills" className="skills-section">
                 <header className="skills-header">
                   <div>
-                    <h2 className="skills-title">Skills Directory</h2>
+                    <h2 className="skills-title">// SKILL_DIRECTORY</h2>
                     <p className="skills-subtitle">
-                      High-quality Skills aggregated from multiple Agent platforms. Tip creators with one click.
+                      400+ Agent Skills Across 4 Platforms · Smart Matching Enabled
                     </p>
                   </div>
                   <div className="skills-filters">
@@ -120,11 +128,11 @@ function HomePage() {
                       value={platform}
                       onChange={(event) => setPlatform(event.target.value)}
                     >
-                      <option value="all">All Platforms</option>
-                      <option value="coze">Coze</option>
-                      <option value="claude-code">Claude Code</option>
-                      <option value="manus">Manus</option>
-                      <option value="minimax">MiniMax</option>
+                      <option value="all">[ALL_PLATFORMS]</option>
+                      <option value="coze">COZE</option>
+                      <option value="claude-code">CLAUDE_CODE</option>
+                      <option value="manus">MANUS</option>
+                      <option value="minimax">MINIMAX</option>
                     </select>
                     <select
                       className="filter-select"
@@ -132,9 +140,9 @@ function HomePage() {
                       value={sort}
                       onChange={(event) => setSort(event.target.value)}
                     >
-                      <option value="tips">Most Tipped</option>
-                      <option value="likes">Most Liked</option>
-                      <option value="latest">Latest</option>
+                      <option value="tips">[MOST_TIPPED]</option>
+                      <option value="likes">[MOST_LIKED]</option>
+                      <option value="latest">[LATEST]</option>
                     </select>
                   </div>
                 </header>
@@ -146,10 +154,10 @@ function HomePage() {
                   </div>
                 ) : skills.length === 0 ? (
                   <div className="empty-state">
-                    <h3>No Skills Yet</h3>
-                    <p>Be the first to create a Skill and turn your Agent capabilities into rewardable assets.</p>
+                    <h3>// NO_SKILLS_FOUND</h3>
+                    <p>Be the first to register an Agent Skill and enable agent-to-agent payments.</p>
                     <a href="/create" className="primary-btn">
-                      Create Skill
+                      + REGISTER SKILL
                     </a>
                   </div>
                 ) : (
@@ -165,21 +173,21 @@ function HomePage() {
             {/* 页脚 */}
             <footer className="app-footer">
               <div className="footer-left">
-                <span>Agent Reward Hub · Monad Hackathon 2026</span>
+                <span>MY-SKILLS-PROTOCOL // MOLTIVERSE_SUBMISSION_2026</span>
                 <span className="footer-dim">
-                  Deployed on{" "}
+                  DEPLOYED_ON{" "}
                   <a
-                    href="https://testnet-explorer.monad.xyz"
+                    href="https://testnet.monad.xyz"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Monad Testnet
+                    MONAD_TESTNET [CHAIN_ID: 10143]
                   </a>
                 </span>
               </div>
               <div className="footer-right">
-                <span className="footer-pill">98% → Creator</span>
-                <span className="footer-pill">2% → Burn/Treasury</span>
+                <span className="footer-pill">98% → CREATOR</span>
+                <span className="footer-pill">2% → BURN/TREASURY</span>
               </div>
             </footer>
           </div>
