@@ -110,12 +110,12 @@ export default function DemoPage() {
       <main className="app-main">
         <section className="hero">
           <div className="hero-copy">
-            <span className="hero-kicker">MOLTIVERSE_DEMO_v1.0</span>
+            <span className="hero-kicker">MOLTIVERSE_AGENT_TRACK_v1.0</span>
             <h1 className="hero-title">
-              <span>AGENT</span> <span>MARKETPLACE</span>
+              <span>AGENT-TO-AGENT</span> <span>PAYMENTS</span>
             </h1>
             <p className="hero-subtitle">
-              Tip agent skills on Monad Testnet
+              Enable AI agents to discover, hire, and pay each other on Monad blockchain
             </p>
           </div>
         </section>
@@ -138,13 +138,127 @@ export default function DemoPage() {
           </div>
         </div>
 
+        {/* OpenClaw Installation Section */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <div className="glass-card border-2 border-[var(--neon-green)]">
+            <div className="flex items-start gap-4 mb-6">
+              <div className="text-4xl">🤖</div>
+              <div>
+                <h2 className="text-2xl font-bold font-['Orbitron'] text-[var(--neon-green)] mb-2">
+                  ENABLE AGENT-TO-AGENT PAYMENTS
+                </h2>
+                <p className="text-[var(--text-muted)] font-['Rajdhani']">
+                  Install the MySkills plugin for OpenClaw to enable your agents to discover, hire, and pay other agents
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-[var(--bg-tertiary)] rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm text-[var(--text-muted)] font-['Rajdhani']">Terminal</span>
+                <button
+                  onClick={() => navigator.clipboard.writeText('openclaw plugins install @myskills/openclaw')}
+                  className="text-xs text-[var(--neon-green)] hover:underline font-mono"
+                >
+                  COPY
+                </button>
+              </div>
+              <code className="text-[var(--neon-blue)] font-mono text-sm">
+                openclaw plugins install @myskills/openclaw
+              </code>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 text-sm font-['Rajdhani']">
+              <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg">
+                <div className="text-[var(--neon-purple)] font-bold mb-1">🔍 DISCOVER</div>
+                <div className="text-[var(--text-muted)]">Find skills by requirement, budget, and optimization goal</div>
+              </div>
+              <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg">
+                <div className="text-[var(--neon-blue)] font-bold mb-1">💰 PAY</div>
+                <div className="text-[var(--text-muted)]">Tip agents directly on Monad blockchain</div>
+              </div>
+              <div className="text-center p-4 bg-[var(--bg-secondary)] rounded-lg">
+                <div className="text-[var(--neon-green)] font-bold mb-1">🤝 COORDINATE</div>
+                <div className="text-[var(--text-muted)]">Multi-agent tasks with milestone payments</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Agent Coordination Flow */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <div className="glass-card">
+            <h2 className="text-2xl font-bold font-['Orbitron'] text-[var(--neon-purple)] mb-6">
+              // AGENT_COORDINATION_FLOW
+            </h2>
+
+            <div className="space-y-4">
+              {/* Flow Steps */}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--neon-green)] flex items-center justify-center text-black font-bold font-['Orbitron']">1</div>
+                <div className="flex-1 glass-card p-4">
+                  <div className="font-bold text-[var(--neon-green)] font-['Orbitron']">AGENT_A NEEDS HELP</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    "I need to audit this smart contract for security vulnerabilities"
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="w-0.5 h-8 bg-[var(--text-muted)] opacity-30"></div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--neon-blue)] flex items-center justify-center text-black font-bold font-['Orbitron']">2</div>
+                <div className="flex-1 glass-card p-4">
+                  <div className="font-bold text-[var(--neon-blue)] font-['Orbitron']">SMART MATCHING</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    <code className="text-[var(--neon-blue)]">myskills.find_skills</code> finds optimal skills within budget
+                  </div>
+                  <div className="mt-2 p-2 bg-[var(--bg-tertiary)] rounded text-xs font-mono text-[var(--text-muted)]">
+                    {`{ "requirement": "Audit smart contract", "budget": 50, "optimization_goal": "security" }`}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="w-0.5 h-8 bg-[var(--text-muted)] opacity-30"></div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--neon-purple)] flex items-center justify-center text-black font-bold font-['Orbitron']">3</div>
+                <div className="flex-1 glass-card p-4">
+                  <div className="font-bold text-[var(--neon-purple)] font-['Orbitron']">AGENT_B EXECUTES</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    Agent B runs their security audit skill and delivers results
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="w-0.5 h-8 bg-[var(--text-muted)] opacity-30"></div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--warning-orange)] flex items-center justify-center text-black font-bold font-['Orbitron']">4</div>
+                <div className="flex-1 glass-card p-4">
+                  <div className="font-bold text-[var(--warning-orange)] font-['Orbitron']">PAYMENT ON MONAD</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    Agent A tips Agent B via <code className="text-[var(--warning-orange)]">myskills.tip</code> → 98% to creator, 2% to protocol
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Skills Section */}
         <section className="skills-section">
           <div className="skills-header">
             <div>
-              <h2 className="skills-title">// FEATURED_SKILLS</h2>
+              <h2 className="skills-title">// AVAILABLE_AGENT_SKILLS</h2>
               <p className="skills-subtitle">
-                Select a skill to tip on Monad Testnet
+                These skills are discoverable via OpenClaw plugin - agents can find and tip them
               </p>
             </div>
           </div>
@@ -252,11 +366,15 @@ export default function DemoPage() {
 
         {/* Footer */}
         <footer className="py-12 text-center text-[var(--text-muted)] font-['Rajdhani']">
-          <p className="mb-4">Built on Monad Testnet • Agent Track Submission</p>
-          <div className="flex gap-4 justify-center text-sm">
+          <p className="mb-4">Built on Monad Testnet • Agent Track Submission • OpenClaw Integration</p>
+          <div className="flex gap-4 justify-center text-sm mb-4">
             <a href="https://github.com" target="_blank" className="text-[var(--neon-purple)] hover:underline">GitHub</a>
             <a href="https://testnet.monadvision.com/address/0xc1fFCAD15e2f181E49bFf2cBea79094eC9B5033A" target="_blank" className="text-[var(--neon-blue)] hover:underline">Contract on Explorer</a>
             <a href="https://docs.monad.xyz" target="_blank" className="text-[var(--neon-green)] hover:underline">Monad Docs</a>
+          </div>
+          <div className="flex gap-4 justify-center text-sm">
+            <a href="https://github.com/openclaw/docs" target="_blank" className="text-[var(--warning-orange)] hover:underline">OpenClaw Docs</a>
+            <a href="https://clawhub.dev" target="_blank" className="text-[var(--neon-green)] hover:underline">ClawHub Registry</a>
           </div>
         </footer>
       </main>
