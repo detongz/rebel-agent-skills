@@ -344,7 +344,17 @@ export function getAirdropEligibility(walletAddress: string) {
     SELECT * FROM airdrop_eligibility
     WHERE wallet_address = ?
   `);
-  return stmt.get(walletAddress);
+  return stmt.get(walletAddress) as {
+    wallet_address: string;
+    min_reviews_met: number;
+    min_compute_met: number;
+    total_reviews: number;
+    total_compute_used: string;
+    is_eligible: number;
+    claimed_at?: string;
+    claim_tx_hash?: string;
+    updated_at: string;
+  } | undefined;
 }
 
 /**
