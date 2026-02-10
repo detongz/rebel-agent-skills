@@ -10,7 +10,7 @@ export const runtime = 'edge';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { stars, comment, compute_used, has_code_snippet } = body;
+    const { stars, comment, compute_used } = body;
 
     if (typeof stars !== 'number' || stars < 1 || stars > 5) {
       return NextResponse.json(
@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
       stars,
       comment: comment || '',
       compute_used: compute_used || 0,
-      has_code_snippet: has_code_snippet || false,
     });
 
     return NextResponse.json({

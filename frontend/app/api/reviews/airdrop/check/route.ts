@@ -18,8 +18,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate wallet address format
+    if (!/^0x[a-fA-F0-9]{40}$/.test(wallet_address)) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid wallet address format' },
+        { status: 400 }
+      );
+    }
+
     // In production, fetch from database and calculate
-    // For now, return mock data
+    // For now, return mock data with structure
     return NextResponse.json({
       success: true,
       data: {
