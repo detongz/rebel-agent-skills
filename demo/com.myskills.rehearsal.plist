@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.myskills.rehearsal</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Volumes/Kingstone/workspace/rebel-agent-skills/demo/auto-rehearsal.sh</string>
+    </array>
+
+    <key>StartInterval</key>
+    <integer>900</integer>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>/Volumes/Kingstone/workspace/rebel-agent-skills/demo/logs/launchd.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Volumes/Kingstone/workspace/rebel-agent-skills/demo/logs/launchd.error.log</string>
+
+    <key>WorkingDirectory</key>
+    <string>/Volumes/Kingstone/workspace/rebel-agent-skills/demo</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/zdt/.nvm/versions/node/v20.16.0/bin:/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+        <key>NODE_PATH</key>
+        <string>/Volumes/Kingstone/workspace/rebel-agent-skills/node_modules</string>
+    </dict>
+</dict>
+</plist>
