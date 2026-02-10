@@ -352,47 +352,47 @@ export default function AgentEvaluatePage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {evaluations.map((eval) => (
-                  <div key={eval.id} className="p-4 bg-[var(--bg-surface)] rounded-lg">
+                {evaluations.map((evaluation) => (
+                  <div key={evaluation.id} className="p-4 bg-[var(--bg-surface)] rounded-lg">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex gap-4">
                         <div>
                           <div className="text-xs text-[var(--text-muted)]">Performance</div>
                           <div className="text-lg font-bold font-['Orbitron'] text-[var(--warning-orange)]">
-                            {eval.performance_score}★
+                            {evaluation.performance_score}★
                           </div>
                         </div>
                         <div>
                           <div className="text-xs text-[var(--text-muted)]">Reliability</div>
                           <div className="text-lg font-bold font-['Orbitron'] text-[var(--neon-blue)]">
-                            {eval.reliability_score}★
+                            {evaluation.reliability_score}★
                           </div>
                         </div>
                         <div>
                           <div className="text-xs text-[var(--text-muted)]">Accuracy</div>
                           <div className="text-lg font-bold font-['Orbitron'] text-[var(--neon-purple)]">
-                            {eval.accuracy_score}★
+                            {evaluation.accuracy_score}★
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="text-2xl font-bold font-['Orbitron'] text-[var(--neon-green)]">
-                          {eval.overall_score}★
+                          {evaluation.overall_score}★
                         </div>
                       </div>
                     </div>
 
-                    {eval.comment && (
-                      <p className="text-[var(--text-secondary)] mb-3">{eval.comment}</p>
+                    {evaluation.comment && (
+                      <p className="text-[var(--text-secondary)] mb-3">{evaluation.comment}</p>
                     )}
 
                     <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
-                      <span>{eval.evaluator_address.slice(0, 8)}...</span>
+                      <span>{evaluation.evaluator_address.slice(0, 8)}...</span>
                       <div className="flex items-center gap-4">
-                        {eval.compute_used > 0 && (
-                          <span>💻 {eval.compute_used} compute</span>
+                        {evaluation.compute_used > 0 && (
+                          <span>💻 {evaluation.compute_used} compute</span>
                         )}
-                        <span>{new Date(eval.created_at).toLocaleDateString()}</span>
+                        <span>{new Date(evaluation.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </div>

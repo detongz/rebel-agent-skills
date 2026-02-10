@@ -179,12 +179,12 @@ export default function AgentWorkflowDemo() {
           <div className="flex items-center justify-center gap-2">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
-                <div className={`step-indicator ${currentStep === step.id ? 'active' : ''} ${steps.indexOf(currentStep) > index ? 'completed' : ''}`}>
-                  {steps.indexOf(currentStep) > index ? '✓' : index + 1}
+                <div className={`step-indicator ${currentStep === step.id ? 'active' : ''} ${steps.findIndex(s => s.id === currentStep) > index ? 'completed' : ''}`}>
+                  {steps.findIndex(s => s.id === currentStep) > index ? '✓' : index + 1}
                 </div>
                 <span className="step-label">{step.label}</span>
                 {index < steps.length - 1 && (
-                  <div className={`step-connector ${steps.indexOf(currentStep) > index ? 'completed' : ''}`} />
+                  <div className={`step-connector ${steps.findIndex(s => s.id === currentStep) > index ? 'completed' : ''}`} />
                 )}
               </div>
             ))}
