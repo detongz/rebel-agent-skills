@@ -386,7 +386,7 @@ export default function AgentEvaluatePage() {
                   <div className="comparison-agent">
                     <h3>{agent?.name}</h3>
                     <div className="comparison-stats">
-                      <div>Rating: {evaluations.length > 0 ? (evaluations.reduce((sum, e) => sum + e.quality_score, 0) / evaluations.length).toFixed(1) : 'N/A'}</div>
+                      <div>Rating: {evaluations.length > 0 ? (evaluations.reduce((sum, e) => sum + e.overall_rating, 0) / evaluations.length).toFixed(1) : 'N/A'}</div>
                       <div>Evaluations: {evaluations.length}</div>
                     </div>
                   </div>
