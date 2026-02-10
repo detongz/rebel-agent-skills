@@ -403,9 +403,12 @@ export function getReviewStatistics(skillId: string) {
   `);
   const starRows = starStmt.all(skillId);
 
-  const starDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  const starDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   for (const row of starRows) {
-    starDistribution[row.stars as number] = row.count;
+    const starValue = row.stars as number;
+    if (starValue in starDistribution) {
+      starDistribution[starValue] = row.count as number;
+    }
   }
 
   return {
