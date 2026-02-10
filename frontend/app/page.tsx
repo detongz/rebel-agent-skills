@@ -67,6 +67,9 @@ function HomePage() {
                   <a href="/skills-map" className="nav-link">
                     SKILL MAP
                   </a>
+                  <a href="/services" className="nav-link text-[var(--neon-green)]">
+                    SERVICES
+                  </a>
                   <a href="/bounties" className="nav-link">
                     BOUNTIES
                   </a>

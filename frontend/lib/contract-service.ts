@@ -135,6 +135,10 @@ export async function getSkills(options: {
         category: 'Security Audit',
         creator: '0x8A3D2F1E4C5B6A7890DEF123456789ABCDEF1234',
         createdAt: new Date('2026-02-01').toISOString(),
+        repository: 'https://github.com/myskills-protocol/smart-contract-auditor',
+        npm_package: '@myskills/smart-contract-auditor',
+        homepage: 'https://skills.sh/myskills-protocol/smart-contract-auditor',
+        download_count: 1234,
       },
       {
         id: 2,
@@ -507,7 +511,17 @@ export async function getSkills(options: {
       },
     ];
 
-    let filtered = [...mockSkills];
+    // Enrich skills with repository info for npx skills install
+    const enrichedSkills = mockSkills.map(skill => ({
+      ...skill,
+      // Generate repository URLs for skills that don't have them
+      repository: skill.repository || `https://github.com/myskills-protocol/${skill.name.toLowerCase().replace(/\s+/g, '-')}`,
+      npm_package: skill.npm_package || `@myskills/${skill.name.toLowerCase().replace(/\s+/g, '-')}`,
+      homepage: skill.homepage || `https://skills.sh/myskills-protocol/${skill.name.toLowerCase().replace(/\s+/g, '-')}`,
+      download_count: skill.download_count || Math.floor(Math.random() * 5000) + 100,
+    }));
+
+    let filtered = [...enrichedSkills];
 
     // Filter by platform
     if (options.platform && options.platform !== 'all') {
