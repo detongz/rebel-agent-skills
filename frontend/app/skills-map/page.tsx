@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { getSkills } from '@/lib/contract-service';
 import {
   buildSkillGraph,
@@ -80,12 +81,12 @@ export default function SkillsMapPage() {
 
     const { scale, offsetX, offsetY } = viewState;
 
-    // Clear canvas
-    ctx.fillStyle = '#030303';
+    // Clear canvas with cyber-industrial background
+    ctx.fillStyle = 'var(--bg-void)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw grid
-    ctx.strokeStyle = '#1a1a1a';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
     ctx.lineWidth = 1;
     const gridSize = 50 * scale;
     for (let x = offsetX % gridSize; x < canvas.width; x += gridSize) {
@@ -189,13 +190,13 @@ export default function SkillsMapPage() {
         ctx.strokeStyle = '#333';
       } else if (isSelected) {
         ctx.fillStyle = getPlatformColor(node.platform, 0.3);
-        ctx.strokeStyle = '#00ff88';
+        ctx.strokeStyle = 'var(--neon-green)';
       } else if (isConnected) {
         ctx.fillStyle = getPlatformColor(node.platform, 0.2);
-        ctx.strokeStyle = '#ff6600';
+        ctx.strokeStyle = 'var(--warning-orange)';
       } else if (isRelated) {
         ctx.fillStyle = getPlatformColor(node.platform, 0.2);
-        ctx.strokeStyle = '#00d4ff';
+        ctx.strokeStyle = 'var(--neon-blue)';
       } else {
         ctx.fillStyle = getPlatformColor(node.platform, 0.15);
         ctx.strokeStyle = getPlatformColor(node.platform, 0.5);
@@ -207,8 +208,8 @@ export default function SkillsMapPage() {
 
       // Draw reference count badge
       if (node.references > 0 && scale > 0.5) {
-        ctx.fillStyle = isSelected || isHovered ? '#00ff88' : '#666';
-        ctx.font = `${Math.max(10, 12 * scale)}px JetBrains Mono`;
+        ctx.fillStyle = isSelected || isHovered ? 'var(--neon-green)' : '#666';
+        ctx.font = `${Math.max(10, 12 * scale)}px 'JetBrains Mono', monospace`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(node.references.toString(), x, y);
@@ -216,8 +217,8 @@ export default function SkillsMapPage() {
 
       // Draw skill name
       if (scale > 0.6) {
-        ctx.fillStyle = isDimmed ? '#444' : '#fff';
-        ctx.font = `${Math.max(10, 11 * scale)}px Rajdhani`;
+        ctx.fillStyle = isDimmed ? '#444' : 'var(--text-primary)';
+        ctx.font = `${Math.max(10, 11 * scale)}px 'Rajdhani', sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
         // Truncate name if too long
@@ -271,10 +272,10 @@ export default function SkillsMapPage() {
 
   const getRelationshipColor = (type: string): string => {
     const colors: Record<string, string> = {
-      'depends-on': '#ff6600',
-      'uses': '#00ff88',
-      'complements': '#00d4ff',
-      'similar-to': '#9333ea',
+      'depends-on': 'var(--warning-orange)',
+      'uses': 'var(--neon-green)',
+      'complements': 'var(--neon-blue)',
+      'similar-to': 'var(--neon-purple)',
     };
     return colors[type] || '#666';
   };
@@ -388,310 +389,337 @@ export default function SkillsMapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#030303] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#00ff88] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#00ff88] font-['Rajdhani'] text-xl">Loading skill graph...</p>
-        </div>
+      <div className="app-shell">
+        <div className="app-backdrop" aria-hidden="true" />
+        <nav className="app-nav">
+          <div className="nav-left">
+            <div className="brand-mark">
+              <span className="brand-orb" />
+              <span className="brand-text">MySkills_Protocol</span>
+            </div>
+          </div>
+          <div className="nav-right">
+            <div className="nav-links-container">
+              <Link href="/" className="nav-link">HOME</Link>
+              <Link href="/skills-map" className="nav-link text-[var(--neon-green)]">SKILL MAP</Link>
+              <Link href="/services" className="nav-link">SERVICES</Link>
+            </div>
+          </div>
+        </nav>
+        <main className="app-main flex items-center justify-center">
+          <div className="text-center">
+            <div className="loading-orb mx-auto mb-6"></div>
+            <p className="text-[var(--neon-green)] font-['Rajdhani'] text-xl">Loading skill graph...</p>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#030303]" ref={containerRef}>
-      {/* Header */}
-      <header className="border-b border-[#1a1a1a] bg-[#080808]/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-['Orbitron'] text-[#00ff88] mb-1">
-                Skills Relationship Map
-              </h1>
-              <p className="text-[#888] font-['Rajdhani'] text-lg">
-                Visualize how AI Agents reference and depend on each other
-              </p>
-            </div>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setViewMode('graph')}
-                className={`px-4 py-2 font-['Rajdhani'] font-semibold transition-all ${
-                  viewMode === 'graph'
-                    ? 'bg-[#00ff88] text-black'
-                    : 'bg-[#1a1a1a] text-[#00ff88] hover:bg-[#2a2a2a]'
-                }`}
-              >
-                Graph View
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 font-['Rajdhani'] font-semibold transition-all ${
-                  viewMode === 'list'
-                    ? 'bg-[#00ff88] text-black'
-                    : 'bg-[#1a1a1a] text-[#00ff88] hover:bg-[#2a2a2a]'
-                }`}
-              >
-                List View
-              </button>
-            </div>
+    <div className="app-shell">
+      <div className="app-backdrop" aria-hidden="true" />
+
+      <nav className="app-nav">
+        <div className="nav-left">
+          <div className="brand-mark">
+            <span className="brand-orb" />
+            <span className="brand-text">MySkills_Protocol</span>
           </div>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Stats Cards */}
-        {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
-            <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4">
-              <p className="text-[#888] font-['Rajdhani'] text-sm mb-1">Total Skills</p>
-              <p className="text-2xl font-['Orbitron'] text-[#00ff88]">{stats.totalSkills}</p>
-            </div>
-            <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4">
-              <p className="text-[#888] font-['Rajdhani'] text-sm mb-1">Relationships</p>
-              <p className="text-2xl font-['Orbitron'] text-[#00d4ff]">{stats.totalRelationships}</p>
-            </div>
-            <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4">
-              <p className="text-[#888] font-['Rajdhani'] text-sm mb-1">Connected Skills</p>
-              <p className="text-2xl font-['Orbitron'] text-[#ff6600]">{stats.skillsWithReferences}</p>
-            </div>
-            <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4">
-              <p className="text-[#888] font-['Rajdhani'] text-sm mb-1">Avg Connections</p>
-              <p className="text-2xl font-['Orbitron'] text-[#9333ea]">
-                {stats.referencesPerSkill.toFixed(1)}
-              </p>
-            </div>
-            <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4 col-span-2">
-              <p className="text-[#888] font-['Rajdhani'] text-sm mb-1">Most Referenced</p>
-              <p className="text-lg font-['Orbitron'] text-[#00ff88]">
-                {stats.mostReferenced?.name} ({stats.mostReferenced?.references})
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Legend */}
-        <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4 mb-6">
-          <div className="flex flex-wrap items-center gap-6">
-            <div className="flex items-center gap-2">
-              <span className="text-[#888] font-['Rajdhani'] text-sm">Platforms:</span>
-              <div className="flex gap-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-[#ff6600]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Coze</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-[#00ff88]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Claude Code</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-[#00d4ff]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Manus</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-3 h-3 rounded-full bg-[#9333ea]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">MiniMax</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[#888] font-['Rajdhani'] text-sm">Relations:</span>
-              <div className="flex gap-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-8 h-0.5 bg-[#ff6600]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Depends</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-8 h-0.5 bg-[#00ff88]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Uses</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-8 h-0.5 bg-[#00d4ff]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Complements</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-8 h-0.5 bg-[#9333ea]"></div>
-                  <span className="text-[#ccc] font-['Rajdhani'] text-sm">Similar</span>
-                </div>
-              </div>
-            </div>
+        <div className="nav-right">
+          <div className="nav-links-container">
+            <Link href="/" className="nav-link">HOME</Link>
+            <Link href="/skills-map" className="nav-link text-[var(--neon-green)]">SKILL MAP</Link>
+            <Link href="/services" className="nav-link">SERVICES</Link>
           </div>
         </div>
+      </nav>
 
-        {viewMode === 'graph' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Canvas Area */}
-            <div className="lg:col-span-3">
-              <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg overflow-hidden">
-                <div className="bg-[#0a0a0a] border-b border-[#1a1a1a] px-4 py-2 flex items-center justify-between">
-                  <span className="text-[#888] font-['Rajdhani'] text-sm">
-                    Interactive Graph (drag to pan, scroll to zoom)
-                  </span>
-                  <button
-                    onClick={() => setViewState({ scale: 1, offsetX: 0, offsetY: 0, isDragging: false, lastX: 0, lastY: 0 })}
-                    className="text-[#00ff88] font-['Rajdhani'] text-sm hover:text-[#00cc6a]"
-                  >
-                    Reset View
-                  </button>
+      <main className="app-main">
+        <section className="hero">
+          <div className="hero-copy">
+            <span className="hero-kicker">SKILL_RELATIONSHIP_MAP_v1.0</span>
+            <h1 className="hero-title">
+              <span>AGENT</span> <span>CONNECTIONS</span>
+            </h1>
+            <p className="hero-subtitle">
+              Visualize how AI agents reference and depend on each other
+            </p>
+          </div>
+        </section>
+
+        <section className="skills-section">
+          {/* View Toggle */}
+          <div className="flex justify-center gap-4 mb-8">
+            <button
+              onClick={() => setViewMode('graph')}
+              className={`view-toggle-btn ${viewMode === 'graph' ? 'active' : ''}`}
+            >
+              🕸️ GRAPH_VIEW
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`view-toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
+            >
+              📋 LIST_VIEW
+            </button>
+          </div>
+
+          {/* Stats Cards */}
+          {stats && (
+            <div className="skills-stats-grid mb-8">
+              <div className="stat-card">
+                <div className="stat-label">Total Skills</div>
+                <div className="stat-value text-[var(--neon-green)]">{stats.totalSkills}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Relationships</div>
+                <div className="stat-value text-[var(--neon-blue)]">{stats.totalRelationships}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Connected Skills</div>
+                <div className="stat-value text-[var(--warning-orange)]">{stats.skillsWithReferences}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Avg Connections</div>
+                <div className="stat-value text-[var(--neon-purple)]">
+                  {stats.referencesPerSkill.toFixed(1)}
                 </div>
-                <canvas
-                  ref={canvasRef}
-                  onClick={handleCanvasClick}
-                  onMouseMove={handleCanvasMouseMove}
-                  onMouseDown={handleMouseDown}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                  onWheel={handleWheel}
-                  className="w-full cursor-grab active:cursor-grabbing"
-                  style={{ height: '600px' }}
-                />
+              </div>
+              <div className="stat-card col-span-2">
+                <div className="stat-label">Most Referenced</div>
+                <div className="stat-value text-[var(--neon-green)]">
+                  {stats.mostReferenced?.name} ({stats.mostReferenced?.references})
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              {selectedSkill ? (
-                <div className="bg-[#080808] border border-[#00ff88] rounded-lg p-4">
-                  <h3 className="text-xl font-['Orbitron'] text-[#00ff88] mb-4">
-                    {selectedSkill.name}
-                  </h3>
-                  <div className="space-y-3 mb-4">
-                    <div className="flex justify-between">
-                      <span className="text-[#888] font-['Rajdhani']">Category:</span>
-                      <span className="text-[#ccc] font-['Rajdhani']">{selectedSkill.category}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#888] font-['Rajdhani']">Platform:</span>
-                      <span className="text-[#ccc] font-['Rajdhani']">{selectedSkill.platform}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#888] font-['Rajdhani']">Referenced by:</span>
-                      <span className="text-[#00ff88] font-['Orbitron']">{selectedSkill.references} skills</span>
-                    </div>
+          {/* Legend */}
+          <div className="graph-legend glass-card mb-6">
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--text-muted)] font-['Rajdhani'] text-sm">Platforms:</span>
+                <div className="flex gap-3">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-[var(--warning-orange)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Coze</span>
                   </div>
-
-                  <div className="mb-4">
-                    <h4 className="text-[#00d4ff] font-['Rajdhani'] font-semibold mb-2">
-                      Referenced By ({selectedSkill.referencedBy.length})
-                    </h4>
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {selectedSkill.referencedBy.map(id => {
-                        const skill = graph.find(s => s.id === id);
-                        return skill ? (
-                          <div key={id} className="text-sm text-[#ccc] font-['Rajdhani'] truncate">
-                            {skill.name}
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-[var(--neon-green)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Claude Code</span>
                   </div>
-
-                  <div>
-                    <h4 className="text-[#ff6600] font-['Rajdhani'] font-semibold mb-2">
-                      Uses ({selectedSkill.referencesTo.length})
-                    </h4>
-                    <div className="space-y-1 max-h-32 overflow-y-auto">
-                      {selectedSkill.referencesTo.map(id => {
-                        const skill = graph.find(s => s.id === id);
-                        return skill ? (
-                          <div key={id} className="text-sm text-[#ccc] font-['Rajdhani'] truncate">
-                            {skill.name}
-                          </div>
-                        ) : null;
-                      })}
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-[var(--neon-blue)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Manus</span>
                   </div>
-
-                  <button
-                    onClick={() => setSelectedSkill(null)}
-                    className="w-full mt-4 px-4 py-2 bg-[#1a1a1a] text-[#00ff88] font-['Rajdhani'] rounded hover:bg-[#2a2a2a] transition-colors"
-                  >
-                    Close
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 rounded-full bg-[var(--neon-purple)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">MiniMax</span>
+                  </div>
                 </div>
-              ) : (
-                <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg p-4">
-                  <h3 className="text-lg font-['Orbitron'] text-[#00ff88] mb-4">
-                    Top Referenced Skills
-                  </h3>
-                  <div className="space-y-2">
-                    {sortedSkills.slice(0, 8).map(skill => (
-                      <button
-                        key={skill.id}
-                        onClick={() => setSelectedSkill(skill)}
-                        className="w-full text-left px-3 py-2 bg-[#0a0a0a] rounded hover:bg-[#1a1a1a] transition-colors group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="text-[#ccc] font-['Rajdhani'] text-sm truncate group-hover:text-[#00ff88]">
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--text-muted)] font-['Rajdhani'] text-sm">Relations:</span>
+                <div className="flex gap-3">
+                  <div className="flex items-center gap-1">
+                    <div className="w-8 h-0.5 bg-[var(--warning-orange)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Depends</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-8 h-0.5 bg-[var(--neon-green)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Uses</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-8 h-0.5 bg-[var(--neon-blue)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Complements</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-8 h-0.5 bg-[var(--neon-purple)]"></div>
+                    <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm">Similar</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {viewMode === 'graph' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Canvas Area */}
+              <div className="lg:col-span-3">
+                <div className="graph-container glass-card">
+                  <div className="graph-header">
+                    <span className="text-[var(--text-muted)] font-['Rajdhani'] text-sm">
+                      Interactive Graph (drag to pan, scroll to zoom)
+                    </span>
+                    <button
+                      onClick={() => setViewState({ scale: 1, offsetX: 0, offsetY: 0, isDragging: false, lastX: 0, lastY: 0 })}
+                      className="reset-view-btn"
+                    >
+                      ↺ Reset
+                    </button>
+                  </div>
+                  <canvas
+                    ref={canvasRef}
+                    onClick={handleCanvasClick}
+                    onMouseMove={handleCanvasMouseMove}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp}
+                    onWheel={handleWheel}
+                    className="graph-canvas cursor-grab active:cursor-grabbing"
+                  />
+                </div>
+              </div>
+
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                {selectedSkill ? (
+                  <div className="glass-card skill-detail-selected">
+                    <h3 className="text-xl font-['Orbitron'] text-[var(--neon-green)] mb-4">
+                      {selectedSkill.name}
+                    </h3>
+                    <div className="space-y-3 mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)] font-['Rajdhani']">Category:</span>
+                        <span className="text-[var(--text-secondary)] font-['Rajdhani']">{selectedSkill.category}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)] font-['Rajdhani']">Platform:</span>
+                        <span className="text-[var(--text-secondary)] font-['Rajdhani']">{selectedSkill.platform}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-[var(--text-muted)] font-['Rajdhani']">Referenced by:</span>
+                        <span className="text-[var(--neon-green)] font-['Orbitron']">{selectedSkill.references} skills</span>
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <h4 className="text-[var(--neon-blue)] font-['Rajdhani'] font-semibold mb-2">
+                        Referenced By ({selectedSkill.referencedBy.length})
+                      </h4>
+                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                        {selectedSkill.referencedBy.map(id => {
+                          const skill = graph.find(s => s.id === id);
+                          return skill ? (
+                            <div key={id} className="text-sm text-[var(--text-secondary)] font-['Rajdhani'] truncate">
+                              {skill.name}
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="mb-4">
+                      <h4 className="text-[var(--warning-orange)] font-['Rajdhani'] font-semibold mb-2">
+                        Uses ({selectedSkill.referencesTo.length})
+                      </h4>
+                      <div className="space-y-1 max-h-32 overflow-y-auto">
+                        {selectedSkill.referencesTo.map(id => {
+                          const skill = graph.find(s => s.id === id);
+                          return skill ? (
+                            <div key={id} className="text-sm text-[var(--text-secondary)] font-['Rajdhani'] truncate">
+                              {skill.name}
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedSkill(null)}
+                      className="ghost-btn w-full"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : (
+                  <div className="glass-card">
+                    <h3 className="text-lg font-['Orbitron'] text-[var(--neon-green)] mb-4">
+                      Top Referenced Skills
+                    </h3>
+                    <div className="space-y-2">
+                      {sortedSkills.slice(0, 8).map(skill => (
+                        <button
+                          key={skill.id}
+                          onClick={() => setSelectedSkill(skill)}
+                          className="skill-list-item"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-[var(--text-secondary)] font-['Rajdhani'] text-sm truncate group-hover:text-[var(--neon-green)]">
+                              {skill.name}
+                            </span>
+                            <span className="text-[var(--neon-green)] font-['Orbitron'] text-sm ml-2">
+                              {skill.references}
+                            </span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            /* List View */
+            <div className="glass-card skills-list-container">
+              <div className="skills-list-header">
+                <span className="text-[var(--text-muted)] font-['Rajdhani']">Skills by Reference Count</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="filter-select"
+                >
+                  <option value="references">By References</option>
+                  <option value="name">By Name</option>
+                  <option value="category">By Category</option>
+                </select>
+              </div>
+              <div className="divide-y divide-[rgba(255,255,255,0.05)]">
+                {sortedSkills.map((skill, index) => (
+                  <button
+                    key={skill.id}
+                    onClick={() => setSelectedSkill(skill)}
+                    className="skill-list-row w-full text-left group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className={`rank-badge ${
+                        index === 0 ? 'rank-gold' :
+                        index === 1 ? 'rank-silver' :
+                        index === 2 ? 'rank-bronze' :
+                        'rank-default'
+                      }`}>
+                        {index + 1}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[var(--text-secondary)] font-['Rajdhani'] group-hover:text-[var(--neon-green)] truncate">
                             {skill.name}
                           </span>
-                          <span className="text-[#00ff88] font-['Orbitron'] text-sm ml-2">
-                            {skill.references}
+                          <span className="platform-badge">
+                            {skill.category}
                           </span>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ) : (
-          /* List View */
-          <div className="bg-[#080808] border border-[#1a1a1a] rounded-lg overflow-hidden">
-            <div className="bg-[#0a0a0a] border-b border-[#1a1a1a] px-4 py-3 flex items-center justify-between">
-              <span className="text-[#888] font-['Rajdhani']">Skills by Reference Count</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-[#1a1a1a] text-[#00ff88] border border-[#2a2a2a] rounded px-3 py-1 font-['Rajdhani']"
-              >
-                <option value="references">By References</option>
-                <option value="name">By Name</option>
-                <option value="category">By Category</option>
-              </select>
-            </div>
-            <div className="divide-y divide-[#1a1a1a]">
-              {sortedSkills.map((skill, index) => (
-                <button
-                  key={skill.id}
-                  onClick={() => setSelectedSkill(skill)}
-                  className="w-full px-4 py-3 hover:bg-[#0a0a0a] transition-colors text-left group"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className={`w-8 h-8 rounded flex items-center justify-center font-['Orbitron'] text-sm ${
-                      index === 0 ? 'bg-[#ffd700] text-black' :
-                      index === 1 ? 'bg-[#c0c0c0] text-black' :
-                      index === 2 ? 'bg-[#cd7f32] text-black' :
-                      'bg-[#1a1a1a] text-[#666]'
-                    }`}>
-                      {index + 1}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[#ccc] font-['Rajdhani'] group-hover:text-[#00ff88] truncate">
-                          {skill.name}
-                        </span>
-                        <span className="px-2 py-0.5 bg-[#1a1a1a] rounded text-xs font-['Rajdhani'] text-[#888]">
-                          {skill.category}
-                        </span>
+                        <div className="text-[var(--text-muted)] font-['Rajdhani'] text-sm">
+                          {skill.platform}
+                        </div>
                       </div>
-                      <div className="text-[#666] font-['Rajdhani'] text-sm">
-                        {skill.platform}
+                      <div className="text-right">
+                        <div className="text-2xl font-['Orbitron'] text-[var(--neon-green)]">
+                          {skill.references}
+                        </div>
+                        <div className="text-[var(--text-muted)] font-['Rajdhani'] text-xs">
+                          references
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-['Orbitron'] text-[#00ff88]">
-                        {skill.references}
-                      </div>
-                      <div className="text-[#666] font-['Rajdhani'] text-xs">
-                        references
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </section>
       </main>
     </div>
   );
