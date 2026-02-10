@@ -401,13 +401,13 @@ export function getReviewStatistics(skillId: string) {
     WHERE skill_id = ?
     GROUP BY stars
   `);
-  const starRows = starStmt.all(skillId);
+  const starRows = starStmt.all(skillId) as Array<{ stars: number; count: number }>;
 
   const starDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   for (const row of starRows) {
-    const starValue = row.stars as number;
+    const starValue = row.stars;
     if (starValue in starDistribution) {
-      starDistribution[starValue] = row.count as number;
+      starDistribution[starValue] = row.count;
     }
   }
 
