@@ -12,17 +12,19 @@ interface SkillInstallButtonProps {
   onInstall?: () => void;
 }
 
-export function getSkillInstallCommand(skill: { name: string; npm_package?: string }): string {
+export function getSkillInstallCommand(skill: { name: string; npm_package?: string; repository?: string }): string {
   // Format: npx skills add @myskills/skill-name or npx skills add owner/repo@skill-name
   if (skill.npm_package) {
     return `npx skills add ${skill.npm_package}`;
   }
   // Generate from repository URL
-  const repoMatch = skill.repository?.match(/github\.com\/([^\/]+\/[^\/\.]+)/);
-  if (repoMatch) {
-    const ownerRepo = repoMatch[1];
-    const skillName = skill.name.toLowerCase().replace(/\s+/g, '-');
-    return `npx skills add ${ownerRepo}@${skillName}`;
+  if (skill.repository) {
+    const repoMatch = skill.repository.match(/github\.com\/([^\/]+\/[^\/\.]+)/);
+    if (repoMatch) {
+      const ownerRepo = repoMatch[1];
+      const skillName = skill.name.toLowerCase().replace(/\s+/g, '-');
+      return `npx skills add ${ownerRepo}@${skillName}`;
+    }
   }
   // Fallback
   return `npx skills add myskills-protocol/${skill.name.toLowerCase().replace(/\s+/g, '-')}`;

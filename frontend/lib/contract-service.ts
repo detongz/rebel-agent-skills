@@ -114,7 +114,7 @@ export async function getTokenInfo() {
  */
 export async function getSkills(options: {
   platform?: string;
-  sort?: 'tips' | 'stars' | 'newest' | 'name';
+  sort?: 'tips' | 'stars' | 'likes' | 'newest' | 'latest' | 'name';
   limit?: number;
 } = {}) {
   try {
@@ -587,7 +587,8 @@ export async function getBounties(options: {
     // Extract unique bounty IDs from events
     const bountyIds = new Set<number>();
     for (const event of bountyCreatedEvents) {
-      if (event.args?.bountyId) {
+      // Only EventLog has args property
+      if ('args' in event && event.args?.bountyId) {
         bountyIds.add(Number(event.args.bountyId));
       }
     }

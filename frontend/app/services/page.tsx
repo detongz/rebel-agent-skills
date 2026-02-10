@@ -70,7 +70,7 @@ export default function ServicesPage() {
           return walletClient.signTypedData({
             domain: message.domain as any,
             types: message.types as any,
-            primaryType,
+            primaryType: message.primaryType,
             message: message.message,
           });
         },
