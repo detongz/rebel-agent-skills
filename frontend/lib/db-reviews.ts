@@ -330,8 +330,8 @@ export function updateAirdropEligibility(walletAddress: string) {
     walletAddress,
     minReviewsMet ? 1 : 0,
     minComputeMet ? 1 : 0,
-    stats.totalReviews,
-    stats.totalComputeUsed,
+    stats.total_reviews,
+    stats.total_compute_used || '0',
     isEligible ? 1 : 0
   );
 }
