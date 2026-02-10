@@ -130,6 +130,77 @@ CREATE INDEX IF NOT EXISTS idx_skill_likes_skill ON skill_likes(skill_id);
 CREATE INDEX IF NOT EXISTS idx_skill_likes_user ON skill_likes(user_address);
 
 -- ============================================
+-- 5. 评测/评论表
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  -- 关联信息
+  skill_id INTEGER NOT NULL,
+  reviewer_address TEXT NOT NULL,
+
+  -- 评分
+  stars INTEGER NOT NULL,                   -- 1-5 星评分
+  quality_score REAL DEFAULT 0,            -- 质量评分 (0-100)
+  performance_score REAL DEFAULT 0,        -- 性能评分 (0-100)
+  usability_score REAL DEFAULT 0,          -- 易用性评分 (0-100)
+
+  -- 内容
+  comment TEXT NOT NULL,                   -- 评论内容 (最少10字符)
+  pros TEXT,                               -- 优点列表
+  cons TEXT,                               -- 缺点列表
+
+  -- 标记
+  is_verified_purchase BOOLEAN DEFAULT 0,  -- 是否已验证使用
+  is_agent_tested BOOLEAN DEFAULT 0,       -- 是否经过 Agent 测试
+  agent_test_results TEXT,                 -- Agent 测试结果 (JSON)
+
+  -- 统计
+  helpful_count INTEGER DEFAULT 0,         -- 有用投票数
+  report_count INTEGER DEFAULT 0,          -- 举报数
+
+  -- 状态
+  status TEXT DEFAULT 'active',            -- 'active' | 'hidden' | 'flagged'
+  moderator_notes TEXT,                    -- 版主备注
+
+  -- 时间戳
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+
+  -- 约束
+  UNIQUE(skill_id, reviewer_address),
+  FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE,
+  CHECK(stars >= 1 AND stars <= 5),
+  CHECK(quality_score >= 0 AND quality_score <= 100),
+  CHECK(performance_score >= 0 AND performance_score <= 100),
+  CHECK(usability_score >= 0 AND usability_score <= 100)
+);
+
+-- 索引
+CREATE INDEX IF NOT EXISTS idx_reviews_skill_id ON reviews(skill_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_reviewer ON reviews(reviewer_address);
+CREATE INDEX IF NOT EXISTS idx_reviews_stars ON reviews(stars);
+CREATE INDEX IF NOT EXISTS idx_reviews_status ON reviews(status);
+CREATE INDEX IF NOT EXISTS idx_reviews_created ON reviews(created_at DESC);
+
+-- Agent 使用统计表 (用于 airdrop 资格检查)
+CREATE TABLE IF NOT EXISTS agent_usage (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  agent_address TEXT NOT NULL UNIQUE,
+  total_compute_units REAL DEFAULT 0,      -- 计算单位使用量
+  skill_calls INTEGER DEFAULT 0,           -- 技能调用次数
+  unique_skills_used INTEGER DEFAULT 0,    -- 使用的不同技能数
+
+  last_activity_at TEXT DEFAULT (datetime('now')),
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_agent_usage_address ON agent_usage(agent_address);
+CREATE INDEX IF NOT EXISTS idx_agent_usage_compute ON agent_usage(total_compute_units DESC);
+
+-- ============================================
 -- 初始化完成提示
 -- ============================================
 

@@ -177,17 +177,21 @@ export default function AgentWorkflowDemo() {
         {/* Step Indicator */}
         <div className="max-w-6xl mx-auto px-6 mb-8">
           <div className="flex items-center justify-center gap-2">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className={`step-indicator ${currentStep === step.id ? 'active' : ''} ${steps.indexOf(currentStep) > index ? 'completed' : ''}`}>
-                  {steps.indexOf(currentStep) > index ? '✓' : index + 1}
+            {steps.map((step, index) => {
+              const currentStepIndex = steps.findIndex(s => s.id === currentStep);
+              const isCompleted = currentStepIndex > index;
+              return (
+                <div key={step.id} className="flex items-center">
+                  <div className={`step-indicator ${currentStep === step.id ? 'active' : ''} ${isCompleted ? 'completed' : ''}`}>
+                    {isCompleted ? '✓' : index + 1}
+                  </div>
+                  <span className="step-label">{step.label}</span>
+                  {index < steps.length - 1 && (
+                    <div className={`step-connector ${isCompleted ? 'completed' : ''}`} />
+                  )}
                 </div>
-                <span className="step-label">{step.label}</span>
-                {index < steps.length - 1 && (
-                  <div className={`step-connector ${steps.indexOf(currentStep) > index ? 'completed' : ''}`} />
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
