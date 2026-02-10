@@ -1768,3 +1768,318 @@ div[role="dialog"][data-rk] {
 .nav-link-reviews {
   color: var(--neon-blue) !important;
 }
+
+/* ============================================
+   Review Form Component Styles
+   ============================================ */
+
+.review-form-container {
+  background: var(--bg-deep);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+}
+
+.review-form-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.review-form-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.review-form-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.review-form-connect-prompt {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.review-form-success {
+  padding: 40px;
+  text-align: center;
+  color: var(--neon-green);
+}
+
+.review-form-success svg {
+  margin: 0 auto 16px;
+  color: var(--neon-green);
+}
+
+.review-form-success h4 {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+.review-form-success p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review-form-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.review-form-label .required {
+  color: var(--warning-orange);
+}
+
+/* Star Rating */
+.star-rating-container {
+  display: flex;
+  gap: 8px;
+}
+
+.star-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  color: var(--text-muted);
+}
+
+.star-button:hover {
+  border-color: rgba(255, 215, 0, 0.3);
+  background: rgba(255, 215, 0, 0.05);
+}
+
+.star-button.star-active {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.star-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Comment Textarea */
+.review-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-tech);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  transition: all var(--transition-base);
+}
+
+.review-textarea:focus {
+  outline: none;
+  border-color: var(--neon-green);
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+.review-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.review-textarea::placeholder {
+  color: var(--text-faint);
+}
+
+.character-count {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.character-count.limit-reached {
+  color: var(--warning-orange);
+}
+
+/* Quality Score Preview */
+.quality-score-preview {
+  padding: 16px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--radius-lg);
+}
+
+.quality-score-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.quality-score-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.quality-score-value {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.quality-score-value.eligible {
+  color: var(--neon-green);
+}
+
+.quality-score-bar {
+  height: 6px;
+  background: var(--bg-deep);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.quality-score-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+  transition: width var(--transition-slow);
+  border-radius: var(--radius-full);
+}
+
+.quality-score-details {
+  margin-bottom: 12px;
+}
+
+.score-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+.score-detail-row.bonus {
+  color: var(--neon-green);
+}
+
+/* Rewards Preview */
+.review-rewards-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reward-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reward-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.reward-value {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neon-blue);
+}
+
+.airdrop-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--neon-green);
+}
+
+.airdrop-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Submit Button */
+.review-submit-btn {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--metal-dark);
+  border: 1px solid var(--neon-green);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neon-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all var(--transition-base);
+}
+
+.review-submit-btn:hover:not(:disabled) {
+  background: var(--neon-green);
+  color: var(--bg-void);
+  box-shadow: 0 0 20px var(--neon-green-glow);
+}
+
+.review-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.review-submit-btn svg.spinning {
+  animation: spin 1s linear infinite;
+}
