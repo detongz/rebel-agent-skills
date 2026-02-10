@@ -43,7 +43,6 @@ export default function BountiesPage() {
       const result = await response.json();
 
       if (result.success) {
-        // Convert date strings back to Date objects
         const bountiesWithDates = result.data.map((bounty: any) => ({
           ...bounty,
           createdAt: new Date(bounty.createdAt),
@@ -62,26 +61,26 @@ export default function BountiesPage() {
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'security-audit': 'bg-red-500/20 text-red-300 border-red-500/30',
-      'code-review': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-      'test-generation': 'bg-green-500/20 text-green-300 border-green-500/30',
-      'optimization': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-      'documentation': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-      'other': 'bg-gray-500/20 text-gray-300 border-gray-500/30'
+  const getCategoryStyle = (category: string) => {
+    const styles: Record<string, { bg: string; color: string; border: string }> = {
+      'security-audit': { bg: 'rgba(255, 102, 0, 0.1)', color: 'var(--warning-orange)', border: 'rgba(255, 102, 0, 0.3)' },
+      'code-review': { bg: 'rgba(0, 212, 255, 0.1)', color: 'var(--neon-blue)', border: 'rgba(0, 212, 255, 0.3)' },
+      'test-generation': { bg: 'rgba(0, 255, 136, 0.1)', color: 'var(--neon-green)', border: 'rgba(0, 255, 136, 0.3)' },
+      'optimization': { bg: 'rgba(147, 51, 234, 0.1)', color: '#9333ea', border: 'rgba(147, 51, 234, 0.3)' },
+      'documentation': { bg: 'rgba(255, 255, 0, 0.1)', color: '#ffff00', border: 'rgba(255, 255, 0, 0.3)' },
+      'other': { bg: 'rgba(128, 128, 128, 0.1)', color: 'var(--text-muted)', border: 'rgba(128, 128, 128, 0.3)' }
     };
-    return colors[category] || colors.other;
+    return styles[category] || styles.other;
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      'open': 'bg-green-500/20 text-green-300',
-      'in-progress': 'bg-yellow-500/20 text-yellow-300',
-      'completed': 'bg-blue-500/20 text-blue-300',
-      'cancelled': 'bg-red-500/20 text-red-300'
+  const getStatusStyle = (status: string) => {
+    const styles: Record<string, { bg: string; color: string; text: string }> = {
+      'open': { bg: 'rgba(0, 255, 136, 0.1)', color: 'var(--neon-green)', text: 'OPEN' },
+      'in-progress': { bg: 'rgba(255, 255, 0, 0.1)', color: '#ffff00', text: 'IN_PROGRESS' },
+      'completed': { bg: 'rgba(0, 212, 255, 0.1)', color: 'var(--neon-blue)', text: 'COMPLETED' },
+      'cancelled': { bg: 'rgba(255, 102, 0, 0.1)', color: 'var(--warning-orange)', text: 'CANCELLED' }
     };
-    return colors[status] || 'bg-gray-500/20 text-gray-300';
+    return styles[status] || styles.open;
   };
 
   const formatAddress = (addr: string) => {
@@ -96,165 +95,189 @@ export default function BountiesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
-      {/* Header */}
-      <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
+    <div className="app-shell">
+      <div className="app-backdrop" aria-hidden="true" />
+
+      <nav className="app-nav">
+        <div className="nav-left">
+          <div className="brand-mark">
+            <span className="brand-orb" />
+            <span className="brand-text">MySkills_Protocol</span>
+          </div>
+        </div>
+        <div className="nav-right">
+          <div className="nav-links-container">
+            <Link href="/" className="nav-link">HOME</Link>
+            <Link href="/skills-map" className="nav-link">SKILL MAP</Link>
+            <Link href="/services" className="nav-link">SERVICES</Link>
+            <Link href="/bounties" className="nav-link text-[var(--neon-green)]">BOUNTIES</Link>
+          </div>
+        </div>
+      </nav>
+
+      <main className="app-main">
+        <section className="hero">
+          <div className="hero-copy">
+            <span className="hero-kicker">BOUNTY_MARKETPLACE_v1.0</span>
+            <h1 className="hero-title">
+              <span>AGENT</span> <span>BOUNTIES</span>
+            </h1>
+            <p className="hero-subtitle">
+              Post and claim bounties for custom agent skill development
+            </p>
+            <div className="hero-actions">
+              {isConnected && (
+                <Link href="/bounties/new" className="primary-btn">
+                  + POST_BOUNTY
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section className="skills-section">
+          <div className="skills-header">
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">
-                Agent Bounties
-              </h1>
-              <p className="text-gray-400">
-                Post and claim bounties for custom agent skill development
+              <h2 className="skills-title">// AVAILABLE_BOUNTIES</h2>
+              <p className="skills-subtitle">
+                Earn rewards by completing agent skill development tasks
               </p>
             </div>
-            {isConnected && (
-              <Link
-                href="/bounties/new"
-                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg shadow-purple-500/25"
-              >
-                + Post Bounty
-              </Link>
-            )}
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters */}
-        <div className="mb-8 p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Status
-              </label>
-              <select
-                value={filter.status}
-                onChange={(e) => setFilter({ ...filter, status: e.target.value as any })}
-                className="w-full px-4 py-2 bg-black/30 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="all">All Status</option>
-                <option value="open">Open</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Category
-              </label>
-              <select
-                value={filter.category}
-                onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-                className="w-full px-4 py-2 bg-black/30 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="">All Categories</option>
-                <option value="security-audit">Security Audit</option>
-                <option value="code-review">Code Review</option>
-                <option value="test-generation">Test Generation</option>
-                <option value="optimization">Optimization</option>
-                <option value="documentation">Documentation</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Sort By
-              </label>
-              <select
-                value={filter.sortBy}
-                onChange={(e) => setFilter({ ...filter, sortBy: e.target.value as any })}
-                className="w-full px-4 py-2 bg-black/30 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="newest">Newest</option>
-                <option value="reward">Highest Reward</option>
-                <option value="deadline">Deadline</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <div className="text-sm text-gray-400">
-                {loading ? (
-                  <span>Loading...</span>
-                ) : (
-                  <span>{bounties.length} bount{bounties.length === 1 ? 'y' : 'ies'} found</span>
-                )}
-              </div>
+          {/* Filters */}
+          <div className="bounty-filters">
+            <select
+              value={filter.status}
+              onChange={(e) => setFilter({ ...filter, status: e.target.value as any })}
+              className="filter-select"
+            >
+              <option value="all">[ALL_STATUS]</option>
+              <option value="open">OPEN</option>
+              <option value="in-progress">IN_PROGRESS</option>
+              <option value="completed">COMPLETED</option>
+            </select>
+            <select
+              value={filter.category}
+              onChange={(e) => setFilter({ ...filter, category: e.target.value })}
+              className="filter-select"
+            >
+              <option value="">[ALL_CATEGORIES]</option>
+              <option value="security-audit">SECURITY_AUDIT</option>
+              <option value="code-review">CODE_REVIEW</option>
+              <option value="test-generation">TEST_GENERATION</option>
+              <option value="optimization">OPTIMIZATION</option>
+              <option value="documentation">DOCUMENTATION</option>
+            </select>
+            <select
+              value={filter.sortBy}
+              onChange={(e) => setFilter({ ...filter, sortBy: e.target.value as any })}
+              className="filter-select"
+            >
+              <option value="newest">[NEWEST]</option>
+              <option value="reward">[HIGHEST_REWARD]</option>
+              <option value="deadline">[DEADLINE]</option>
+            </select>
+            <div className="bounty-count">
+              {loading ? 'LOADING...' : `${bounties.length}_BOUNTIES`}
             </div>
           </div>
-        </div>
 
-        {/* Bounty List */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-          </div>
-        ) : bounties.length === 0 ? (
-          <div className="text-center py-20">
-            <p className="text-gray-400 text-lg mb-4">No bounties found</p>
-            {isConnected && (
-              <Link
-                href="/bounties/new"
-                className="inline-block px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all"
-              >
-                Post the First Bounty
-              </Link>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {bounties.map((bounty) => (
-              <Link
-                key={bounty.id}
-                href={`/bounties/${bounty.id}`}
-                className="block p-6 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-purple-500/50 transition-all group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-white group-hover:text-purple-400 transition-colors">
-                        {bounty.title}
-                      </h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getCategoryColor(bounty.category)}`}>
-                        {bounty.category.replace('-', ' ')}
+          {/* Bounty List */}
+          {loading ? (
+            <div className="loading-state">
+              <div className="loading-orb"></div>
+              <p className="loading-text">Loading bounties...</p>
+            </div>
+          ) : bounties.length === 0 ? (
+            <div className="glass-card text-center py-20">
+              <p className="text-[var(--text-muted)] text-lg mb-4">NO_BOUNTIES_FOUND</p>
+              {isConnected && (
+                <Link href="/bounties/new" className="primary-btn">
+                  + POST_FIRST_BOUNTY
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="skills-grid">
+              {bounties.map((bounty) => {
+                const categoryStyle = getCategoryStyle(bounty.category);
+                const statusStyle = getStatusStyle(bounty.status);
+
+                return (
+                  <Link
+                    key={bounty.id}
+                    href={`/bounties/${bounty.id}`}
+                    className="skill-card"
+                  >
+                    <div className="skill-card-header">
+                      <span
+                        className="skill-platform-pill"
+                        style={{
+                          background: categoryStyle.bg,
+                          color: categoryStyle.color,
+                          border: `1px solid ${categoryStyle.border}`,
+                        }}
+                      >
+                        {bounty.category.replace('-', '_').toUpperCase()}
                       </span>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(bounty.status)}`}>
-                        {bounty.status.replace('-', ' ')}
+                      <span
+                        className="skill-creator"
+                        title={bounty.creator}
+                      >
+                        {formatAddress(bounty.creator)}
                       </span>
                     </div>
-                    <p className="text-gray-400 mb-4 line-clamp-2">
-                      {bounty.description}
-                    </p>
-                    <div className="flex items-center gap-6 text-sm text-gray-500">
+
+                    <h3 className="skill-title">{bounty.title}</h3>
+                    <p className="skill-description">{bounty.description}</p>
+
+                    {/* Status Badge */}
+                    <div className="flex gap-2 mb-4">
+                      <span
+                        className="px-3 py-1 rounded text-xs font-mono border"
+                        style={{
+                          background: statusStyle.bg,
+                          color: statusStyle.color,
+                          borderColor: statusStyle.color,
+                        }}
+                      >
+                        {statusStyle.text}
+                      </span>
+                      {bounty.deadline && (
+                        <span className="text-xs text-[var(--text-muted)] font-mono">
+                          ⏰ {formatDate(bounty.deadline)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Creator/Assignee Info */}
+                    <div className="flex items-center gap-4 text-sm mb-4 text-[var(--text-muted)]">
                       <div className="flex items-center gap-2">
                         <span>👤</span>
                         <span>{formatAddress(bounty.creator)}</span>
                       </div>
-                      {bounty.deadline && (
-                        <div className="flex items-center gap-2">
-                          <span>⏰</span>
-                          <span>{formatDate(bounty.deadline)}</span>
-                        </div>
-                      )}
                       {bounty.assignee && (
                         <div className="flex items-center gap-2">
                           <span>✅</span>
-                          <span>Assigned to {formatAddress(bounty.assignee)}</span>
+                          <span>{formatAddress(bounty.assignee)}</span>
                         </div>
                       )}
                     </div>
-                  </div>
-                  <div className="ml-6 text-right">
-                    <div className="text-2xl font-bold text-purple-400">
-                      {bounty.reward} ASKL
+
+                    {/* Reward */}
+                    <div className="skill-stats">
+                      <span className="skill-tips">
+                        {parseFloat(bounty.reward.toString()).toFixed(2)} ASKL
+                      </span>
                     </div>
-                    <div className="text-sm text-gray-500">Reward</div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }

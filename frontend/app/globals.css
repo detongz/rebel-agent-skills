@@ -952,6 +952,267 @@ div[role="dialog"][data-rk] {
 }
 
 /* ============================================
+   Demo Page Styles
+   ============================================ */
+
+.step-indicator {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+  background: var(--metal-dark);
+  color: var(--text-muted);
+  transition: all var(--transition-base);
+}
+
+.step-indicator.active {
+  background: var(--neon-purple);
+  color: var(--bg-void);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px var(--neon-purple-glow);
+}
+
+.step-indicator.completed {
+  background: var(--neon-green);
+  color: var(--bg-void);
+}
+
+.step-label {
+  margin-top: 8px;
+  font-size: 11px;
+  font-family: 'Rajdhani', sans-serif;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.step-connector {
+  width: 60px;
+  height: 2px;
+  background: var(--metal-dark);
+  margin: 0 8px;
+}
+
+.step-connector.completed {
+  background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+  box-shadow: 0 0 10px var(--neon-green-glow);
+}
+
+/* Demo Cards */
+.demo-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.95),
+    0 0 0 1px rgba(0, 255, 136, 0.1) inset;
+}
+
+.demo-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.demo-request-box {
+  background: var(--bg-void);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.demo-feature-box {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+  transition: all var(--transition-base);
+}
+
+.demo-feature-box:hover {
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.demo-stage-indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+  background: var(--metal-dark);
+  color: var(--text-muted);
+  transition: all var(--transition-base);
+}
+
+.demo-stage-indicator.active {
+  background: var(--neon-purple);
+  color: var(--bg-void);
+  box-shadow: 0 0 15px var(--neon-purple-glow);
+}
+
+.demo-terminal {
+  background: var(--bg-void);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.demo-formula-box {
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+.demo-skill-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+  transition: all var(--transition-base);
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.demo-skill-card:hover {
+  border-color: rgba(0, 255, 136, 0.4);
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+}
+
+.demo-rank-badge {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--neon-green);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+}
+
+.demo-score-breakdown {
+  margin-bottom: 8px;
+}
+
+.demo-budget-summary {
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+}
+
+.demo-work-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+}
+
+.demo-results-card {
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  backdrop-filter: blur(20px);
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+.demo-payment-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  backdrop-filter: blur(20px);
+}
+
+.demo-tx-details {
+  background: var(--bg-void);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.demo-stat-box {
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  transition: all var(--transition-base);
+}
+
+.demo-stat-box:hover {
+  border-color: rgba(0, 255, 136, 0.2);
+}
+
+.demo-complete-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(147, 51, 236, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 3rem;
+  backdrop-filter: blur(20px);
+}
+
+.demo-features-box {
+  background: var(--bg-void);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+}
+
+/* ============================================
+   Bounty Page Styles
+   ============================================ */
+
+.bounty-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  align-items: center;
+}
+
+.bounty-filters select {
+  flex: 1;
+  min-width: 180px;
+}
+
+.bounty-count {
+  font-family: 'Orbitron', monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  background: var(--metal-dark);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
    页脚
    ============================================ */
 
