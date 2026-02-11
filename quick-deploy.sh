@@ -48,30 +48,33 @@ quick_deploy() {
     log_info "开始快速部署..."
     log_step "1/5: 本地构建包"
 
-    # 在本地构建所有包
-    cd /Volumes/Kingstone/workspace/rebel-agent-skills
+    # 设置基础目录
+    local BASE_DIR="/Volumes/Kingstone/workspace/rebel-agent-skills"
+    cd "$BASE_DIR"
 
+    # 构建共享包
     echo "  → 构建共享包..."
-    cd packages/shared && npm run build
+    (cd packages/shared && npm run build)
     if [ $? -ne 0 ]; then
         log_error "  ✗ 共享包构建失败"
         return 1
     fi
     echo "  ✅ @myskills/shared built"
 
+    # 构建前端
     echo "  → 构建前端..."
-    cd ../frontend && npm run build
+    (cd frontend && npm run build)
     if [ $? -ne 0 ]; then
         log_error "  ✗ 前端构建失败"
         return 1
     fi
     echo "  ✅ Frontend built"
 
+    # 构建并打包 CLI
     echo "  → 构建并打包 CLI..."
-    cd ../packages/cli
-    npm run build
-    npm run pack 2>/dev/null || true
-    if [ ! -f "dist/myskills-cli-*.tgz" ]; then
+    (cd packages/cli && npm run build && npm run pack) 2>/dev/null
+    CLI_TGZ=$(ls packages/cli/dist/myskills-cli-*.tgz 2>/dev/null | head -1)
+    if [ -z "$CLI_TGZ" ]; then
         log_error "  ✗ CLI 打包失败"
         return 1
     fi
@@ -80,36 +83,34 @@ quick_deploy() {
     log_step "2/5: 上传文件到服务器"
 
     # 在服务器上创建临时目录
-    ssh "$DEPLOY_HOST" "
-        mkdir -p $DEPLOY_PATH/temp
-    "
+    ssh "$DEPLOY_HOST" "mkdir -p $DEPLOY_PATH/temp"
 
     # 上传共享包
     echo "     → 上传 @myskills/shared..."
-        tar -czf - packages/shared/dist | ssh $DEPLOY_HOST 'tar -xzf -C $DEPLOY_PATH/temp' 2>&1
-        if [ $? -eq 0 ]; then
-            echo "       ✅ 上传成功"
-        else
-            echo "       ❌ 上传失败"
-        fi
+    tar -czf - packages/shared/dist | ssh "$DEPLOY_HOST" "tar -xzf - -C $DEPLOY_PATH/temp" 2>&1
+    if [ $? -eq 0 ]; then
+        echo "       ✅ 上传成功"
+    else
+        echo "       ❌ 上传失败"
+    fi
 
     # 上传前端
     echo "     → 上传 frontend..."
-        tar -czf - ../frontend/.next | ssh $DEPLOY_HOST 'tar -xzf -C $DEPLOY_PATH/temp/frontend' 2>&1
-        if [ $? -eq 0 ]; then
-            echo "       ✅ 上传成功"
-        else
-            echo "       ❌ 上传失败"
-        fi
+    tar -czf - frontend/.next | ssh "$DEPLOY_HOST" "tar -xzf - -C $DEPLOY_PATH/temp" 2>&1
+    if [ $? -eq 0 ]; then
+        echo "       ✅ 上传成功"
+    else
+        echo "       ❌ 上传失败"
+    fi
 
     # 上传 CLI
     echo "     → 上传 CLI..."
-        scp dist/myskills-cli-*.tgz $DEPLOY_HOST:$DEPLOY_PATH/temp/ 2>&1
-        if [ $? -eq 0 ]; then
-            echo "       ✅ 上传成功"
-        else
-            echo "       ❌ 上传失败"
-        fi
+    scp "$CLI_TGZ" "$DEPLOY_HOST:$DEPLOY_PATH/temp/" 2>&1
+    if [ $? -eq 0 ]; then
+        echo "       ✅ 上传成功"
+    else
+        echo "       ❌ 上传失败"
+    fi
 
     echo "     → 文件上传完成"
 
@@ -256,13 +257,9 @@ case "$1" in
         show_usage
         exit 0
         ;;
-        *)
+    *)
         # 执行快速部署
         quick_deploy
-            exit $?
-            ;;
-    esac
-done
-
-# 如果没有参数，显示使用说明
-show_usage
+        exit $?
+        ;;
+esac
