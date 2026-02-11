@@ -1,0 +1,125 @@
+name: Deploy MySkills to Production
+
+on:
+  push:
+    branches:
+      - feat/moltiverse-openclaw
+  workflow_dispatch:  # 允许手动触发部署
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build packages
+        run: |
+          echo "🔨 Building shared package..."
+          cd packages/shared && npm run build
+
+          echo "🔨 Building frontend..."
+          cd frontend && npm run build
+
+      - name: Deploy to server
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          echo "🚀 Starting deployment..."
+
+          # 创建临时目录
+          mkdir -p deploy-temp
+
+          # 复制构建文件
+          cp -r packages/shared/dist deploy-temp/shared
+          cp -r frontend/dist deploy-temp/frontend
+          cp -r packages/cli/dist deploy-temp/cli
+
+          # 上传到服务器
+          echo "Uploading files to server..."
+
+          # 使用 rsync 同步文件（如果 DEPLOY_HOST 是服务器地址）
+          # 或者使用 scp 复制文件
+
+          if [ -n "$DEPLOY_HOST" ]; then
+            # SSH 方式部署
+            echo "Deploying via SSH to $DEPLOY_HOST"
+
+            # 创建临时 SSH 密钥文件
+            echo "$DEPLOY_KEY" > deploy_key.pem
+            chmod 600 deploy_key.pem
+
+            # 部署命令（根据实际情况修改）
+            ssh -i deploy_key.pem -o StrictHostKeyChecking=no \
+              "$DEPLOY_HOST" \
+              "mkdir -p $DEPLOY_PATH && cd $DEPLOY_PATH && \
+               rm -rf shared frontend cli old 2>/dev/null || true && \
+               mkdir -p shared frontend cli && \
+               tar -czf - | tar -xzf - -C $DEPLOY_PATH && \
+               rsync -avz --delete deploy-temp/ $DEPLOY_HOST:$DEPLOY_PATH/"
+
+            # 清理临时文件
+            rm -f deploy_key.pem
+            rm -rf deploy-temp
+
+          else
+            # 本地构建（没有配置服务器时）
+            echo "Local build completed"
+            echo "Frontend built: $(ls -la frontend/dist/ | head -1)"
+            echo "CLI built: $(ls -la packages/cli/dist/ | head -1)"
+
+      - name: Cleanup
+        if: always()
+        run: rm -rf deploy-temp
+
+      - name: Health check
+        if: always()
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+        run: |
+          if [ -n "$DEPLOY_URL" ]; then
+            echo "🏥 Running health check..."
+            sleep 10
+
+            # 检查 API 端点
+            curl -f "$DEPLOY_URL/api/health" || echo "API health check failed"
+
+            # 检查前端
+            curl -f "$DEPLOY_URL" || echo "Frontend health check failed"
+
+            echo "✅ Deployment health check completed"
+          else
+            echo "⚠️  No DEPLOY_URL configured, skipping health check"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "================================"
+          echo "🎉 Deployment Summary"
+          echo "================================"
+          echo ""
+          echo "📦 Branch: ${{ github.ref_name }}"
+          echo "🔗 Commit: ${{ github.sha }}"
+          echo "⏰ Time: $(date -u '+%Y-%m-%d %H:%M:%S')"
+          echo ""
+          echo "Deployed components:"
+          echo "  ✓ @myskills/shared"
+          echo "  ✓ frontend"
+          echo "  ✓ CLI"
+          echo ""
+          echo "🌐 URLs to check:"
+          echo "  - Main site: ${{ secrets.DEPLOY_URL || 'Not configured' }}"
+          echo "  - Health check: ${{ secrets.DEPLOY_URL }}/api/health"

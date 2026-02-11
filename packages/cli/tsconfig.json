@@ -12,7 +12,16 @@
     "resolveJsonModule": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "paths": {
+      "@myskills/shared": ["../shared/src/index.ts"],
+      "@myskills/shared/config": ["../shared/src/config/index.ts"],
+      "@myskills/shared/types": ["../shared/src/types/index.ts"],
+      "@myskills/shared/api": ["../shared/src/api/index.ts"],
+      "@myskills/shared/github": ["../shared/src/github/index.ts"],
+      "@myskills/shared/registry": ["../shared/src/registry/index.ts"],
+      "@myskills/shared/core": ["../shared/src/core.ts"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

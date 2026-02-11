@@ -1,0 +1,58 @@
+# ⚠️ 重要：将此私钥添加到 GitHub Secrets
+
+## 📋 DEPLOY_SSH_KEY
+
+**Name**: `DEPLOY_SSH_KEY`
+
+**Value**（完整内容）：
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAACFwAAAAdzc2gtcn
+NhAAAAAwEAAQAAAgEAuwsEX3b14yvSqPQaowb1M0oLdJHktNFKpHD1v8166ERsxzoEsaVX
+b2kWbPNLwZlGE/588Np4evN4rIBqoagzySB3xef8nBA7jNgSVi
+yTgMXEEyZAuMVTYRBCAz54l2LiFdj20bwkr4ORS+JjI2ddu0HqJkozTDdYlvOiwmLHe8Zk
+f3x5wVND7Df5VH38gTm9Bo7cV8I8XbR/Ky/s8tZhWb8k9l3fivoBRiMElrFUFJa+uBqG
+aa oOY2qwZaOi7QvBUM9b7PvqC90tp1hWnfRO1/fkvHK1DYUyEl5YD2FYN6tTF2Sm
+zGUwliYhBsimL97XGFyV44ERqEhCYiwwIzlFxwQFltpY7uiM1D7MzjRE/J5eOj8EYw+oYahjOZcbSIAwvY7RG6LNT0EzXC/6Jp
+rA2BGn0eAioqZ5ESuQtylGwOiRSsfv13VswB8AOr40JR2SAtla
+3/yZ1L8oHM/b+n9iE+kmXGTkljNxUfB3gr9okcQuU0O5I3Hgasa
+NNtUO2LqWRNin8wjvTj+DP5o9sp9rVpZICpTJch/FxG7yCdzq7N3YKsQsXbEl
+SEIahuiXTfSXxFzD6SGQnsCsXGF9PY6ZIyOBum3/XAaqXxmB7rFLwwKiOp95C
+spD1Zs22F/5tgQ9mX7gaNIAgWgnbubX9lEYyb8d6NpqQkiO
+ywAy+UrNywUAAAADAQABAAACAG9jlz4XBUY9kd4GSVqvSRU7UmkgfVhlj5Mw
+plmMUFbEcReQaL02n0R9C9rkZUgtNHuxwcxZ/wgRuNraOyZ8miJ8EHguuNRkImK1Ru5E66
+7zl9pjnIWtFgOm//kYmg5l2Ah0xkCPUDWqH7xWXP33j+11yrD03WnVSA/Vlic
+3Vl9S/gSi
+J4xHPxsNFpIH2XlH3ldqerRUu0h+toEMsIrJuv4MhEGoE/ma
++2k+b3wirNT6FShku4lvud
+Pg9J4C/oM2zfCHHNKcD3zzQj33sNWuacnaGkFT+pjLsxjf8nBA7jNgSV
+-----END OPENSSH PRIVATE KEY-----
+```
+```
+
+---
+
+## 📝 配置说明
+
+1. 打开您的 GitHub 仓库 Settings
+2. 进入 "Secrets and variables" → Actions
+3. 点击 "New repository secret"
+4. 按照上面的 Value 内容，完整粘贴私钥
+5. 点击 "Add secret"
+6. 重复步骤 3-5 添加其他 3 个 Secrets：
+
+### DEPLOY_HOST（服务器地址）
+请填写：`user@your-server-ip` 或您的域名
+
+### DEPLOY_PATH（部署路径）
+请填写：`/var/www/myskills2026`
+
+### DEPLOY_URL（访问地址）
+请填写：`https://myskills2026.ddttupuo.buzz`
+
+---
+
+**⚠️ 注意**：
+- 确保从 `-----BEGIN` 复制到 `-----END`，完整包含所有内容
+- 配置完成后，推送代码到 `feat/moltiverse-openclaw` 分支即可触发自动部署
+- 前端将在服务器端口 **107** 上运行
