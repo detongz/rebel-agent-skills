@@ -73,9 +73,6 @@ function HomePage() {
                   <a href="/bounties" className="nav-link">
                     BOUNTIES
                   </a>
-                  <a href="/airdrop" className="nav-link text-[var(--warning-orange)]">
-                    AIRDROP
-                  </a>
                   <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
                     GITHUB
                   </a>
