@@ -71,7 +71,7 @@ jobs:
 
           # 复制构建文件
           cp -r packages/shared/dist deploy-temp/shared
-          cp -r frontend/dist deploy-temp/frontend
+          cp -r frontend/.next deploy-temp/frontend
           cp -r packages/cli/dist deploy-temp/cli
 
           # 上传到服务器
