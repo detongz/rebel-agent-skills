@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: myskills-frontend
+    restart: unless-stopped
+    ports:
+      - "107:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - NEXT_PUBLIC_ASKL_TOKEN_ADDRESS=${NEXT_PUBLIC_ASKL_TOKEN_ADDRESS:-0xc1fFCAD15e2f181E49bFf2cBea79094eC9B5033A}
+      - NEXT_PUBLIC_BOUNTY_HUB_ADDRESS=${NEXT_PUBLIC_BOUNTY_HUB_ADDRESS:-0x2679Bb99E7Cc239787a74BF6c77c2278311c77a1}
+    networks:
+      - myskills-network
+
+  # API 服务（如果需要）
+  # api:
+  #   build:
+  #     context: ./packages/shared
+  #     dockerfile: Dockerfile
+  #   container_name: myskills-api
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - NODE_ENV=production
+  #   networks:
+  #     - myskills-network
+
+networks:
+  myskills-network:
+    driver: bridge
