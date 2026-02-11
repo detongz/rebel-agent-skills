@@ -77,7 +77,6 @@ jobs:
             rm -f deploy_key.pem
             rm -rf deploy-temp
           fi
-        fi
 
       - name: Cleanup
         if: always()
