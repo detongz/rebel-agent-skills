@@ -26,6 +26,10 @@ jobs:
           npm ci
           cd packages/shared && npm install
 
+      - name: Install frontend dependencies
+        run: |
+          cd frontend && npm ci
+
       - name: Build packages
         run: |
           echo "🔨 Building shared package..."
