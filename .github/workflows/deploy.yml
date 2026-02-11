@@ -77,9 +77,6 @@ jobs:
           # 上传到服务器
           echo "Uploading files to server..."
 
-          # 使用 rsync 同步文件（如果 DEPLOY_HOST 是服务器地址）
-          # 或者使用 scp 复制文件
-
           if [ -n "$DEPLOY_HOST" ]; then
             # SSH 方式部署
             echo "Deploying via SSH to $DEPLOY_HOST"
@@ -88,18 +85,25 @@ jobs:
             echo "$DEPLOY_KEY" > deploy_key.pem
             chmod 600 deploy_key.pem
 
-            # 部署命令（根据实际情况修改）
+            # 停止旧服务
             ssh -i deploy_key.pem -o StrictHostKeyChecking=no \
-              "$DEPLOY_HOST" \
-              "mkdir -p $DEPLOY_PATH && cd $DEPLOY_PATH && \
-               rm -rf shared frontend cli old 2>/dev/null || true && \
-               mkdir -p shared frontend cli && \
-               tar -czf - | tar -xzf - -C $DEPLOY_PATH && \
-               rsync -avz --delete deploy-temp/ $DEPLOY_HOST:$DEPLOY_PATH/"
+              "$DEPLOY_HOST" "pm2 stop myskills2026 2>/dev/null || true"
+
+            # 使用 scp 上传文件
+            scp -i deploy_key.pem -o StrictHostKeyChecking=no -r \
+              deploy-temp/* "$DEPLOY_HOST:$DEPLOY_PATH/"
+
+            # 重启服务
+            ssh -i deploy_key.pem -o StrictHostKeyChecking=no \
+              "$DEPLOY_HOST" "cd $DEPLOY_PATH && pm2 restart myskills2026 2>/dev/null || pm2 start npm --name myskills2026"
 
             # 清理临时文件
             rm -f deploy_key.pem
             rm -rf deploy-temp
+
+            echo "✅ Deployment completed!"
+          else
+            echo "⚠️  No DEPLOY_HOST configured, skipping deployment"
           fi
 
       - name: Cleanup
