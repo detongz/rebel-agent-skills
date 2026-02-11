@@ -210,14 +210,14 @@ export default function AgentWorkflowDemo() {
               <div className="demo-request-box mb-6">
                 <div className="text-sm text-[var(--text-muted)] mb-2 font-['Rajdhani']">AGENT_REQUEST:</div>
                 <div className="text-xl font-mono text-[var(--text-primary)]">
-                  "I need to audit this DeFi protocol, budget is {DEMO_AGENTS.projectManager.budget} MON"
+                  "I need to audit this DeFi protocol, budget is {DEMO_AGENTS.projectManager.budget} ASKL"
                 </div>
               </div>
 
               <div className="flex gap-6 text-sm mb-8">
                 <div>
                   <span className="text-[var(--text-muted)]">BUDGET:</span>
-                  <span className="ml-2 text-[var(--neon-green)] font-bold font-['Orbitron']">{DEMO_AGENTS.projectManager.budget} MON</span>
+                  <span className="ml-2 text-[var(--neon-green)] font-bold font-['Orbitron']">{DEMO_AGENTS.projectManager.budget} ASKL</span>
                 </div>
                 <div>
                   <span className="text-[var(--text-muted)]">KEYWORDS:</span>
@@ -351,7 +351,7 @@ export default function AgentWorkflowDemo() {
                 RECOMMENDED_SKILLS
               </h2>
               <p className="text-[var(--text-muted)]">
-                Optimal combination within {DEMO_AGENTS.projectManager.budget} MON budget
+                Optimal combination within {DEMO_AGENTS.projectManager.budget} ASKL budget
               </p>
             </div>
 
@@ -373,7 +373,7 @@ export default function AgentWorkflowDemo() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Cost:</span>
-                      <span className="text-[var(--neon-purple)] font-bold">{skill.cost} MON</span>
+                      <span className="text-[var(--neon-purple)] font-bold">{skill.cost} ASKL</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[var(--text-muted)]">Score:</span>
@@ -413,18 +413,18 @@ export default function AgentWorkflowDemo() {
               <div className="grid md:grid-cols-4 gap-6">
                 <div>
                   <div className="text-[var(--text-muted)] text-sm mb-1 font-['Rajdhani']">BUDGET</div>
-                  <div className="text-2xl font-bold text-[var(--neon-purple)] font-['Orbitron']">{DEMO_AGENTS.projectManager.budget} MON</div>
+                  <div className="text-2xl font-bold text-[var(--neon-purple)] font-['Orbitron']">{DEMO_AGENTS.projectManager.budget} ASKL</div>
                 </div>
                 <div>
                   <div className="text-[var(--text-muted)] text-sm mb-1 font-['Rajdhani']">COST</div>
                   <div className="text-2xl font-bold text-[var(--neon-blue)] font-['Orbitron']">
-                    {selectedSkills.reduce((sum, s) => sum + s.cost, 0)} MON
+                    {selectedSkills.reduce((sum, s) => sum + s.cost, 0)} ASKL
                   </div>
                 </div>
                 <div>
                   <div className="text-[var(--text-muted)] text-sm mb-1 font-['Rajdhani']">REMAINING</div>
                   <div className="text-2xl font-bold text-[var(--neon-green)] font-['Orbitron']">
-                    {DEMO_AGENTS.projectManager.budget - selectedSkills.reduce((sum, s) => sum + s.cost, 0)} MON
+                    {DEMO_AGENTS.projectManager.budget - selectedSkills.reduce((sum, s) => sum + s.cost, 0)} ASKL
                   </div>
                 </div>
                 <div>
@@ -570,7 +570,7 @@ export default function AgentWorkflowDemo() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-[var(--neon-green)] font-['Orbitron']">{(skill.cost * 0.98).toFixed(1)} MON</div>
+                      <div className="font-bold text-[var(--neon-green)] font-['Orbitron']">{(skill.cost * 0.98).toFixed(1)} ASKL</div>
                       <div className="text-xs text-[var(--text-muted)]">98% to creator</div>
                     </div>
                   </div>
@@ -579,7 +579,7 @@ export default function AgentWorkflowDemo() {
                   <div className="flex items-center justify-between font-['Rajdhani']">
                     <div className="text-[var(--text-muted)]">PLATFORM_FEE (2%)</div>
                     <div className="font-bold text-[var(--neon-purple)]">
-                      {(selectedSkills.reduce((sum, s) => sum + s.cost, 0) * 0.02).toFixed(1)} MON
+                      {(selectedSkills.reduce((sum, s) => sum + s.cost, 0) * 0.02).toFixed(1)} ASKL
                     </div>
                   </div>
                 </div>
@@ -626,7 +626,7 @@ export default function AgentWorkflowDemo() {
                 </div>
                 <div>
                   <div className="text-4xl font-bold text-[var(--neon-blue)] font-['Orbitron']">48</div>
-                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">MON_PAID</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">ASKL_PAID</div>
                 </div>
                 <div>
                   <div className="text-4xl font-bold text-[var(--neon-green)] font-['Orbitron']">0.8s</div>

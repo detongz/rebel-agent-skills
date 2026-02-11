@@ -2,7 +2,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
+import { parseEther } from 'viem';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
 
 interface TipModalProps {
   skill: any;
@@ -12,6 +14,7 @@ interface TipModalProps {
 
 export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
   const { address, isConnected } = useAccount();
+  const { writeContractAsync, isPending } = useWriteContract();
 
   const [amount, setAmount] = useState('10');
   const [message, setMessage] = useState('');
@@ -24,9 +27,26 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
       return;
     }
 
-    const amountNum = parseFloat(amount);
-    if (isNaN(amountNum) || amountNum <= 0) {
-      setResult({ success: false, message: 'Please enter a valid tip amount' });
+    let amountWei: bigint;
+    try {
+      amountWei = parseEther(amount);
+    } catch (error) {
+      setResult({ success: false, message: 'Invalid amount format' });
+      return;
+    }
+
+    if (amountWei <= 0n) {
+      setResult({ success: false, message: 'Please enter an amount greater than 0' });
+      return;
+    }
+
+    if (!skill.skill_id) {
+      setResult({ success: false, message: 'Skill ID is missing, cannot tip' });
+      return;
+    }
+
+    if (CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
+      setResult({ success: false, message: 'Contract not configured. Please check your environment settings.' });
       return;
     }
 
@@ -34,32 +54,47 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
     setResult(null);
 
     try {
+      // Call the smart contract directly
+      const hash = await writeContractAsync({
+        address: CONTRACT_ADDRESS as `0x${string}`,
+        abi: CONTRACT_ABI,
+        functionName: 'tipSkill',
+        args: [skill.skill_id as `0x${string}`, amountWei],
+      });
+
+      // Record the transaction in the database
       const res = await fetch('/api/tip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           skill_id: skill.id,
-          amount: amountNum.toString(),
+          amount: amountWei.toString(),
           message: message.trim() || undefined,
           from_address: address,
+          tx_hash: hash, // Pass the real transaction hash
         }),
       });
 
       const data = await res.json();
 
-      if (data.success) {
+      if (data.success || res.ok) {
         setResult({
           success: true,
           message: `Tip successful! Thank you for supporting ${skill.name}!`,
-          txHash: data.data.tx_hash,
+          txHash: hash,
         });
         if (onSuccess) onSuccess();
       } else {
-        setResult({ success: false, message: data.error });
+        setResult({ success: false, message: data.error || 'Failed to record tip' });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Tip failed:', error);
-      setResult({ success: false, message: 'Tip failed, please try again later' });
+      // User rejected the transaction
+      if (error?.message?.includes('User rejected') || error?.code === 4001) {
+        setResult({ success: false, message: 'Transaction rejected by user' });
+      } else {
+        setResult({ success: false, message: `Tip failed: ${error?.message || 'Unknown error'}` });
+      }
     } finally {
       setTipping(false);
     }
@@ -163,13 +198,13 @@ export default function TipModal({ skill, onClose, onSuccess }: TipModalProps) {
           ) : (
             <button
               onClick={handleTip}
-              disabled={tipping || result?.success}
+              disabled={isPending || tipping || result?.success}
               className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {tipping ? (
+              {isPending || tipping ? (
                 <span className="flex items-center justify-center gap-2">
                   <div className="spinner" style={{ width: 16, height: 16 }}></div>
-                  Processing...
+                  Confirming transaction...
                 </span>
               ) : result?.success ? (
                 'Completed ✓'

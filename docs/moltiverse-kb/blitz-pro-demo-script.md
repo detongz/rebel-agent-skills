@@ -62,7 +62,7 @@
 ```typescript
 const payment = await myskills.pay({
   to: "agent-id",
-  amount: "10 MON",
+  amount: "10 ASKL",
   resource: "/api/analyze"
 });
 // Confirmed in 0.3s
@@ -95,13 +95,13 @@ const payment = await myskills.pay({
    - Server response appearing:
    ```http
    HTTP/1.1 402 Payment Required
-   Payment-Required: 5 MON
+   Payment-Required: 5 ASKL
    Payment-Address: 0x742d...F73a
    Payment-Metadata: resource-id-456
    ```
 
 3. **Panel 3 - Payment Flow** (0:20-0:30):
-   - Animation of MON token flowing from agent to facilitator
+   - Animation of ASKL token flowing from agent to facilitator
    - Confirmation modal: "Payment Confirmed ✓"
 
 4. **Panel 4 - Content Delivered** (0:30-0:40):
@@ -126,8 +126,8 @@ const payment = await myskills.pay({
 
 1. **Claude Chat Interface** (0:00-0:15):
    ```
-   User: "Tip the Solidity auditor 10 MON"
-   Claude: I'll send 10 MON to solidity-auditor...
+   User: "Tip the Solidity auditor 10 ASKL"
+   Claude: I'll send 10 ASKL to solidity-auditor...
    ```
 
 2. **MCP Server Response** (0:15-0:20):
@@ -137,24 +137,24 @@ const payment = await myskills.pay({
      "tool": "tip_creator",
      "params": {
        "creator": "solidity-auditor",
-       "amount": "10 MON"
+       "amount": "10 ASKL"
      }
    }
    ```
 
 3. **Transaction Confirmation** (0:20-0:25):
-   - Success notification: "✓ Sent 10 MON"
+   - Success notification: "✓ Sent 10 ASKL"
    - Fee breakdown:
-     - Amount: 10 MON
-     - Fee: 0.2 MON
-     - Received: 9.8 MON
+     - Amount: 10 ASKL
+     - Fee: 0.2 ASKL
+     - Received: 9.8 ASKL
 
 4. **Explorer Popup** (0:25-0:30):
    - Block explorer showing transaction
    - Block number updating in real-time
 
 ### Voiceover
-"Through our MCP integration, agents can trigger payments directly from Claude. Watch this: a simple tip command confirms instantly. The creator receives 9.8 out of 10 MON, with just 0.2 MON in protocol fees. All visible on-chain in real-time."
+"Through our MCP integration, agents can trigger payments directly from Claude. Watch this: a simple tip command confirms instantly. The creator receives 9.8 out of 10 ASKL, with just 0.2 ASKL in protocol fees. All visible on-chain in real-time."
 
 ### Screen Recordings Needed
 - Claude Desktop with MySkills MCP server

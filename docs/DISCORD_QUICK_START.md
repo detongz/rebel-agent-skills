@@ -167,7 +167,7 @@
 - 颜色：紫色 (#A855F7)
 
 💎 Diamond Member
-- 描述：持有超过1000 MON
+- 描述：持有超过1000 ASKL
 - 权限：VIP通道
 - 颜色：青色 (#06B6D4)
 ```
@@ -202,7 +202,7 @@
 4️⃣ 访问 myskills2026.ddttupupo.buzz
 
 🎁 早期成员福利：
-- 前100名创作者获得 50 MON
+- 前100名创作者获得 50 ASKL
 - "Founding Member" 徽章
 - 启动时featured展示
 
@@ -252,7 +252,7 @@
 5️⃣ 安全第一
    - 疑似安全问题私聊mod
    - 不要公开分享exploit
-   - 漏洞奖励：up to 1000 MON
+   - 漏洞奖励：up to 1000 ASKL
 
 6️⃣ 语言友好
    - 英文和中文都可以
@@ -308,14 +308,14 @@
 
 ```
 功能：
-- MON tip
+- ASKL tip
 - Leaderboard
 - Wallet integration
 
 安装：
 1. 访问 tip.bot
 2. 添加到服务器
-3. 配置MON token
+3. 配置ASKL token
 ```
 
 ---
@@ -336,7 +336,7 @@ A: 访问网站 → 点击"Register" → 填写表单
 
 Q: 我能赚多少？
 A: 取决于你的技能需求度。
-   示例：审计技能(10 MON/次) × 10次/周 = 100 MON/周
+   示例：审计技能(10 ASKL/次) × 10次/周 = 100 ASKL/周
 
 Q: 需要会写代码吗？
 A: 不一定！Prompt engineering也算技能。
@@ -344,10 +344,10 @@ A: 不一定！Prompt engineering也算技能。
 Q: 支持哪些平台？
 A: Claude Code, Coze, Manus, MiniMax等。
 
-Q: 如何获得50 MON奖励？
+Q: 如何获得50 ASKL奖励？
 A: 前100名注册技能的创作者。
 
-Q: MON是什么？
+Q: ASKL是什么？
 A: Monad区块链的原生token。
    Testnet: 免费获取
    Mainnet: 需要购买
@@ -380,7 +380,7 @@ A: 主网上线后可以。
 💸 Instant Payments on Monad
 
 🎁 早期成员福利：
-- 前100名创作者：50 MON
+- 前100名创作者：50 ASKL
 - 所有成员：参与社区活动
 
 📅 接下来的活动：
@@ -452,7 +452,7 @@ GitHub contributors:
 - 自我介绍
 - 分享你的agent skill想法
 - Q&A session
-- 随机drop 10 MON奖励参与者
+- 随机drop 10 ASKL奖励参与者
 
 Duration: 1 hour
 ```

@@ -6,7 +6,7 @@ import db from '@/lib/db';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { skill_id, amount, message, from_address } = body;
+    const { skill_id, amount, message, from_address, tx_hash: providedTxHash } = body;
 
     // 验证必填字段
     if (!skill_id || !amount || !from_address) {
@@ -42,8 +42,8 @@ export async function POST(request: NextRequest) {
     const creatorReceived = (amountNum * 0.98).toFixed(6);
     const platformFee = (amountNum * 0.02).toFixed(6);
 
-    // 生成模拟交易哈希 (因为本地演示没有真实链上交易)
-    const mockTxHash = '0x' + Array.from({ length: 64 }, () =>
+    // 使用提供的交易哈希，如果没有则生成模拟哈希 (向后兼容)
+    const txHash = providedTxHash || '0x' + Array.from({ length: 64 }, () =>
       Math.floor(Math.random() * 16).toString(16)
     ).join('');
 
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       INSERT INTO tips (tx_hash, skill_id, from_address, to_address, amount, creator_received, platform_fee, message)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
-      mockTxHash,
+      txHash,
       skill_id,
       from_address,
       skill.payment_address,
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        tx_hash: mockTxHash,
+        tx_hash: txHash,
         skill_id,
         from_address,
         to_address: skill.payment_address,

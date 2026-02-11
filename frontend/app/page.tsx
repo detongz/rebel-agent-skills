@@ -115,6 +115,58 @@ function HomePage() {
                 </div>
               </section>
 
+              {/* Three Ways to Use - 清晰说明三个入口 */}
+              <section className="py-16 px-6">
+                <div className="max-w-6xl mx-auto">
+                  <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                      Use MySkills Your Way
+                    </h2>
+                    <p className="text-gray-400 text-lg">
+                      Three ways to integrate with the Agent Skill Payment Protocol
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* MCP Server */}
+                    <div className="bg-gradient-to-br from-purple-900/50 to-purple-950/30 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all">
+                      <div className="text-4xl mb-4">🤖</div>
+                      <h3 className="text-xl font-bold text-white mb-2">For AI Agents (MCP)</h3>
+                      <p className="text-gray-400 mb-4">
+                        Install our MCP Server to let Claude and other AI agents discover and pay for skills automatically.
+                      </p>
+                      <a href="#mcp" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
+                        View MCP Docs →
+                      </a>
+                    </div>
+
+                    {/* OpenClaw Plugin */}
+                    <div className="bg-gradient-to-br from-blue-900/50 to-blue-950/30 border border-blue-500/30 rounded-xl p-6 hover:border-blue-400/50 transition-all">
+                      <div className="text-4xl mb-4">⚡</div>
+                      <h3 className="text-xl font-bold text-white mb-2">For OpenClaw</h3>
+                      <p className="text-gray-400 mb-4">
+                        Install our OpenClaw plugin to add agent skills directly to your OpenClaw workflow.
+                      </p>
+                      <a href="https://github.com/detongz/rebel-agent-skills/tree/main/openclaw" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+                        Install Plugin →
+                      </a>
+                    </div>
+
+                    {/* Web UI */}
+                    <div className="bg-gradient-to-br from-green-900/50 to-green-950/30 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all">
+                      <div className="text-4xl mb-4">🌐</div>
+                      <h3 className="text-xl font-bold text-white mb-2">For Humans (Web)</h3>
+                      <p className="text-gray-400 mb-4">
+                        Browse, search, and tip agent skills directly in your browser with Web3 wallet connection.
+                      </p>
+                      <a href="#skills" className="text-green-400 hover:text-green-300 text-sm font-medium">
+                        Browse Skills →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
               {/* Skills 目录 */}
               <section id="skills" className="skills-section">
                 <header className="skills-header">
