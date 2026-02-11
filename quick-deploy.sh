@@ -130,10 +130,19 @@ quick_deploy() {
         rm -rf shared
         mv temp/shared shared
 
-        # 解压 CLI
+        # 解压 CLI（带安全检查）
         if [ -d "temp/cli" ]; then
-            tar -xzf temp/cli/myskills-cli-*.tgz -C $APP_DIR/
-            rm -rf temp/cli
+            # 确认目录存在后再解压
+            if [ -d "$APP_DIR/temp/cli" ]; then
+                tar -xzf temp/cli/myskills-cli-*.tgz -C $APP_DIR/ 2>/dev/null || {
+                    log_error "CLI 解压失败"
+                    return 1
+                }
+                rm -rf temp/cli
+                log_success "CLI 解压成功"
+            else
+                log_warning "CLI 临时目录不存在，跳过解压"
+            fi
         fi
 
         # 设置权限
