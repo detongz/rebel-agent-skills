@@ -19,7 +19,27 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Install build tools for native modules
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 make g++
+
+      - name: Cache root node modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Cache frontend node modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-node-modules-
 
       - name: Install dependencies
         run: |
@@ -28,7 +48,7 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd frontend && npm ci
+          cd frontend && npm ci --legacy-peer-deps
 
       - name: Build packages
         run: |
