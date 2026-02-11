@@ -1,0 +1,83 @@
+{
+  "skills": [
+    {
+      "id": "0x256c5821f4424c1350a94dea1c4c0b31081b71300d279526a60e21689897ac6b",
+      "name": "My Awesome Skill",
+      "description": "Skill from testuser/my-awesome-skill",
+      "repository": "testuser/my-awesome-skill",
+      "category": "productivity",
+      "creator": "0x7C8135c37B977ae87fC9092eC9070976C644C337",
+      "securityScore": 90,
+      "totalTips": "0",
+      "publishedAt": "2026-02-11T10:50:57.374Z",
+      "verified": false
+    },
+    {
+      "id": "0xdebbbf32ebd2c3eb866fe96d04963f76ce88705e00c5e3ea216c0c2d23b95bf2",
+      "name": "Claude Code Skills",
+      "description": "Skill from anthropics/claude-code",
+      "repository": "anthropics/claude-code",
+      "category": "ai",
+      "creator": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+      "securityScore": 95,
+      "totalTips": "0",
+      "publishedAt": "2026-02-11T10:51:10.562Z",
+      "verified": false
+    },
+    {
+      "id": "0xbf517b2b59a827a1b884f7d6dc524b13e980177d45c7c8d3bcc9d69025e5e493",
+      "name": "Final Test Skill",
+      "description": "Skill from final/test",
+      "repository": "final/test",
+      "category": "test",
+      "creator": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+      "securityScore": 85,
+      "totalTips": "0",
+      "publishedAt": "2026-02-11T10:52:18.335Z",
+      "verified": false
+    }
+  ],
+  "publications": [
+    {
+      "url": "https://github.com/test/repo",
+      "name": "Test Skill",
+      "category": "test",
+      "creator": "0x7C8135c37B977ae87fC9092eC9070976C644C337",
+      "plan": "single",
+      "paymentId": "pay_1770806956802_sl0mlzhzc",
+      "status": "pending",
+      "createdAt": "2026-02-11T10:49:16.802Z"
+    },
+    {
+      "url": "https://github.com/test/repo",
+      "name": "Test Skill",
+      "category": "general",
+      "creator": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+      "plan": "single",
+      "paymentId": "pay_1770806966323_qnf228rss",
+      "status": "pending",
+      "createdAt": "2026-02-11T10:49:26.323Z"
+    },
+    {
+      "url": "https://github.com/anthropics/claude-code",
+      "name": "Claude Code",
+      "category": "productivity",
+      "creator": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+      "plan": "single",
+      "paymentId": "pay_1770806979563_12jdx6nm8",
+      "status": "pending",
+      "createdAt": "2026-02-11T10:49:39.563Z"
+    },
+    {
+      "url": "https://github.com/test/repo",
+      "name": "Test",
+      "category": "test",
+      "creator": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+      "plan": "single",
+      "paymentId": "pay_1770807138319_7ex852itu",
+      "status": "pending",
+      "createdAt": "2026-02-11T10:52:18.319Z"
+    }
+  ],
+  "subscriptions": {}
+}

@@ -177,3 +177,14 @@ skills/
 # Demo deployment artifacts (keep scripts but ignore generated files)
 *.tmp
 demo-output/
+
+# Deployment scripts with server IPs (sensitive)
+deploy-*.sh
+deploy-local.js
+deploy-on-107.sh
+deploy-to-server.sh
+deploy-moltiverse.sh
+deploy-package/
+
+# Deployment guide
+DEPLOY-GUIDE.md

@@ -1,0 +1,54 @@
+{
+  "name": "myskills",
+  "version": "1.0.0",
+  "description": "MySkills CLI - Search, scan, and install agent skills with security verification",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "myskills": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js",
+    "publish": "npm publish"
+  },
+  "keywords": [
+    "myskills",
+    "ai",
+    "agent",
+    "skills",
+    "security",
+    "monad",
+    "blockchain",
+    "cli"
+  ],
+  "author": "MySkills Team",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "cli-table3": "^0.6.3",
+    "commander": "^12.0.0",
+    "ora": "^8.0.0",
+    "viem": "^2.45.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

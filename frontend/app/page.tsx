@@ -120,7 +120,7 @@ function HomePage() {
                       Use MySkills Your Way
                     </h2>
                     <p className="text-gray-400 text-lg">
-                      Three ways to integrate with the Agent Skill Payment Protocol
+                      Three ways to discover and support agent skills
                     </p>
                   </div>
 
@@ -129,11 +129,14 @@ function HomePage() {
                     <div className="bg-gradient-to-br from-purple-900/50 to-purple-950/30 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all">
                       <div className="text-4xl mb-4">🤖</div>
                       <h3 className="text-xl font-bold text-white mb-2">For AI Agents (MCP)</h3>
-                      <p className="text-gray-400 mb-4">
-                        Install our MCP Server to let Claude and other AI agents discover and pay for skills automatically.
+                      <div className="bg-black/30 rounded-lg p-3 mb-4">
+                        <code className="text-purple-400 text-sm">npx @myskills/mcp-server</code>
+                      </div>
+                      <p className="text-gray-400 mb-4 text-sm">
+                        Connect Claude Desktop to search 400+ skills and tip creators on Monad
                       </p>
-                      <a href="#mcp" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
-                        View MCP Docs →
+                      <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
+                        View Docs →
                       </a>
                     </div>
 
@@ -141,11 +144,27 @@ function HomePage() {
                     <div className="bg-gradient-to-br from-blue-900/50 to-blue-950/30 border border-blue-500/30 rounded-xl p-6 hover:border-blue-400/50 transition-all">
                       <div className="text-4xl mb-4">⚡</div>
                       <h3 className="text-xl font-bold text-white mb-2">For OpenClaw</h3>
-                      <p className="text-gray-400 mb-4">
-                        Install our OpenClaw plugin to add agent skills directly to your OpenClaw workflow.
-                      </p>
+                      <div className="bg-black/30 rounded-lg p-3 mb-4">
+                        <code className="text-blue-400 text-sm">openclaw plugins install ./openclaw</code>
+                      </div>
+                      <p className="text-gray-400 mb-3 text-sm">
+                        1. 安装插件（一次）
+                        </p>
+                        <p className="text-gray-400 mb-3 text-sm">
+                        2. 开始使用 MySkills 命令：
+                        </p>
+                        <div className="bg-[rgba(0,0,0,0.3)] rounded p-2 mt-2">
+                          <code className="text-blue-400 text-xs font-mono block">
+                            openclaw myskills list --platform all --sort tips<br/>
+                            openclaw myskills find --requirement "security audit"<br/>
+                            openclaw myskills tip --skill-id 0x123 --amount 10 --message "Great work!"
+                          </code>
+                        </div>
+                        <p className="text-gray-400 mb-3 text-sm">
+                        💡 浏览400+技能，找到适合的agent skill并打赏
+                        </p>
                       <a href="https://github.com/detongz/rebel-agent-skills/tree/main/openclaw" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-                        Install Plugin →
+                        Setup Guide →
                       </a>
                     </div>
 
@@ -153,8 +172,11 @@ function HomePage() {
                     <div className="bg-gradient-to-br from-green-900/50 to-green-950/30 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all">
                       <div className="text-4xl mb-4">🌐</div>
                       <h3 className="text-xl font-bold text-white mb-2">For Humans (Web)</h3>
-                      <p className="text-gray-400 mb-4">
-                        Browse, search, and tip agent skills directly in your browser with Web3 wallet connection.
+                      <div className="bg-black/30 rounded-lg p-3 mb-4">
+                        <code className="text-green-400 text-sm">myskills2026.ddttupupo.buzz</code>
+                      </div>
+                      <p className="text-gray-400 mb-4 text-sm">
+                        Browse skills → Connect wallet → Tip creators directly
                       </p>
                       <a href="#skills" className="text-green-400 hover:text-green-300 text-sm font-medium">
                         Browse Skills →

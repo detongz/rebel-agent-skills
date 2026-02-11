@@ -30,7 +30,8 @@ export default function SkillsMapPage() {
   const [sortBy, setSortBy] = useState<'references' | 'name' | 'category'>('references');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
-  const [hoveredSkill, setHoveredSkill] = useState<number | null>(null);
+  const [hoveredSkill, setHoveredSkill] = useState<string | number | null>(null);
+  const [dependencyLinks, setDependencyLinks] = useState<Array<{ source: string; target: string; type: string }>>([]);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -49,11 +50,52 @@ export default function SkillsMapPage() {
 
   const loadSkills = async () => {
     try {
-      const skillsData = await getSkills({ limit: 50 });
-      setSkills(skillsData);
-      const graphData = buildSkillGraph(skillsData);
-      setGraph(graphData);
-      setStats(getGraphStats(skillsData));
+      // Fetch real dependency graph from database
+      const graphRes = await fetch('/api/skills/graph');
+      if (!graphRes.ok) {
+        throw new Error('Failed to fetch skill graph');
+      }
+      const graphData = await graphRes.json();
+
+      if (graphData.success) {
+        // Convert graph data to our internal format
+        const { nodes, links } = graphData.data;
+
+        // Build skill nodes from database graph
+        const skillNodes: SkillNode[] = nodes.map((node: { id: string; name: string; category: string }) => {
+          // Count references from links
+          const referencedBy = links
+            .filter((l: { source: string; target: string; type: string }) => l.target === node.id)
+            .map((l: { source: string; target: string; type: string }) => l.source);
+          const referencesTo = links
+            .filter((l: { source: string; target: string; type: string }) => l.source === node.id)
+            .map((l: { source: string; target: string; type: string }) => l.target);
+
+          return {
+            id: node.id,
+            name: node.name,
+            category: node.category,
+            platform: 'myskills', // Default platform for published skills
+            references: referencedBy.length,
+            referencedBy,
+            referencesTo,
+          };
+        });
+
+        setGraph(skillNodes);
+        setStats({
+          totalSkills: graphData.stats.totalNodes,
+          totalRelationships: graphData.stats.totalLinks,
+          skillsWithReferences: skillNodes.filter(n => n.references > 0).length,
+          mostReferenced: skillNodes.reduce((max, node) =>
+            node.references > max.references ? node : max, skillNodes[0] || { references: 0, name: 'N/A' }),
+          referencesPerSkill: graphData.stats.avgConnections,
+          byType: { 'depends-on': graphData.stats.totalLinks }
+        });
+
+        // Store links for drawing
+        setDependencyLinks(links);
+      }
     } catch (error) {
       console.error('Failed to load skills:', error);
     } finally {
@@ -66,7 +108,7 @@ export default function SkillsMapPage() {
     if (viewMode === 'graph' && canvasRef.current && graph.length > 0) {
       drawGraph();
     }
-  }, [viewMode, graph, viewState, hoveredSkill, selectedSkill]);
+  }, [viewMode, graph, viewState, hoveredSkill, selectedSkill, dependencyLinks]);
 
   const drawGraph = () => {
     const canvas = canvasRef.current;
@@ -105,10 +147,10 @@ export default function SkillsMapPage() {
     // Calculate node positions using force-directed layout
     const positions = calculateNodePositions(canvas.width, canvas.height);
 
-    // Draw relationships (edges)
-    for (const rel of SKILL_RELATIONSHIPS) {
-      const source = positions.get(rel.sourceId);
-      const target = positions.get(rel.targetId);
+    // Draw relationships (edges) from database
+    for (const link of dependencyLinks) {
+      const source = positions.get(link.source);
+      const target = positions.get(link.target);
       if (!source || !target) continue;
 
       const x1 = source.x * scale + offsetX;
@@ -120,7 +162,7 @@ export default function SkillsMapPage() {
       if (x1 < -100 || x1 > canvas.width + 100 || x2 < -100 || x2 > canvas.width + 100) continue;
 
       const isHighlighted =
-        selectedSkill && (rel.sourceId === selectedSkill.id || rel.targetId === selectedSkill.id);
+        selectedSkill && (link.source === selectedSkill.id || link.target === selectedSkill.id);
       const isDimmed = selectedSkill && !isHighlighted;
 
       ctx.beginPath();
@@ -130,7 +172,7 @@ export default function SkillsMapPage() {
       if (isDimmed) {
         ctx.strokeStyle = 'rgba(100, 100, 100, 0.1)';
       } else if (isHighlighted) {
-        ctx.strokeStyle = getRelationshipColor(rel.type);
+        ctx.strokeStyle = getRelationshipColor(link.type);
       } else {
         ctx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
       }
@@ -228,8 +270,8 @@ export default function SkillsMapPage() {
     }
   };
 
-  // Simple force-directed layout
-  const nodePositions = useRef<Map<number, { x: number; y: number }>>(new Map());
+  // Simple force-directed layout (using string IDs for skill addresses)
+  const nodePositions = useRef<Map<string | number, { x: number; y: number }>>(new Map());
 
   const calculateNodePositions = (width: number, height: number) => {
     if (nodePositions.current.size === 0) {

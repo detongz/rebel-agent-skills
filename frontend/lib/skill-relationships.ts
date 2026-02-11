@@ -11,13 +11,13 @@ export interface SkillRelationship {
 }
 
 export interface SkillNode {
-  id: number;
+  id: number | string;    // Numeric ID for hardcoded relationships, string for database skill IDs
   name: string;
   category: string;
   platform: string;
   references: number;    // How many other skills reference this skill
-  referencedBy: number[]; // IDs of skills that reference this skill
-  referencesTo: number[]; // IDs of skills this skill references
+  referencedBy: (number | string)[]; // IDs of skills that reference this skill
+  referencesTo: (number | string)[]; // IDs of skills this skill references
 }
 
 // Hardcoded skill relationships based on skill functionality
@@ -86,8 +86,12 @@ export const SKILL_RELATIONSHIPS: SkillRelationship[] = [
 
 /**
  * Build a graph structure from skills and relationships
+ * Can use either hardcoded relationships or database dependencies
  */
-export function buildSkillGraph(skills: any[]): SkillNode[] {
+export async function buildSkillGraph(
+  skills: any[],
+  useDatabase: boolean = false
+): Promise<SkillNode[]> {
   // Initialize nodes
   const nodes: Map<number, SkillNode> = new Map();
 
@@ -128,8 +132,8 @@ export function buildSkillGraph(skills: any[]): SkillNode[] {
 /**
  * Get skills sorted by reference count (most referenced first)
  */
-export function getSkillsByReferenceCount(skills: any[]): SkillNode[] {
-  const graph = buildSkillGraph(skills);
+export async function getSkillsByReferenceCount(skills: any[]): Promise<SkillNode[]> {
+  const graph = await buildSkillGraph(skills);
   return graph.sort((a, b) => b.references - a.references);
 }
 
@@ -183,8 +187,8 @@ export function getConnectedSkills(
 /**
  * Calculate graph statistics
  */
-export function getGraphStats(skills: any[]) {
-  const graph = buildSkillGraph(skills);
+export async function getGraphStats(skills: any[]) {
+  const graph = await buildSkillGraph(skills);
   const relationships = SKILL_RELATIONSHIPS;
 
   const totalSkills = skills.length;

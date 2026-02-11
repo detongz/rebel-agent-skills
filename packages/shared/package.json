@@ -1,0 +1,67 @@
+{
+  "name": "@myskills/shared",
+  "version": "1.0.0",
+  "description": "Shared core module for MySkills - used by MCP Server, OpenClaw Plugin, and CLI",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./core": {
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "require": "./dist/types/index.cjs"
+    },
+    "./config": {
+      "import": "./dist/config/index.js",
+      "require": "./dist/config/index.cjs"
+    },
+    "./api": {
+      "import": "./dist/api/index.js",
+      "require": "./dist/api/index.cjs"
+    },
+    "./github": {
+      "import": "./dist/github/index.js",
+      "require": "./dist/github/index.cjs"
+    },
+    "./registry": {
+      "import": "./dist/registry/index.js",
+      "require": "./dist/registry/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "myskills",
+    "monad",
+    "blockchain",
+    "agent",
+    "payment"
+  ],
+  "author": "MySkills Team",
+  "license": "MIT",
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0"
+  },
+  "peerDependencies": {
+    "viem": "^2.21.0"
+  }
+}

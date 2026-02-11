@@ -12,6 +12,7 @@
     "deploy:bounty": "hardhat run scripts/deployBounty.js --network monad",
     "deploy:bounty-v2": "hardhat run scripts/deployBountyV2.js --network monad",
     "deploy:all": "./scripts/quickDeploy.sh",
+    "deploy-contract": "node deploy-local.js",
     "node": "hardhat node"
   },
   "keywords": [
@@ -38,7 +39,8 @@
     "@x402/evm": "^2.3.0",
     "@x402/fetch": "^2.3.0",
     "@x402/next": "^2.3.0",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.4.0",
+    "ethers": "^6.16.0"
   },
   "directories": {
     "doc": "docs"

@@ -173,7 +173,47 @@ npm run dev
 
 ## 如何使用
 
-### 方式 1: MCP Server (推荐用于 Claude Code 等 AI Agent)
+### 方式 1: MySkills CLI (推荐)
+
+```bash
+# 安装 CLI
+npm install -g myskills
+
+# 搜索技能
+npx myskills search "productivity"
+
+# 安全扫描
+npx myskills scan https://github.com/user/repo
+
+# 添加技能到平台
+npx myskills add github:user/repo
+
+# 发布技能（需要登录）
+npx myskills login <private-key>
+npx myskills publish https://github.com/user/repo --name "My Skill"
+
+# 查看已发布的技能
+npx myskills my-skills
+
+# 打赏创作者
+npx myskills tip <skill-id> <amount>
+```
+
+#### CLI 命令完整列表
+
+| 命令 | 说明 |
+|------|------|
+| `npx myskills search <query>` | 搜索技能 |
+| `npx myskills scan <url>` | 安全扫描 |
+| `npx myskills add <source>` | 添加技能到平台 |
+| `npx myskills publish <url>` | 发布技能（需登录+付费） |
+| `npx myskills my-skills` | 查看我的技能 |
+| `npx myskills tip <skill> <amount>` | 打赏创作者 |
+| `npx myskills login <key>` | 连接钱包 |
+| `npx myskills whoami` | 查看账户信息 |
+| `npx myskills leaderboard` | 技能排行榜 |
+
+### 方式 2: MCP Server (推荐用于 Claude Code 等 AI Agent)
 
 ```bash
 # 安装 MCP Server
@@ -194,7 +234,7 @@ MCP Server 提供的工具：
 - `post_bounty` - 发布悬赏任务
 - `find_skills_for_budget` - **智能匹配引擎** ⭐
 
-### 方式 2: OpenClaw Plugin
+### 方式 3: OpenClaw Plugin
 
 ```bash
 # 安装 OpenClaw Plugin
@@ -209,7 +249,7 @@ openclaw myskills list --platform all --sort tips
 openclaw myskills find-skills --requirement "Audit contract" --budget 50 --goal security
 ```
 
-### 方式 3: Web DApp
+### 方式 4: Web DApp
 
 访问 `https://myskills2026.ddttupupo.buzz/` 使用 Web 界面。
 
