@@ -68,6 +68,66 @@ function initDatabase() {
 
   // 初始化 agents 和 agent_evaluations 表
   initAgentTables();
+
+  // 自动加载种子数据（如果表为空）
+  seedDatabaseIfEmpty();
+}
+
+// 加载种子数据
+async function seedDatabaseIfEmpty() {
+  const countResult = db.prepare('SELECT COUNT(*) as count FROM skills').get() as { count: number };
+
+  if (countResult.count === 0) {
+    console.log('🌱 数据库为空，开始加载种子数据...');
+    try {
+      const { getSeedSkills } = await import('./seed-skills');
+      const seedSkills = getSeedSkills();
+
+      const insert = db.prepare(`
+        INSERT INTO skills (
+          skill_id, name, description, platform, version,
+          creator_address, payment_address, npm_package,
+          repository, homepage, download_count,
+          github_stars, github_forks, total_tips,
+          tip_count, platform_likes, logo_url, tags,
+          status, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+      `);
+
+      const insertMany = db.transaction((skills: any[]) => {
+        for (const skill of skills) {
+          insert.run(
+            skill.skill_id,
+            skill.name,
+            skill.description,
+            skill.platform,
+            skill.version || '1.0.0',
+            skill.creator,
+            skill.payment_address,
+            skill.npm_package,
+            skill.repository,
+            skill.homepage,
+            skill.download_count || 0,
+            skill.github_stars || skill.stars || 0,
+            skill.github_forks || 0,
+            skill.total_tips || '0',
+            skill.tip_count || 0,
+            skill.platform_likes || 0,
+            skill.logo_url,
+            skill.tags ? skill.tags.join(',') : null,
+            'active'
+          );
+        }
+      });
+
+      insertMany(seedSkills);
+      console.log(`✅ 成功加载 ${seedSkills.length} 条种子数据`);
+    } catch (error) {
+      console.error('❌ 加载种子数据失败:', error);
+    }
+  } else {
+    console.log(`✅ 数据库已有 ${countResult.count} 条数据`);
+  }
 }
 
 // 初始化 agent 评估系统表
