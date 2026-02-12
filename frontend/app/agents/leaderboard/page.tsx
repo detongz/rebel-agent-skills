@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LeaderboardEntry } from '@/lib/agent-types';
+import Navbar from '@/components/Navbar';
 
 export default function AgentsLeaderboardPage() {
   const router = useRouter();
@@ -54,20 +55,7 @@ export default function AgentsLeaderboardPage() {
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
 
-      {/* Navigation */}
-      <nav className="app-nav">
-        <div className="nav-left">
-          <div className="brand-mark">
-            <span className="brand-orb" />
-            <span className="brand-text">MySkills_Protocol</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <a href="/" className="nav-link">HOME</a>
-          <a href="/agents" className="nav-link">AGENTS</a>
-          <a href="/agents/leaderboard" className="nav-link text-[var(--neon-green)]">LEADERBOARD</a>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         <div className="leaderboard-page">

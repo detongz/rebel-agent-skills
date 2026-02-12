@@ -3,7 +3,7 @@
  */
 
 // Category icons mapping
-const CATEGORY_ICONS = {
+const CATEGORY_ICONS: Record<string, string> = {
   'security': '🛡️',
   'defi': '💰',
   'development': '👨‍💻',
@@ -16,7 +16,7 @@ const CATEGORY_ICONS = {
 };
 
 // Platform icons
-const PLATFORM_ICONS = {
+const PLATFORM_ICONS: Record<string, string> = {
   'claude-code': '🤖',
   'cursor': '⚡',
   'coze': '🎨',
@@ -239,7 +239,7 @@ const SEED_SKILLS_BASE = [
 ];
 
 // Generate deterministic skill_id from packageId
-function generateSkillId(packageId, index) {
+function generateSkillId(packageId: string, index: number): string {
   const crypto = require('crypto');
   const nameBuffer = Buffer.from(packageId.replace('@myskills/', ''), 'utf-8');
   const skillId = Buffer.alloc(32);
@@ -306,22 +306,22 @@ function getSeedSkills() {
   });
 }
 
-function getSeedSkillsByCategory(category) {
+function getSeedSkillsByCategory(category: string) {
   return getSeedSkills().filter(skill =>
     skill.category.toLowerCase() === category.toLowerCase()
   );
 }
 
-function getSeedSkillsByPlatform(platform) {
+function getSeedSkillsByPlatform(platform: string) {
   return getSeedSkills().filter(skill =>
     skill.platform.toLowerCase() === platform.toLowerCase()
   );
 }
 
 function getSeedSkillCategories() {
-  const categories = new Set();
+  const categories = new Set<string>();
   getSeedSkills().forEach(skill => categories.add(skill.category));
-  return Array.from(categories).map(category => ({
+  return Array.from(categories).map((category: string) => ({
     name: category,
     icon: CATEGORY_ICONS[category.toLowerCase()] || '📦',
     count: getSeedSkillsByCategory(category).length,
@@ -329,19 +329,19 @@ function getSeedSkillCategories() {
 }
 
 function getSeedSkillPlatforms() {
-  const platforms = new Set();
+  const platforms = new Set<string>();
   getSeedSkills().forEach(skill => platforms.add(skill.platform));
-  return Array.from(platforms).map(platform => ({
+  return Array.from(platforms).map((platform: string) => ({
     name: platform,
     icon: PLATFORM_ICONS[platform.toLowerCase()] || '🔧',
     count: getSeedSkillsByPlatform(platform).length,
   }));
 }
 
-module.exports = {
+export {
   getSeedSkills,
-  getSeedSkillByPackageId: getSeedSkillsByCategory,
-  getSeedSkillsByCategory: getSeedSkillsByPlatform,
+  getSeedSkillsByCategory as getSeedSkillByPackageId,
+  getSeedSkillsByPlatform as getSeedSkillsByCategory,
   getSeedSkillCategories,
   getSeedSkillPlatforms,
 };

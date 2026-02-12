@@ -7,6 +7,7 @@ import { ExactEvmScheme } from '@x402/evm';
 import { x402Client } from '@x402/core/client';
 import { PAID_SERVICES, SERVICE_CATEGORIES, X402_CONFIG } from '@/lib/services-config';
 import { getSkills } from '@/lib/contract-service';
+import Navbar from '@/components/Navbar';
 
 export default function ServicesPage() {
   const { isConnected, address } = useAccount();
@@ -136,22 +137,7 @@ export default function ServicesPage() {
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
 
-      <nav className="app-nav">
-        <div className="nav-left">
-          <div className="brand-mark">
-            <span className="brand-orb" />
-            <span className="brand-text">MySkills_Protocol</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <div className="nav-links-container">
-            <a href="/">Home</a>
-            <a href="/skills-map">Skill Map</a>
-            <a href="/services" className="text-[var(--neon-green)]">Services</a>
-            <a href="/bounties">Bounties</a>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         {/* Hero Section */}

@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
           skill.description,
           skill.platform,
           skill.version || '1.0.0',
-          skill.creator_address || skill.creator,
+          skill.creator_address || skill.creator_name,
           skill.payment_address,
           skill.npm_package,
           skill.repository,

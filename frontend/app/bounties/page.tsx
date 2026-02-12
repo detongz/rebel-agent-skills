@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
+import Navbar from '@/components/Navbar';
 
 interface Bounty {
   id: string;
@@ -98,22 +99,7 @@ export default function BountiesPage() {
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
 
-      <nav className="app-nav">
-        <div className="nav-left">
-          <div className="brand-mark">
-            <span className="brand-orb" />
-            <span className="brand-text">MySkills_Protocol</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <div className="nav-links-container">
-            <Link href="/" className="nav-link">HOME</Link>
-            <Link href="/skills-map" className="nav-link">SKILL MAP</Link>
-            <Link href="/services" className="nav-link">SERVICES</Link>
-            <Link href="/bounties" className="nav-link text-[var(--neon-green)]">BOUNTIES</Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         <section className="hero">

@@ -8,7 +8,7 @@ import { WagmiProvider, useAccount, useWriteContract } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config, CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
 import { keccak256, toBytes } from 'viem';
-import ConnectButton from '@/components/ConnectButton';
+import Navbar from '@/components/Navbar';
 
 const queryClient = new QueryClient();
 
@@ -99,28 +99,7 @@ function CreatePage() {
   return (
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
-      <nav className="app-nav">
-        <div className="nav-left">
-          <div className="brand-mark">
-            <span className="brand-orb" />
-            <span className="brand-text">Agent Reward Hub</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <div className="nav-links-container">
-            <a href="/" className="nav-link">
-              Home
-            </a>
-            <a href="/#skills" className="nav-link">
-              Skills
-            </a>
-            <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
-              Learn More
-            </a>
-          </div>
-          <ConnectButton />
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         <section className="hero">

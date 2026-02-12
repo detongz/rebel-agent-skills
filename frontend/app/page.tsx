@@ -6,7 +6,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { config } from '@/lib/wagmi';
-import ConnectButton from '@/components/ConnectButton';
+import Navbar from '@/components/Navbar';
 import SkillCard from '@/components/SkillCard';
 import { useEffect, useState } from 'react';
 
@@ -49,37 +49,7 @@ function HomePage() {
             <div className="app-backdrop" aria-hidden="true" />
 
             {/* 导航栏：统一风格 */}
-            <nav className="app-nav">
-              <div className="nav-left">
-                <div className="brand-mark">
-                  <span className="brand-orb" />
-                  <span className="brand-text">MySkills_Protocol</span>
-                </div>
-              </div>
-              <div className="nav-right">
-                <div className="nav-links-container">
-                  <a href="/demo/agent-workflow" className="nav-link">
-                    DEMO
-                  </a>
-                  <a href="#skills" className="nav-link">
-                    SKILLS
-                  </a>
-                  <a href="/skills-map" className="nav-link">
-                    SKILL MAP
-                  </a>
-                  <a href="/services" className="nav-link text-[var(--neon-green)]">
-                    SERVICES
-                  </a>
-                  <a href="/bounties" className="nav-link">
-                    BOUNTIES
-                  </a>
-                  <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
-                    GITHUB
-                  </a>
-                </div>
-                <ConnectButton />
-              </div>
-            </nav>
+            <Navbar />
 
             {/* 主体内容 */}
             <main className="app-main">

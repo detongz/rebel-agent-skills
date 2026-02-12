@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config } from '@/lib/wagmi';
-import ConnectButton from '@/components/ConnectButton';
+import Navbar from '@/components/Navbar';
 
 const queryClient = new QueryClient();
 
@@ -60,27 +60,7 @@ function LeaderboardPage() {
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
 
-      <nav className="app-nav">
-        <div className="nav-left">
-          <a href="/" className="nav-link">
-            ← Back
-          </a>
-        </div>
-        <div className="nav-right">
-          <div className="nav-links-container">
-            <a href="/" className="nav-link">
-              Home
-            </a>
-            <a href="#skills" className="nav-link">
-              Skills
-            </a>
-            <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" rel="noreferrer" className="nav-link">
-              Learn More
-            </a>
-          </div>
-          <ConnectButton />
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         <section className="hero">

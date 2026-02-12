@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
 import { getSkills } from '@/lib/contract-service';
 import {
   buildSkillGraph,
@@ -433,21 +434,7 @@ export default function SkillsMapPage() {
     return (
       <div className="app-shell">
         <div className="app-backdrop" aria-hidden="true" />
-        <nav className="app-nav">
-          <div className="nav-left">
-            <div className="brand-mark">
-              <span className="brand-orb" />
-              <span className="brand-text">MySkills_Protocol</span>
-            </div>
-          </div>
-          <div className="nav-right">
-            <div className="nav-links-container">
-              <Link href="/" className="nav-link">HOME</Link>
-              <Link href="/skills-map" className="nav-link text-[var(--neon-green)]">SKILL MAP</Link>
-              <Link href="/services" className="nav-link">SERVICES</Link>
-            </div>
-          </div>
-        </nav>
+        <Navbar />
         <main className="app-main flex items-center justify-center">
           <div className="text-center">
             <div className="loading-orb mx-auto mb-6"></div>
@@ -462,21 +449,7 @@ export default function SkillsMapPage() {
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
 
-      <nav className="app-nav">
-        <div className="nav-left">
-          <div className="brand-mark">
-            <span className="brand-orb" />
-            <span className="brand-text">MySkills_Protocol</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <div className="nav-links-container">
-            <Link href="/" className="nav-link">HOME</Link>
-            <Link href="/skills-map" className="nav-link text-[var(--neon-green)]">SKILL MAP</Link>
-            <Link href="/services" className="nav-link">SERVICES</Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         <section className="hero">

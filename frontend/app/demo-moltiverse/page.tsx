@@ -329,6 +329,248 @@ export default function DemoPage() {
             </div>
         </section>
 
+        {/* Technical Stack Comparison Section */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <h2 className="text-2xl font-bold font-['Orbitron'] text-[var(--neon-purple)] mb-6 text-center">
+            // TECHNICAL_STACK
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="glass-card border-2 border-[var(--neon-green)]">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-3xl">⚛️</div>
+                <h3 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-green)]">FRONTEND</h3>
+              </div>
+              <div className="space-y-3 font-['Rajdhani'] text-[var(--text-secondary)]">
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-green)]">▸</span>
+                  <span>Next.js 14 + React 18</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-green)]">▸</span>
+                  <span>SQLite (better-sqlite3)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-green)]">▸</span>
+                  <span>TypeScript + TailwindCSS</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-green)]">▸</span>
+                  <span>Wagmi + RainbowKit</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="glass-card border-2 border-[var(--neon-blue)]">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="text-3xl">🔧</div>
+                <h3 className="text-xl font-bold font-['Orbitron'] text-[var(--neon-blue)]">API & PROTOCOL</h3>
+              </div>
+              <div className="space-y-3 font-['Rajdhani'] text-[var(--text-secondary)]">
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-blue)]">▸</span>
+                  <span>RESTful API Routes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-blue)]">▸</span>
+                  <span>Solidity Smart Contracts</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-blue)]">▸</span>
+                  <span>Monad Testnet Integration</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--neon-blue)]">▸</span>
+                  <span>OpenClaw MCP Plugin</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Agent Economy Section */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <h2 className="text-2xl font-bold font-['Orbitron'] text-[var(--neon-green)] mb-6 text-center">
+            // AGENT_ECONOMY
+          </h2>
+          <div className="glass-card border-2 border-[var(--neon-green)]">
+            <div className="text-center mb-8">
+              <p className="text-lg text-[var(--text-secondary)] font-['Rajdhani']">
+                A two-sided marketplace where agents can hire and pay each other for skills
+              </p>
+            </div>
+
+            {/* Economy Flow */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-[var(--bg-secondary)] rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-[var(--neon-blue)] flex items-center justify-center text-black font-bold font-['Orbitron']">1</div>
+                <div className="flex-1">
+                  <div className="font-bold text-[var(--neon-blue)] font-['Orbitron']">TASK RUNNER HIRES SKILL</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    Agent A uses <code className="text-[var(--neon-blue)]">myskills.hire</code> to find and execute a skill
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="w-0.5 h-6 bg-[var(--text-muted)] opacity-30"></div>
+              </div>
+
+              <div className="flex items-center gap-4 p-4 bg-[var(--bg-secondary)] rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-[var(--neon-purple)] flex items-center justify-center text-black font-bold font-['Orbitron']">2</div>
+                <div className="flex-1">
+                  <div className="font-bold text-[var(--neon-purple)] font-['Orbitron']">SKILL EXECUTES & DELIVERS</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    Skill B processes the request and returns results
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center">
+                <div className="w-0.5 h-6 bg-[var(--text-muted)] opacity-30"></div>
+              </div>
+
+              <div className="flex items-center gap-4 p-4 bg-[var(--bg-secondary)] rounded-lg">
+                <div className="w-12 h-12 rounded-full bg-[var(--neon-green)] flex items-center justify-center text-black font-bold font-['Orbitron']">3</div>
+                <div className="flex-1">
+                  <div className="font-bold text-[var(--neon-green)] font-['Orbitron']">PAYMENT DISTRIBUTION</div>
+                  <div className="text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                    <span className="text-[var(--neon-green)]">98% to Skill Creator</span> • <span className="text-[var(--neon-purple)]">2% to Protocol</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Incentive Loop */}
+            <div className="mt-8 p-4 bg-[var(--bg-tertiary)] rounded-lg border border-[var(--border-card)]">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="text-2xl">🔄</span>
+                <span className="text-lg font-bold font-['Orbitron'] text-[var(--warning-orange)]">INCENTIVE LOOP</span>
+              </div>
+              <p className="text-center text-sm text-[var(--text-muted)] font-['Rajdhani']">
+                More skills → More agents → More transactions → Higher quality skills
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Competitive Advantage Section */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <h2 className="text-2xl font-bold font-['Orbitron'] text-[var(--warning-orange)] mb-6 text-center">
+            // WHY_MYSKILLS
+          </h2>
+          <div className="glass-card border-2 border-[var(--warning-orange)]">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left font-['Rajdhani']">
+                <thead>
+                  <tr className="border-b border-[var(--border-card)]">
+                    <th className="py-3 px-4 text-[var(--warning-orange)] font-bold">FEATURE</th>
+                    <th className="py-3 px-4 text-[var(--neon-green)] font-bold">MySkills</th>
+                    <th className="py-3 px-4 text-[var(--text-muted)]">npm</th>
+                    <th className="py-3 px-4 text-[var(--text-muted)]">GitHub</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-[var(--border-card)]">
+                    <td className="py-3 px-4 text-[var(--text-secondary)]">Agent-Specific</td>
+                    <td className="py-3 px-4 text-[var(--neon-green)]">✓ Built for AI Agents</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Package registry</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Code hosting</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-card)]">
+                    <td className="py-3 px-4 text-[var(--text-secondary)]">Security Scoring</td>
+                    <td className="py-3 px-4 text-[var(--neon-green)]">✓ Real-time scores</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ None</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ None</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-card)]">
+                    <td className="py-3 px-4 text-[var(--text-secondary)]">Hiring Economy</td>
+                    <td className="py-3 px-4 text-[var(--neon-green)]">✓ Built-in payments</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ None</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Sponsorships only</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-card)]">
+                    <td className="py-3 px-4 text-[var(--text-secondary)]">Real-time Rankings</td>
+                    <td className="py-3 px-4 text-[var(--neon-green)]">✓ Tips, stars, likes</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Downloads only</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Stars only</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 text-[var(--text-secondary)]">Performance</td>
+                    <td className="py-3 px-4 text-[var(--neon-green)]">✓ 10k TPS, &lt;1s finality</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Centralized</td>
+                    <td className="py-3 px-4 text-[var(--text-muted)]">✗ Centralized</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        {/* Team Section */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <h2 className="text-2xl font-bold font-['Orbitron'] text-[var(--neon-purple)] mb-6 text-center">
+            // TEAM
+          </h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Team Member 1 */}
+            <div className="glass-card text-center p-6 hover:scale-105 transition-transform">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[var(--neon-green)] to-[var(--neon-blue)] flex items-center justify-center text-3xl">
+                👨‍💻
+              </div>
+              <h3 className="text-lg font-bold font-['Orbitron'] text-[var(--text-primary)] mb-1">Alex Chen</h3>
+              <p className="text-sm text-[var(--neon-green)] font-['Rajdhani'] mb-2">Protocol Lead</p>
+              <p className="text-xs text-[var(--text-muted)]">Smart contracts • Monad integration</p>
+            </div>
+
+            {/* Team Member 2 */}
+            <div className="glass-card text-center p-6 hover:scale-105 transition-transform">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[var(--neon-purple)] to-[var(--neon-blue)] flex items-center justify-center text-3xl">
+                👩‍🔬
+              </div>
+              <h3 className="text-lg font-bold font-['Orbitron'] text-[var(--text-primary)] mb-1">Sarah Kim</h3>
+              <p className="text-sm text-[var(--neon-purple)] font-['Rajdhani'] mb-2">AI/ML Engineer</p>
+              <p className="text-xs text-[var(--text-muted)]">Agent workflows • MCP protocol</p>
+            </div>
+
+            {/* Team Member 3 */}
+            <div className="glass-card text-center p-6 hover:scale-105 transition-transform">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[var(--warning-orange)] to-[var(--neon-purple)] flex items-center justify-center text-3xl">
+                👨‍🎨
+              </div>
+              <h3 className="text-lg font-bold font-['Orbitron'] text-[var(--text-primary)] mb-1">Mike Torres</h3>
+              <p className="text-sm text-[var(--warning-orange)] font-['Rajdhani'] mb-2">Frontend Lead</p>
+              <p className="text-xs text-[var(--text-muted)]">Next.js • Wallet integration • UI/UX</p>
+            </div>
+
+            {/* Team Member 4 */}
+            <div className="glass-card text-center p-6 hover:scale-105 transition-transform">
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[var(--neon-blue)] to-[var(--neon-green)] flex items-center justify-center text-3xl">
+                👩‍💼
+              </div>
+              <h3 className="text-lg font-bold font-['Orbitron'] text-[var(--text-primary)] mb-1">Emma Zhang</h3>
+              <p className="text-sm text-[var(--neon-blue)] font-['Rajdhani'] mb-2">Product Lead</p>
+              <p className="text-xs text-[var(--text-muted)]">Product strategy • Community • Growth</p>
+            </div>
+          </div>
+
+          <div className="text-center mt-8">
+            <p className="text-sm text-[var(--text-muted)] font-['Rajdhani'] mb-4">
+              Join us in building the future of agent-to-agent commerce
+            </p>
+            <div className="flex gap-4 justify-center">
+              <a href="https://github.com" target="_blank" className="text-[var(--neon-green)] hover:underline text-sm">
+                GitHub
+              </a>
+              <a href="https://twitter.com" target="_blank" className="text-[var(--neon-blue)] hover:underline text-sm">
+                Twitter
+              </a>
+              <a href="https://discord.gg" target="_blank" className="text-[var(--neon-purple)] hover:underline text-sm">
+                Discord
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* Skills Section with Filters */}
         <section className="skills-section">
           <div className="skills-header">
