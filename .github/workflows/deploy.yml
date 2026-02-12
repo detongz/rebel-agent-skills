@@ -119,8 +119,8 @@ jobs:
           echo "✅ Docker image transferred successfully"
 
           # Deploy container on server
-          echo "🚀 Starting container on server..."
-          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "bash -s" << 'ENDSSH'
+          echo "Starting container on server..."
+          if ! ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "bash -s" << 'EOF'
           set -e
           echo "Server: Checking Docker availability..."
           docker --version
@@ -156,10 +156,9 @@ jobs:
           docker image prune -f
 
           echo "Server: Container deployed successfully!"
-          ENDSSH
-
-          if [ $? -ne 0 ]; then
-            echo "❌ Error: Container deployment failed"
+          EOF
+          then
+            echo "Error: Container deployment failed"
             exit 1
           fi
 
