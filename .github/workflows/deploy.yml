@@ -64,17 +64,37 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          echo "🚀 Build completed successfully!"
-          echo "Build artifacts:"
-          echo "  - packages/shared/dist/"
-          echo "  - frontend/.next/"
-          echo "  - packages/cli/dist/"
-          echo ""
-          echo "⚠️  Deployment skipped - please deploy manually"
-          echo "Manual deployment:"
-          echo "  ssh $DEPLOY_HOST"
-          echo "  cd $DEPLOY_PATH"
-          echo "  # Copy build artifacts..."
+          echo "🚀 Deploying to server..."
+
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Stop PM2
+          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "pm2 stop myskills-frontend || true"
+
+          # Sync .next build directory
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            frontend/.next/ root@$DEPLOY_HOST:$DEPLOY_PATH/.next/
+
+          # Sync public assets
+          rsync -avz --delete -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            frontend/public/ root@$DEPLOY_HOST:$DEPLOY_PATH/public/
+
+          # Sync package files
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            frontend/package.json frontend/package-lock.json frontend/next.config.ts \
+            root@$DEPLOY_HOST:$DEPLOY_PATH/
+
+          # Restart PM2
+          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "cd $DEPLOY_PATH && pm2 restart myskills-frontend"
+
+          # Cleanup
+          rm -f ~/.ssh/deploy_key
+
+          echo "✅ Deployment completed successfully!"
 
       - name: Cleanup
         if: always()
