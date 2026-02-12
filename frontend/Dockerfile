@@ -52,15 +52,15 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # 构建应用
-RUN npm run build 2>&1 | tee build.log
+RUN npm run build
 
 # 验证 standalone 输出目录已创建
 RUN echo "=== Verifying build output ===" && \
     ls -la .next/ && \
     echo "=== Standalone directory contents ===" && \
-    ls -la .next/standalone/ && \
-    echo "=== Full standalone tree ===" && \
-    find .next/standalone -type f -name "server.js" && \
+    ls -la .next/standalone/ 2>/dev/null || echo "No .next/standalone found" && \
+    echo "=== Looking for server.js ===" && \
+    find .next/standalone -type f -name "server.js" 2>/dev/null || echo "server.js not found" && \
     echo "✅ Build verification complete"
 
 # 生产运行阶段
@@ -77,13 +77,57 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Next.js 16 standalone 输出结构已更改
-# standalone 输出在 .next/standalone/ 目录下
-# 结构: .next/standalone/rebel-agent-skills/frontend/
-# 其中包含: server.js, node_modules/, .next/, package.json
+# Next.js 16 standalone 输出结构
+# 尝试检测并复制正确的 standalone 路径
+# 脚本会自动找到 server.js 并复制其所在的目录
 
-# 复制整个 standalone 目录到 /app
-COPY --from=builder /app/.next/standalone/rebel-agent-skills/frontend ./
+# 创建临时脚本来检测和复制 standalone 目录
+RUN cat > /tmp/copy_standalone.sh << 'EOF'
+#!/bin/sh
+set -e
+echo "=== Detecting standalone directory structure ==="
+
+# 检查可能的 server.js 位置
+if [ -f /app/.next/standalone/server.js ]; then
+    echo "✅ Found: .next/standalone/server.js (flat structure)"
+    cp -a /app/.next/standalone/. /app/standalone_temp/
+    STANDALONE_SRC="/app/standalone_temp"
+elif [ -f /app/.next/standalone/frontend/server.js ]; then
+    echo "✅ Found: .next/standalone/frontend/server.js (workspace structure)"
+    cp -a /app/.next/standalone/frontend/. /app/standalone_temp/
+    STANDALONE_SRC="/app/standalone_temp"
+elif [ -d /app/.next/standalone/rebel-agent-skills ]; then
+    echo "✅ Found: .next/standalone/rebel-agent-skills/ directory"
+    if [ -f /app/.next/standalone/rebel-agent-skills/frontend/server.js ]; then
+        cp -a /app/.next/standalone/rebel-agent-skills/frontend/. /app/standalone_temp/
+        STANDALONE_SRC="/app/standalone_temp"
+    elif [ -f /app/.next/standalone/rebel-agent-skills/server.js ]; then
+        cp -a /app/.next/standalone/rebel-agent-skills/. /app/standalone_temp/
+        STANDALONE_SRC="/app/standalone_temp"
+    else
+        echo "❌ Error: Cannot find server.js in rebel-agent-skills directory"
+        find /app/.next/standalone -type f -name "server.js" || true
+        exit 1
+    fi
+else
+    echo "❌ Error: Cannot find standalone directory structure"
+    find /app/.next -type d -name "standalone" || true
+    exit 1
+fi
+
+echo "=== Copying standalone files from: $STANDALONE_SRC ==="
+cp -a "$STANDALONE_SRC"/. /app/
+rm -rf /app/standalone_temp
+echo "✅ Standalone files copied successfully"
+
+EOF
+RUN chmod +x /tmp/copy_standalone.sh
+
+# 从 builder 复制 standalone 输出
+COPY --from=builder /app/.next/standalone /app/.next/standalone
+
+# 运行检测脚本
+RUN /tmp/copy_standalone.sh
 
 # 复制 public 目录
 COPY --from=builder /app/public ./public
@@ -97,7 +141,7 @@ RUN echo "=== Verifying copied files ===" && \
     echo "=== Checking for server.js ===" && \
     ls -la /app/server.js && \
     echo "=== Checking for better-sqlite3 ===" && \
-    ls -la /app/node_modules/better-sqlite3/build/Release/ || echo "Warning: better-sqlite3 not found" && \
+    ls -la /app/node_modules/better-sqlite3/build/Release/ 2>/dev/null || echo "Warning: better-sqlite3 native module not found" && \
     echo "✅ File verification complete"
 
 # 设置权限
