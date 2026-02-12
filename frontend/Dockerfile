@@ -7,8 +7,9 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
-# 复制 package 文件（先复制一个，如果存在就复制）
-COPY package.json package-lock.json* ./
+# 复制 package 文件
+COPY package.json ./
+COPY package-lock.json ./
 
 # 安装所有依赖（包括 devDependencies）
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
@@ -23,7 +24,8 @@ RUN apk add --no-cache libc6-compat python3 make g++
 COPY --from=deps /app/node_modules ./node_modules
 
 # 复制 package 文件和源代码
-COPY package.json package-lock.json* ./
+COPY package.json ./
+COPY package-lock.json ./
 COPY . .
 
 # 设置 Next.js 构建环境变量
