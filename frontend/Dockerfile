@@ -19,8 +19,8 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files and .npmrc to fix Next.js 16 Turbopack workspace detection
+COPY package.json package-lock.json* .npmrc* ./
 
 # Install dependencies with better-sqlite3 built from source
 RUN npm config set loglevel error && \
