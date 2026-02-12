@@ -7,6 +7,8 @@ import { parseAbi, formatUnits } from "viem";
 import { getSeedSkills } from "@/lib/seed-skills";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import SecurityScanCard from "@/components/SecurityScanCard";
+import ScanReportCard, { ScanResult, getScanDecision } from "@/components/ScanReportCard";
 
 // Category icons mapping
 const CATEGORY_ICONS: Record<string, string> = {
@@ -96,6 +98,11 @@ export default function DemoPage() {
   const [tipping, setTipping] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  // Security Scan State
+  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
+  const [showSecurityScanner, setShowSecurityScanner] = useState(false);
+  const [scanDecision, setScanDecision] = useState<'ACCEPT' | 'REJECT' | 'REVIEW'>('REVIEW');
+
   const { data: hash, writeContract, isPending } = useWriteContract();
   const { isLoading: isConfirming } = useWaitForTransactionReceipt({
     hash,
@@ -177,6 +184,36 @@ export default function DemoPage() {
       setTipping(false);
     }
   }, [isConfirming, hash, isPending]);
+
+  // Handle security scan completion
+  const handleScanComplete = (result: ScanResult) => {
+    setScanResult(result);
+    const decision = getScanDecision(result);
+    setScanDecision(decision.action);
+
+    // Auto-select skill based on security decision
+    if (decision.action === 'ACCEPT') {
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    }
+  };
+
+  // Handle hire based on scan decision
+  const handleHireFromScan = () => {
+    if (scanDecision === 'ACCEPT' || scanDecision === 'REVIEW') {
+      setShowSecurityScanner(false);
+      // Could pre-fill the selected skill or navigate to hire flow
+    }
+  };
+
+  // Handle share report
+  const handleShareReport = () => {
+    if (scanResult) {
+      const reportUrl = `${process.env.NEXT_PUBLIC_SKILL_SCAN_URL}/scan/report/${scanResult.scanId}`;
+      navigator.clipboard.writeText(reportUrl);
+      alert(`Report URL copied: ${reportUrl}`);
+    }
+  };
 
   const formatAddress = (addr: string) => {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
