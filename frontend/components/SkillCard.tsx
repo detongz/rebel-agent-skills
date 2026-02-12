@@ -1,9 +1,10 @@
 // components/SkillCard.tsx - Skill 卡片组件
 'use client';
 
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import { useRouter } from 'next/navigation';
-import { MONAD_SYMBOL } from '@/lib/wagmi';
+import { parseEther } from 'viem';
+import { CONTRACT_ADDRESS, CONTRACT_ABI, MONAD_SYMBOL } from '@/lib/wagmi';
 import SkillInstallButton from './SkillInstallButton';
 
 interface SkillCardProps {
@@ -30,6 +31,7 @@ interface SkillCardProps {
 export default function SkillCard({ skill, onTipped }: SkillCardProps) {
   const router = useRouter();
   const { address, isConnected } = useAccount();
+  const { writeContractAsync, isPending } = useWriteContract();
 
   const shortenAddress = (addr: string) => {
     if (!addr || addr.length < 10) return addr;
@@ -60,11 +62,6 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
       alert('Skill ID is missing, cannot tip');
       return;
     }
-
-    // Tip feature disabled - redirect to detail page
-    router.push(`/skill/${skill.id}`);
-    return;
-  };
 
     const input = window.prompt('Enter tip amount (MONAD)', '1');
     if (!input) return;

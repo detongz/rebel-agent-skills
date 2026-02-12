@@ -25,6 +25,9 @@ const monadTestnet = {
   testnet: true,
 };
 
+// Monad token symbol
+export const MONAD_SYMBOL = 'MONAD';
+
 // RainbowKit 配置 - 使用 demo projectId（RainbowKit 提供的默认值）
 export const config = getDefaultConfig({
   appName: 'Agent Reward Hub',
