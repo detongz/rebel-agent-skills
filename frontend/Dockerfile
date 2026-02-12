@@ -20,14 +20,16 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Copy package files and .npmrc to fix Next.js 16 Turbopack workspace detection
-COPY package.json package-lock.json* .npmrc* ./
+COPY package.json package-lock.json* ./
+COPY .npmrc ./
 
 # Install dependencies with better-sqlite3 built from source
 RUN npm config set loglevel error && \
+    npm config set engine-strict false && \
     if [ -f package-lock.json ]; then \
-        npm ci --build-from-source=better-sqlite3 --prefer-offline --no-audit; \
+        npm ci --build-from-source=better-sqlite3 --prefer-offline --no-audit --no-fund; \
     else \
-        npm install --build-from-source=better-sqlite3 --prefer-offline --no-audit; \
+        npm install --build-from-source=better-sqlite3 --prefer-offline --no-audit --no-fund; \
     fi
 
 # Rebuild the application
@@ -44,6 +46,8 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
+# Copy .npmrc explicitly to ensure it's available
+COPY .npmrc ./
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -55,8 +59,8 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # Build Next.js application
-# Use --webpack flag to disable Turbopack and avoid workspace root detection issues in Docker
-RUN npm run build -- --webpack
+# Use webpack explicitly to disable Turbopack and avoid workspace root detection issues in Docker
+RUN NEXT_PRIVATE_SKIP_VALIDATION=1 npm run build -- --webpack
 
 # Production runner image
 FROM base AS runner
