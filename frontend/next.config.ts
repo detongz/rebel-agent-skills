@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['better-sqlite3'],
   },
+
+  // Webpack 配置确保 better-sqlite3 原生模块被正确处理
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...(config.externals || []), 'better-sqlite3'];
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
