@@ -1,6 +1,6 @@
 # Frontend Dockerfile - 构建和生产镜像
-# Use Node.js 22 LTS for better compatibility
-FROM node:22-alpine AS base
+# Use Node.js 20 LTS for better better-sqlite3 compatibility
+FROM node:20-alpine AS base
 
 # 安装依赖
 FROM base AS deps

@@ -29,21 +29,52 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
+          set -e  # Exit on any error
           echo "🚀 Deploying to server..."
+
+          # Validate secrets are set
+          if [ -z "$DEPLOY_KEY" ]; then
+            echo "❌ Error: DEPLOY_SSH_KEY secret is not set"
+            exit 1
+          fi
+          if [ -z "$DEPLOY_HOST" ]; then
+            echo "❌ Error: DEPLOY_HOST secret is not set"
+            exit 1
+          fi
 
           # Setup SSH
           mkdir -p ~/.ssh
           echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Add server to known hosts (with timeout and retry)
+          echo "Adding server to known hosts..."
+          timeout 30 ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>&1 || {
+            echo "⚠️ Warning: ssh-keyscan failed, continuing anyway..."
+          }
+
+          # Test SSH connection first
+          echo "Testing SSH connection..."
+          if ! timeout 30 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes root@$DEPLOY_HOST "echo 'Connection successful'" 2>&1; then
+            echo "❌ Error: Cannot connect to server via SSH"
+            echo "Please check:"
+            echo "  1. DEPLOY_SSH_KEY secret is correct"
+            echo "  2. DEPLOY_HOST secret is correct and reachable"
+            echo "  3. SSH key is authorized on the server"
+            exit 1
+          fi
 
           # Save Docker image and transfer to server
           echo "Transferring Docker image..."
-          docker save myskills:latest | gzip | ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST "docker load"
+          if ! docker save myskills:latest | gzip | timeout 300 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@$DEPLOY_HOST "docker load" 2>&1; then
+            echo "❌ Error: Failed to transfer Docker image"
+            exit 1
+          fi
 
           # Deploy container on server
           echo "Starting container..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST bash << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@$DEPLOY_HOST bash -x << 'ENDSSH'
+            set -e
             # Stop and remove old container
             docker stop myskills 2>/dev/null || true
             docker rm myskills 2>/dev/null || true
@@ -61,7 +92,7 @@ jobs:
             docker image prune -f
 
             echo "Container started!"
-            docker ps | grep myskills
+            docker ps | grep myskills || echo "Warning: Container not found in ps output"
           ENDSSH
 
           # Cleanup
