@@ -1,10 +1,9 @@
 // components/SkillCard.tsx - Skill 卡片组件
 'use client';
 
-import { useAccount, useWriteContract } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount } from 'wagmi';
 import { useRouter } from 'next/navigation';
-import { CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
+import { MONAD_SYMBOL } from '@/lib/wagmi';
 import SkillInstallButton from './SkillInstallButton';
 
 interface SkillCardProps {
@@ -31,7 +30,6 @@ interface SkillCardProps {
 export default function SkillCard({ skill, onTipped }: SkillCardProps) {
   const router = useRouter();
   const { address, isConnected } = useAccount();
-  const { writeContractAsync, isPending } = useWriteContract();
 
   const shortenAddress = (addr: string) => {
     if (!addr || addr.length < 10) return addr;
@@ -63,13 +61,12 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
       return;
     }
 
-    if (CONTRACT_ADDRESS === '0x0000000000000000000000000000000000000000') {
-      // Fall back to navigate to detail page if contract not configured
-      router.push(`/skill/${skill.id}`);
-      return;
-    }
+    // Tip feature disabled - redirect to detail page
+    router.push(`/skill/${skill.id}`);
+    return;
+  };
 
-    const input = window.prompt('Enter tip amount (ASKL)', '1');
+    const input = window.prompt('Enter tip amount (MONAD)', '1');
     if (!input) return;
 
     let amountWei: bigint;
@@ -203,7 +200,7 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
           <span title="Likes">{formatNumber(skill.platform_likes || 0)}</span>
         )}
         <span title="Total Tips" className="skill-tips">
-          {formatTips(skill.total_tips)} ASKL
+          {formatTips(skill.total_tips)} MONAD
         </span>
       </div>
 

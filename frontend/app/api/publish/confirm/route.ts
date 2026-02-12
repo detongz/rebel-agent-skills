@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
             name: 'registerSkill',
             type: 'function'
           }],
-          address: process.env.ASKL_TOKEN_ADDRESS || '0xc1fFCAD15e2f181E49bFf2cBea79094eC9B5033A',
+          address: '0x0000000000000000000000000000000000000', // Disabled - no contract
           args: [skill.id, skill.name, skill.creator]
         }
       },
