@@ -83,6 +83,11 @@ COPY --from=builder /app/public ./public
 RUN mkdir -p .next/static && \
     cp -r /app/.next/static ./.next/static 2>/dev/null || true
 
+# Copy better-sqlite3 native module from builder
+RUN echo "=== Copying better-sqlite3 ===" && \
+    mkdir -p node_modules/better-sqlite3/build/Release && \
+    cp -r /app/node_modules/better-sqlite3 ./node_modules/
+
 # Verify better-sqlite3 native module exists
 RUN echo "=== Verifying better-sqlite3 ===" && \
     if [ -f node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
