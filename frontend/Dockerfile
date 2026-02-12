@@ -13,7 +13,8 @@ RUN npm ci
 # 构建阶段
 FROM base AS builder
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json* ./
+RUN npm ci
 COPY . .
 
 # 设置 Next.js 构建环境变量
