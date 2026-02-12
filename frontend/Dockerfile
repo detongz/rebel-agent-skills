@@ -47,6 +47,9 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
+# 重新构建 better-sqlite3 原生模块（确保与当前环境兼容）
+RUN npm rebuild better-sqlite3
+
 # 构建应用
 RUN npm run build
 
