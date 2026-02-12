@@ -1,5 +1,6 @@
 # Frontend Dockerfile - 构建和生产镜像
-FROM node:22-alpine AS base
+# Node.js 20 LTS used for stability (Node 22 has npm compatibility issues in Alpine)
+FROM node:20-alpine AS base
 
 # 安装依赖
 FROM base AS deps
