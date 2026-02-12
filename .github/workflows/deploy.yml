@@ -120,7 +120,7 @@ jobs:
 
           # Deploy container on server
           echo "Starting container on server..."
-          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash -s << 'EOF'
+          if ! ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash << 'ENDSSH'
           set -e
           echo "Server: Checking Docker availability..."
           docker --version
@@ -136,7 +136,7 @@ jobs:
             -p 3000:3000 \
             -e NODE_ENV=production \
             -e PORT=3000 \
-            -e HOSTNAME=0.0.0.0 \
+            -e HOSTNAME="0.0.0.0" \
             --health-cmd="curl -f http://localhost:3000/ || exit 1" \
             --health-interval=30s \
             --health-timeout=10s \
@@ -156,8 +156,8 @@ jobs:
           docker image prune -f
 
           echo "Server: Container deployed successfully!"
-          EOF
-          if [ $? -ne 0 ]; then
+          ENDSSH
+          then
             echo "Error: Container deployment failed"
             exit 1
           fi
