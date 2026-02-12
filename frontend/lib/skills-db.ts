@@ -32,6 +32,8 @@ export interface Skill {
   txHash?: string;      // Registration transaction
   verified: boolean;    // Verified on-chain
   dependencies?: DependencyInfo[]; // Extracted dependencies
+  githubStars?: number; // GitHub stars count for hot skills ranking
+  githubForks?: number; // GitHub forks count
 }
 
 export interface PublishRecord {
@@ -101,10 +103,13 @@ async function saveDb(db: SkillsDatabase): Promise<void> {
 
 // ============ Skills ============
 
+export type SkillSortBy = 'tips' | 'date' | 'stars' | 'name';
+
 export async function getSkills(options?: {
   creator?: string;
   category?: string;
   limit?: number;
+  sortBy?: SkillSortBy;
 }): Promise<Skill[]> {
   const db = await ensureDb();
   let skills = [...db.skills];
@@ -117,11 +122,28 @@ export async function getSkills(options?: {
     skills = skills.filter(s => s.category === options.category);
   }
 
-  // Sort by tips (descending)
+  // Sort based on sortBy option
+  const sortBy = options?.sortBy || 'tips';
   skills.sort((a, b) => {
-    const tipsA = BigInt(a.totalTips || '0');
-    const tipsB = BigInt(b.totalTips || '0');
-    return tipsB > tipsA ? 1 : -1;
+    switch (sortBy) {
+      case 'stars':
+        // Sort by GitHub stars (descending) - HOT SKILLS
+        const starsA = a.githubStars || 0;
+        const starsB = b.githubStars || 0;
+        return starsB - starsA;
+      case 'date':
+        // Sort by publish date (descending)
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      case 'name':
+        // Sort alphabetically
+        return a.name.localeCompare(b.name);
+      case 'tips':
+      default:
+        // Sort by tips (descending) - default
+        const tipsA = BigInt(a.totalTips || '0');
+        const tipsB = BigInt(b.totalTips || '0');
+        return tipsB > tipsA ? 1 : -1;
+    }
   });
 
   if (options?.limit) {
