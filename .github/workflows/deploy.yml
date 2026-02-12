@@ -62,9 +62,8 @@ jobs:
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          echo "🚀 Deploying to server..."
+          echo "🚀 Triggering deployment on server..."
 
           # Setup SSH
           mkdir -p ~/.ssh
@@ -72,36 +71,13 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
-          SSH_CMD="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST"
-
-          # Stop PM2
-          $SSH_CMD "pm2 stop myskills-frontend || true"
-
-          # Create temp directory for build artifacts
-          $SSH_CMD "mkdir -p $DEPLOY_PATH/.next_temp"
-
-          # Copy .next build directory
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r frontend/.next/* root@$DEPLOY_HOST:$DEPLOY_PATH/.next_temp/
-
-          # Copy public assets
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r frontend/public/* root@$DEPLOY_HOST:$DEPLOY_PATH/public/ 2>/dev/null || true
-
-          # Copy package files
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no frontend/package.json frontend/package-lock.json frontend/next.config.ts root@$DEPLOY_HOST:$DEPLOY_PATH/
-
-          # Move .next to .next_old and activate new build
-          $SSH_CMD "
-            cd $DEPLOY_PATH
-            mv .next .next_old.\$(date +%s) 2>/dev/null || true
-            mv .next_temp .next
-            pm2 restart myskills-frontend
-          "
+          # Run deployment script on server
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST "/var/www/myscripts/deploy-myskills.sh"
 
           # Cleanup
           rm -f ~/.ssh/deploy_key
-          $SSH_CMD "rm -rf $DEPLOY_PATH/.next_old.* 2>/dev/null || true"
 
-          echo "✅ Deployment completed successfully!"
+          echo "✅ Deployment triggered successfully!"
 
       - name: Cleanup
         if: always()
