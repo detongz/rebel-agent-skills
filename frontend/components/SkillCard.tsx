@@ -207,11 +207,11 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
         </span>
       </div>
 
-      {/* 打赏按钮 */}
+      {/* Tip按钮 - 功能开发中 */}
       <button
-        onClick={handleTip}
-        disabled={isPending}
-        className="skill-tip-button"
+        disabled={true}
+        className="skill-tip-button disabled:opacity-50"
+        title="Tip feature is coming soon"
       >
         {isPending ? (
           <>
