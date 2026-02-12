@@ -85,13 +85,13 @@ async function seedDatabaseIfEmpty() {
 
       const insert = db.prepare(`
         INSERT INTO skills (
-          skill_id, name, description, platform, version,
+          skill_id, transaction_hash, name, description, platform, version,
           creator_address, payment_address, npm_package,
           repository, homepage, download_count,
           github_stars, github_forks, total_tips,
           tip_count, platform_likes, logo_url, tags,
-          status, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
+          status, created_at, updated_at, stats_updated_at
+        ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), NULL)
       `);
 
       const insertMany = db.transaction((skills: any[]) => {
@@ -102,7 +102,7 @@ async function seedDatabaseIfEmpty() {
             skill.description,
             skill.platform,
             skill.version || '1.0.0',
-            skill.creator,
+            skill.creator_address || skill.creator,
             skill.payment_address,
             skill.npm_package,
             skill.repository,
@@ -115,7 +115,7 @@ async function seedDatabaseIfEmpty() {
             skill.platform_likes || 0,
             skill.logo_url,
             skill.tags ? skill.tags.join(',') : null,
-            'active'
+            skill.status || 'active'
           );
         }
       });
