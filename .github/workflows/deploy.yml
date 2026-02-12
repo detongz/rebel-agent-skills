@@ -120,7 +120,7 @@ jobs:
 
           # Deploy container on server
           echo "🚀 Starting container on server..."
-          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST 'bash -s' << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "bash -s" << 'ENDSSH'
           set -e
           echo "Server: Checking Docker availability..."
           docker --version
@@ -136,7 +136,7 @@ jobs:
             -p 3000:3000 \
             -e NODE_ENV=production \
             -e PORT=3000 \
-            -e HOSTNAME="0.0.0.0" \
+            -e HOSTNAME=0.0.0.0 \
             --health-cmd="curl -f http://localhost:3000/ || exit 1" \
             --health-interval=30s \
             --health-timeout=10s \
@@ -149,14 +149,13 @@ jobs:
           echo "Server: Verifying container status..."
           docker ps --filter "name=myskills" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-          # Check container logs for any startup errors
           echo "Server: Checking container logs..."
           docker logs --tail 20 myskills || echo "Warning: Could not retrieve container logs"
 
           echo "Server: Cleaning up old images..."
           docker image prune -f
 
-          echo "✅ Container deployed successfully!"
+          echo "Server: Container deployed successfully!"
           ENDSSH
 
           if [ $? -ne 0 ]; then
