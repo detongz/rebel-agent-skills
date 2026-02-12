@@ -3,17 +3,18 @@ FROM node:20-alpine AS base
 
 # 安装依赖
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# 添加 Python 和构建工具，用于编译 better-sqlite3 等原生模块
+RUN apk add --no-cache libc6-compat python3 make g++
 WORKDIR /app
 
 # 复制 package 文件
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 # 构建阶段
 FROM base AS builder
 WORKDIR /app
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 
