@@ -95,64 +95,70 @@ jobs:
 
           # Save Docker image and transfer to server
           echo "📦 Transferring Docker image to server..."
-          echo "Image size: $(docker images myskills:latest --format "{{.Size}}")"
+          IMAGE_SIZE=$(docker images myskills:latest --format "{{.Size}}")
+          echo "Image size: $IMAGE_SIZE"
 
-          # Transfer with better error handling
+          # Transfer with better error handling and progress indication
+          echo "Starting image transfer (this may take a few minutes)..."
           if ! docker save myskills:latest | \
-             timeout 600 ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "docker load" 2>&1; then
+             timeout 600 ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \
+             -i ~/.ssh/deploy_key root@$DEPLOY_HOST "docker load" 2>&1; then
             echo "❌ Error: Failed to transfer Docker image"
             echo "This could be due to:"
             echo "  - Network timeout (image too large)"
             echo "  - Insufficient disk space on server"
             echo "  - SSH connection instability"
             echo ""
-            echo "Current image size: $(docker images myskills:latest --format "{{.Size}}")"
+            echo "Current image size: $IMAGE_SIZE"
+            echo ""
+            echo "Troubleshooting tips:"
+            echo "  1. Check server disk space: ssh root@$DEPLOY_HOST 'df -h'"
+            echo "  2. Check Docker is running: ssh root@$DEPLOY_HOST 'docker ps'"
             exit 1
           fi
           echo "✅ Docker image transferred successfully"
 
           # Deploy container on server
           echo "🚀 Starting container on server..."
-          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash -x << 'ENDSSH'
-            set -e
-            echo "Server: Checking Docker availability..."
-            docker --version
+          if ! ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash << 'ENDSSH'
+          set -e
+          echo "Server: Checking Docker availability..."
+          docker --version
 
-            echo "Server: Stopping and removing old container..."
-            docker stop myskills 2>/dev/null || echo "No existing container to stop"
-            docker rm myskills 2>/dev/null || echo "No existing container to remove"
+          echo "Server: Stopping and removing old container..."
+          docker stop myskills 2>/dev/null || echo "No existing container to stop"
+          docker rm myskills 2>/dev/null || echo "No existing container to remove"
 
-            echo "Server: Starting new container..."
-            docker run -d \
-              --name myskills \
-              --restart unless-stopped \
-              -p 3000:3000 \
-              -e NODE_ENV=production \
-              -e PORT=3000 \
-              -e HOSTNAME="0.0.0.0" \
-              --health-cmd="curl -f http://localhost:3000/ || exit 1" \
-              --health-interval=30s \
-              --health-timeout=10s \
-              --health-retries=3 \
-              myskills:latest
+          echo "Server: Starting new container..."
+          docker run -d \
+            --name myskills \
+            --restart unless-stopped \
+            -p 3000:3000 \
+            -e NODE_ENV=production \
+            -e PORT=3000 \
+            -e HOSTNAME="0.0.0.0" \
+            --health-cmd="curl -f http://localhost:3000/ || exit 1" \
+            --health-interval=30s \
+            --health-timeout=10s \
+            --health-retries=3 \
+            myskills:latest
 
-            echo "Server: Container started, waiting for health check..."
-            sleep 5
+          echo "Server: Container started, waiting for health check..."
+          sleep 5
 
-            echo "Server: Verifying container status..."
-            docker ps --filter "name=myskills" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+          echo "Server: Verifying container status..."
+          docker ps --filter "name=myskills" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
-            # Check container logs for any startup errors
-            echo "Server: Checking container logs..."
-            docker logs --tail 20 myskills || echo "Warning: Could not retrieve container logs"
+          # Check container logs for any startup errors
+          echo "Server: Checking container logs..."
+          docker logs --tail 20 myskills || echo "Warning: Could not retrieve container logs"
 
-            echo "Server: Cleaning up old images..."
-            docker image prune -f
+          echo "Server: Cleaning up old images..."
+          docker image prune -f
 
-            echo "✅ Container deployed successfully!"
+          echo "✅ Container deployed successfully!"
           ENDSSH
-
-          if [ $? -ne 0 ]; then
+          then
             echo "❌ Error: Container deployment failed"
             exit 1
           fi
