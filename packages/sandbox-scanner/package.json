@@ -20,11 +20,15 @@
   "author": "MySkills Protocol",
   "license": "MIT",
   "dependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@typescript-eslint/parser": "^7.0.0",
     "@typescript-eslint/typescript-estree": "^7.0.0",
     "acorn": "^8.11.3",
     "acorn-walk": "^8.3.2",
     "axios": "^1.6.7",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "semver": "^7.6.0",
     "temp": "^0.9.4"
   },
