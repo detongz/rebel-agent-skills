@@ -55,8 +55,8 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # Build Next.js application
-# Set TURBOPACK_DISABLE_WORKSPACE_ROOT to prevent Next.js 16 from detecting parent lockfile
-RUN TURBOPACK_DISABLE_WORKSPACE_ROOT=1 npm run build
+# Use --webpack flag to disable Turbopack and avoid workspace root detection issues in Docker
+RUN npm run build -- --webpack
 
 # Production runner image
 FROM base AS runner
