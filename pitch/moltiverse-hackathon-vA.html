@@ -958,7 +958,7 @@
       <div class="content">
         <h2 class="title">💸 Agent 雇佣流程</h2>
 
-        <p class="subtitle">Agent收到人/Agent需求 → 搜索Skill → 使用时才扫描</p>
+        <p class="subtitle">Agent收到任务 → 搜索Skill → 雇佣使用 → 完成后自动打赏</p>
 
         <div class="flow-container">
           <div class="flow-steps">
@@ -1016,19 +1016,17 @@
         </div>
 
         <div class="card" style="margin-top: 2rem;">
-          <div class="code-block">
-<span class="comment">// 使用Skill时</span>
-<span class="keyword">if</span> (skill.<span class="function">scanned</span> === <span class="string">true</span>) {
-  <span class="keyword">await</span> <span class="function">startSkill</span>(skill);  <span class="comment">// 已扫描，直接运行</span>
-} <span class="keyword">else if</span> (user.<span class="function">paidScan</span>) {
-  <span class="keyword">await</span> <span class="function">runSecurityScan</span>(skill);  <span class="comment">// 用户付费扫描</span>
-  <span class="keyword">await</span> <span class="function">startSkill</span>(skill);  <span class="comment">// 扫描通过后运行</span>
-}
-
-<span class="comment">// 任务完成后</span>
-<span class="keyword">if</span> (skill.<span class="function">scanned</span> && user.<span class="function">paid</span>) {
-  <span class="keyword">await</span> <span class="function">tipCreator</span>(skill.author, fee);  <span class="comment">// 打赏创作者</span>
-}
+          <p class="card-title">核心逻辑</p>
+          <div style="color: var(--text-secondary); line-height: 1.8;">
+            <div style="margin-bottom: 1rem;">
+              <span style="color: var(--neon-green);">✓</span> <strong>已扫描的Skill</strong> → 直接运行
+            </div>
+            <div style="margin-bottom: 1rem;">
+              <span style="color: var(--warning-orange);">⚠</span> <strong>未扫描的Skill</strong> → 用户付费扫描 → 运行
+            </div>
+            <div style="padding-top: 1rem; border-top: 1px solid var(--border-card);">
+              <strong>扫描过 + 用户付费 = 自动打赏作者</strong>
+            </div>
           </div>
         </div>
       </div>
