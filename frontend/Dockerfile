@@ -55,7 +55,8 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # Build Next.js application
-RUN npm run build
+# Set TURBOPACK_DISABLE_WORKSPACE_ROOT to prevent Next.js 16 from detecting parent lockfile
+RUN TURBOPACK_DISABLE_WORKSPACE_ROOT=1 npm run build
 
 # Production runner image
 FROM base AS runner
@@ -73,56 +74,78 @@ RUN apk add --no-cache sqlite
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy standalone output
-# Next.js 16 creates monorepo-aware output: .next/standalone/repo-name/package-name/
-# When building from frontend/ directory, the structure is: .next/standalone/repo-name/frontend/
-COPY --from=builder /app/.next/standalone ./rebel-agent-skills/
+# Copy standalone output with dynamic path detection
+# Next.js 16 creates monorepo-aware output structure that varies by build context
+# The structure can be: .next/standalone/ or .next/standalone/repo-name/frontend/
+# We need to detect and handle both cases
+COPY --from=builder /app/.next/standalone /tmp/standalone
 
-# Determine the application directory and copy assets
-# Next.js 16 standalone: app is at rebel-agent-skills/frontend/
-WORKDIR /app/rebel-agent-skills/frontend
+# Debug: Show standalone structure
+RUN echo "=== Standalone directory structure ===" && \
+    ls -la /tmp/standalone/ && \
+    echo "=== Looking for server.js ===" && \
+    find /tmp/standalone -maxdepth 4 -name "server.js" -type f
+
+# Detect and set up the correct application directory
+RUN echo "=== Detecting application directory ===" && \
+    # Check if there's a direct standalone output (no repo subdirectory)
+    if [ -f /tmp/standalone/server.js ]; then \
+        echo "Found standalone output at /tmp/standalone/" && \
+        cp -r /tmp/standalone/* /app/ && \
+        APP_DIR="/app"; \
+    # Check if there's a repo-name/frontend structure
+    elif [ -d /tmp/standalone/rebel-agent-skills/frontend ] && [ -f /tmp/standalone/rebel-agent-skills/frontend/server.js ]; then \
+        echo "Found rebel-agent-skills/frontend structure" && \
+        cp -r /tmp/standalone/rebel-agent-skills/frontend/* /app/ && \
+        APP_DIR="/app"; \
+    # Check for any other directory structure containing server.js
+    else \
+        SERVER_DIR=$$(find /tmp/standalone -maxdepth 4 -name "server.js" -type f -exec dirname {} \; | head -1); \
+        if [ -n "$$SERVER_DIR" ]; then \
+            echo "Found server.js at $$SERVER_DIR" && \
+            cp -r "$$SERVER_DIR"/* /app/ && \
+            APP_DIR="/app"; \
+        else \
+            echo "ERROR: Could not find server.js in standalone output" && \
+            find /tmp/standalone -type f -name "*.js" || true; \
+            exit 1; \
+        fi; \
+    fi && \
+    echo "Application directory set to: $$APP_DIR" && \
+    echo "=== Contents of /app ===" && \
+    ls -la /app/
 
 # Copy public and static assets from builder stage
-COPY --from=builder /app/public ./
-COPY --from=builder /app/.next/static ./.next/static/
-
-# Debug: Show the directory structure
-RUN echo "=== Standalone output structure ===" && \
-    find . -maxdepth 3 -type f -name "server.js" 2>/dev/null || true && \
-    echo "=== Current directory contents ===" && \
-    ls -la /app/rebel-agent-skills/frontend/ && \
-    echo "=== Checking for node_modules ===" && \
-    ls -la /app/rebel-agent-skills/frontend/node_modules/ 2>/dev/null | head -10 || echo "No node_modules"
+COPY --from=builder /app/public /app/public/
+COPY --from=builder /app/.next/static /app/.next/static/
 
 # Verify better-sqlite3 native module exists
 RUN echo "=== Verifying better-sqlite3 ===" && \
-    if [ -f /app/rebel-agent-skills/frontend/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
-        echo "✅ better-sqlite3 verified at /app/rebel-agent-skills/frontend/node_modules/better-sqlite3/build/Release/better_sqlite3.node"; \
+    if [ -f /app/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
+        echo "✅ better-sqlite3 verified"; \
     else \
         echo "ERROR: better-sqlite3 native module not found"; \
         find /app -name "better_sqlite3.node" || true; \
         exit 1; \
     fi
 
-# Verify server.js exists and create entrypoint
+# Verify server.js exists
 RUN echo "=== Verifying server.js ===" && \
-    if [ -f /app/rebel-agent-skills/frontend/server.js ]; then \
-        echo "✅ server.js found at /app/rebel-agent-skills/frontend/server.js" && \
-        echo "#!/bin/sh" > /app/entrypoint.sh && \
-        echo "cd /app/rebel-agent-skills/frontend && exec node server.js" >> /app/entrypoint.sh; \
-    elif [ -f server.js ]; then \
-        echo "✅ server.js found at ./server.js" && \
-        echo "#!/bin/sh" > /app/entrypoint.sh && \
-        echo "cd /app/rebel-agent-skills/frontend && exec node server.js" >> /app/entrypoint.sh; \
+    if [ -f /app/server.js ]; then \
+        echo "✅ server.js found at /app/server.js"; \
     else \
         echo "ERROR: server.js not found" && \
-        find /app -maxdepth 5 -name "server.js" || true; \
-        echo "" && \
-        echo "Directory structure:" && \
-        ls -laR /app/ || true; \
+        echo "Directory contents:" && \
+        ls -laR /app/; \
         exit 1; \
-    fi && \
-    chmod +x /app/entrypoint.sh
+    fi
+
+# Create entrypoint script
+RUN echo "#!/bin/sh" > /app/entrypoint.sh && \
+    echo "cd /app && exec node server.js" >> /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh && \
+    echo "Entrypoint script created" && \
+    cat /app/entrypoint.sh
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app
