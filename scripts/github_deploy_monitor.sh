@@ -56,8 +56,15 @@ call_claude_to_fix() {
     # 调用 Claude Code CLI
     cd "$WORK_DIR"
     claude --dangerously-skip-permissions -p "$prompt" >> "$LOG_FILE" 2>&1
+    local exit_code=$?
 
-    log "✅ Claude 分析完成"
+    if [ $exit_code -eq 0 ]; then
+        log "✅ Claude 修复成功，部署应该会重新开始"
+    else
+        log "❌ Claude 修复失败，继续监控"
+    fi
+
+    log "✅ Claude 调用完成"
 }
 
 check_and_fix() {
