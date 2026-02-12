@@ -127,6 +127,17 @@ function initAgentTables() {
   } else {
     console.log('✅ Agent tables already exist');
   }
+
+  // Create index for github_stars to optimize hot skills queries
+  const starsIndexExists = db.prepare(`
+    SELECT name FROM sqlite_master
+    WHERE type='index' AND name='idx_skills_github_stars'
+  `).get() as { name: string } | undefined;
+
+  if (!starsIndexExists) {
+    db.exec('CREATE INDEX IF NOT EXISTS idx_skills_github_stars ON skills(github_stars DESC);');
+    console.log('✅ Created index for github_stars (hot skills optimization)');
+  }
 }
 
 // 首次运行时初始化

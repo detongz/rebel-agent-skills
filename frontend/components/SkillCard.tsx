@@ -116,8 +116,18 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
     }
   };
 
+  // Determine if skill is HOT (high star count)
+  const isHotSkill = (skill.github_stars || 0) >= 100;
+
   return (
     <div className="skill-card" onClick={() => router.push(`/skill/${skill.id}`)}>
+      {/* HOT Badge */}
+      {isHotSkill && (
+        <div className="skill-hot-badge" title="Hot Skill - High GitHub Stars!">
+          🔥 HOT
+        </div>
+      )}
+
       {/* 头部：平台 + 创作者 */}
       <div className="skill-card-header">
         <span className="skill-platform-pill">

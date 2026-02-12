@@ -214,6 +214,7 @@ function HomePage() {
                       value={sort}
                       onChange={(event) => setSort(event.target.value)}
                     >
+                      <option value="stars">🔥 [HOT_SKILLS]</option>
                       <option value="tips">[MOST_TIPPED]</option>
                       <option value="likes">[MOST_LIKED]</option>
                       <option value="latest">[LATEST]</option>
