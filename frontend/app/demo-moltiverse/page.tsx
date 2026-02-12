@@ -4,7 +4,62 @@ import { useState, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { parseAbi, formatUnits } from "viem";
-import { getSeedSkills, getSeedSkillsSummary } from "@/lib/seed-skills";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+
+// Category icons mapping
+const CATEGORY_ICONS: Record<string, string> = {
+  'security': '🛡️',
+  'Security': '🛡️',
+  'defi': '💰',
+  'DeFi': '💰',
+  'development': '👨‍💻',
+  'Development': '👨‍💻',
+  'analytics': '📊',
+  'Analytics': '📊',
+  'data': '🔌',
+  'Data': '🔌',
+  'optimization': '⚡',
+  'Optimization': '⚡',
+  'education': '📚',
+  'Education': '📚',
+  'trading': '📈',
+  'Trading': '📈',
+  'audit': '🔍',
+  'Audit': '🔍',
+  'all': '📦',
+};
+
+// Helper function to get category icon
+function getCategoryIcon(category: string): string {
+  return CATEGORY_ICONS[category] || '📦';
+}
+
+// Type definition for API response
+interface Skill {
+  id: string;
+  skill_id: string;
+  name: string;
+  description: string;
+  platform: string;
+  creator_address: string;
+  payment_address: string;
+  repository: string;
+  homepage: string;
+  category: string;
+  security_score: number;
+  total_tips: string;
+  tip_count: number;
+  platform_likes: number;
+  download_count: number;
+  github_stars: number;
+  github_forks: number;
+  logo_url: string;
+  tags: string[];
+  created_at: string;
+  updated_at: string;
+  verified: boolean;
+}
 import Link from "next/link";
 
 // Contract ABI (simplified for demo)
@@ -41,7 +96,35 @@ export default function DemoPage() {
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
 
-  const [selectedSkill, setSelectedSkill] = useState(DEMO_SKILLS[0]);
+  // Skills API integration
+  const [skills, setSkills] = useState<Skill[]>([]);
+  const [skillsLoading, setSkillsLoading] = useState(false);
+  const [skillsError, setSkillsError] = useState<string | null>(null);
+
+  // Fetch real skills from API on component mount
+  useEffect(() => {
+    const fetchSkills = async () => {
+      setSkillsLoading(true);
+      setSkillsError(null);
+      try {
+        const response = await fetch('/api/skills?limit=12&sort=tips');
+        const data = await response.json();
+        if (data.success) {
+          setSkills(data.data);
+        } else {
+          setSkillsError(data.error || 'Failed to fetch skills');
+        }
+      } catch (error) {
+        setSkillsError(error instanceof Error ? error.message : 'Network error');
+      } finally {
+        setSkillsLoading(false);
+      }
+    };
+
+    fetchSkills();
+  }, []);
+
+  const [selectedSkill, setSelectedSkill] = useState<Skill | null>(null);
   const [tipAmount, setTipAmount] = useState(50);
   const [tipping, setTipping] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -59,13 +142,17 @@ export default function DemoPage() {
   });
 
   const handleTip = async () => {
+    if (!selectedSkill) {
+      console.error('No skill selected');
+      return;
+    }
     setTipping(true);
     try {
       await writeContract({
         address: CONTRACT_ADDRESS,
         abi: ASKL_TOKEN_ABI,
         functionName: "tipSkill",
-        args: [selectedSkill.id as `0x${string}`, BigInt(tipAmount * 1e18)],
+        args: [selectedSkill.skill_id as `0x${string}`, BigInt(tipAmount * 1e18)],
       });
     } catch (error) {
       console.error("Tip failed:", error);
@@ -90,22 +177,7 @@ export default function DemoPage() {
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
 
-      <nav className="app-nav">
-        <div className="nav-left">
-          <div className="brand-mark">
-            <span className="brand-orb" />
-            <span className="brand-text">MySkills_Protocol</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <div className="nav-links-container">
-            <Link href="/" className="nav-link">HOME</Link>
-            <Link href="/skills-map" className="nav-link">SKILL MAP</Link>
-            <Link href="/services" className="nav-link">SERVICES</Link>
-            <Link href="/demo-moltiverse" className="nav-link text-[var(--neon-green)]">DEMO</Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       <main className="app-main">
         <section className="hero">
@@ -263,37 +335,82 @@ export default function DemoPage() {
             </div>
           </div>
 
-          <div className="skills-grid">
-            {DEMO_SKILLS.map((skill) => (
-              <div
-                key={skill.id}
-                onClick={() => setSelectedSkill(skill)}
-                className={`skill-card cursor-pointer ${selectedSkill.id === skill.id ? 'skill-card-selected' : ''}`}
-              >
-                <div className="skill-card-header">
-                  <span className="skill-platform-pill">
-                    {skill.platform.toUpperCase()}
-                  </span>
-                  <span className="skill-creator" title={skill.creator}>
-                    {formatAddress(skill.creator)}
-                  </span>
-                </div>
+          {/* Loading State */}
+          {skillsLoading && (
+            <div className="text-center py-12">
+              <div className="text-xl text-[var(--neon-purple)]">Loading skills...</div>
+            </div>
+          )}
 
-                <div className="text-4xl mb-4">{skill.image}</div>
-                <h3 className="skill-title">{skill.name}</h3>
-                <p className="skill-description">{skill.description}</p>
+          {/* Error State */}
+          {skillsError && (
+            <div className="glass-card border-2 border-red-500 mx-auto mt-8 p-6">
+              <div className="text-red-400 font-bold mb-2">Error Loading Skills</div>
+              <div className="text-sm text-[var(--text-muted)]">{skillsError}</div>
+            </div>
+          )}
 
-                <div className="skill-stats">
-                  <span className="skill-tips">
-                    💰 {skill.totalTips.toLocaleString()} ASKL
-                  </span>
-                  <span className="skill-stars">
-                    ⭐ {skill.totalStars}
-                  </span>
+          {/* Skills Grid */}
+          {!skillsLoading && !skillsError && (
+            <div className="skills-grid">
+              {skills.map((skill) => (
+                <div
+                  key={skill.id}
+                  onClick={() => setSelectedSkill(skill)}
+                  className={`skill-card cursor-pointer ${selectedSkill.id === skill.id ? 'skill-card-selected' : ''}`}
+                >
+                  <div className="skill-card-header">
+                    <span className="skill-platform-pill">
+                      {skill.platform.toUpperCase()}
+                    </span>
+                    <span className="skill-creator" title={skill.creator_address}>
+                      {skill.creator_address ? `${skill.creator_address.slice(0, 6)}...${skill.creator_address.slice(-4)}` : 'Unknown'}
+                    </span>
+                  </div>
+
+                  <div className="text-4xl mb-4">
+                    {skill.logo_url ? (
+                      <img src={skill.logo_url} alt={skill.name} className="w-16 h-16 rounded-lg" />
+                    ) : skill.categoryIcon || '📦'}
+                  </div>
+                  <h3 className="skill-title">{skill.name}</h3>
+                  <p className="skill-description">{skill.description}</p>
+
+                  <div className="skill-stats">
+                    <span className="skill-tips">
+                      💰 {skill.total_tips || '0'} ASKL
+                    </span>
+                    <span className="skill-stars">
+                      ⭐ {skill.github_stars || 0}
+                    </span>
+                    {skill.verified && (
+                      <span className="ml-2 text-[var(--neon-green)]">✓ Verified</span>
+                    )}
+                  </div>
+
+                  {/* Tags */}
+                  {skill.tags && skill.tags.length > 0 && (
+                    <div className="flex gap-2 mt-3 flex-wrap">
+                      {skill.tags.map((tag) => (
+                        <span key={tag} className="text-xs bg-[var(--bg-secondary)] px-2 py-1 rounded text-[var(--text-muted)]">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!skillsLoading && !skillsError && skills.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-2xl text-[var(--text-muted)] mb-4">No skills found</div>
+              <div className="text-sm text-[var(--text-muted)]">Be the first to publish a skill!</div>
+            </div>
+          )}
+        </section>
 
           {/* Selected Skill Detail */}
           <div className="glass-card mt-8">
