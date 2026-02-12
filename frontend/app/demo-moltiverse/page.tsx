@@ -302,6 +302,24 @@ export default function DemoPage() {
           </div>
         </section>
 
+        {/* Security Scanner Section */}
+        <section className="max-w-4xl mx-auto px-6 mb-12">
+          <SecurityScanCard
+            onScanComplete={handleScanComplete}
+          />
+
+          {/* Scan Result Display */}
+          {scanResult && (
+            <div className="mt-6">
+              <ScanReportCard
+                report={scanResult}
+                onShare={handleShareReport}
+                onHire={handleHireFromScan}
+              />
+            </div>
+          )}
+        </section>
+
         {/* Agent Coordination Flow */}
         <section className="max-w-4xl mx-auto px-6 mb-12">
             <div className="glass-card">
