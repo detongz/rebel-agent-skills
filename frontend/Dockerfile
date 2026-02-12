@@ -4,12 +4,11 @@ FROM node:22-alpine AS base
 # 安装依赖
 FROM base AS deps
 # 添加 Python 和构建工具，用于编译 better-sqlite3 等原生模块
-RUN apk add --no-cache libc6-compat python3 make g++
+RUN apk add --no-cache libc6-compat python3 make g++ sqlite
 WORKDIR /app
 
 # 复制 package 文件
-COPY package.json ./
-COPY package-lock.json ./
+COPY package.json package-lock.json* ./
 
 # 安装所有依赖（包括 devDependencies）
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
@@ -18,14 +17,13 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 FROM base AS builder
 WORKDIR /app
 # 添加构建工具
-RUN apk add --no-cache libc6-compat python3 make g++
+RUN apk add --no-cache libc6-compat python3 make g++ sqlite
 
 # 从 deps 阶段复制 node_modules
 COPY --from=deps /app/node_modules ./node_modules
 
 # 复制 package 文件和源代码
-COPY package.json ./
-COPY package-lock.json ./
+COPY package.json package-lock.json* ./
 COPY . .
 
 # 设置 Next.js 构建环境变量
