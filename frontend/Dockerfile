@@ -67,20 +67,27 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# 复制必要文件
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Next.js 16 standalone 输出结构已更改
+# server.js 位于 .next/standalone/rebel-agent-skills/frontend/server.js
+# 复制整个 standalone 目录并调整工作目录
+COPY --from=builder /app/.next/standalone/rebel-agent-skills/frontend ./app
+
+# 复制 public 和 static 文件
+COPY --from=builder /app/public ./app/public
+COPY --from=builder /app/.next/static ./app/.next/static
 
 # 复制 better-sqlite3 原生模块（确保 .node 二进制文件被包含）
-# 复制整个 better-sqlite3 目录以确保所有依赖文件都被包含
-RUN mkdir -p ./node_modules/better-sqlite3
-COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
+# 已包含在 standalone 输出中，但为确保完整性，再次复制
+RUN mkdir -p ./app/node_modules/better-sqlite3
+COPY --from=builder /app/node_modules/better-sqlite3 ./app/node_modules/better-sqlite3
 
 # 设置权限
 RUN chown -R nextjs:nodejs /app
 
 USER nextjs
+
+# 设置工作目录到应用目录
+WORKDIR /app/app
 
 EXPOSE 3000
 
