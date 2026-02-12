@@ -1,65 +1,29 @@
-name: Deploy MySkills to Production
+name: Deploy MySkills to Production (Docker)
 
 on:
   push:
     branches:
       - feat/moltiverse-openclaw
-  workflow_dispatch:  # 允许手动触发部署
+  workflow_dispatch:
 
 jobs:
   deploy:
-    name: Deploy to Server
+    name: Build and Deploy Docker Image
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Install build tools for native modules
+      - name: Build Docker image
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 make g++ build-essential
-
-      - name: Cache root node modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
-
-      - name: Cache frontend node modules
-        uses: actions/cache@v4
-        with:
-          path: frontend/node_modules
-          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('frontend/package-lock.json', 'frontend/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-frontend-node-modules-
-
-      - name: Install dependencies
-        run: |
-          npm ci
-          cd packages/shared && npm install
-
-      - name: Install frontend dependencies
-        run: |
-          cd frontend && npm install
-
-      - name: Build packages
-        run: |
-          echo "🔨 Building shared package..."
-          cd packages/shared && npm run build
-
-          echo "🔨 Building frontend..."
-          cd ../../frontend && npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-          TURBOPACK_ROOT: ${{ github.workspace }}/frontend
+          echo "🔨 Building Docker image..."
+          cd frontend
+          docker build -t myskills:latest .
+          docker tag myskills:latest myskills:${{ github.sha }}
 
       - name: Deploy to server
         env:
@@ -74,36 +38,37 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
-          SSH_CMD="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST"
+          # Save Docker image and transfer to server
+          echo "Transferring Docker image..."
+          docker save myskills:latest | gzip | ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST "docker load"
 
-          # Stop PM2 on server
-          echo "Stopping PM2..."
-          $SSH_CMD "pm2 stop myskills-frontend 2>/dev/null || true"
+          # Deploy container on server
+          echo "Starting container..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST bash << 'ENDSSH'
+            # Stop and remove old container
+            docker stop myskills 2>/dev/null || true
+            docker rm myskills 2>/dev/null || true
 
-          # Clear old build on server
-          echo "Cleaning old build..."
-          $SSH_CMD "cd /var/www/myskills && rm -rf .next"
+            # Run new container
+            docker run -d \
+              --name myskills \
+              --restart unless-stopped \
+              -p 3000:3000 \
+              -e NODE_ENV=production \
+              -e PORT=3000 \
+              myskills:latest
 
-          # Copy .next build directory from local to server
-          echo "Copying .next directory..."
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r frontend/.next/* root@$DEPLOY_HOST:/var/www/myskills/.next/
+            # Clean up old images
+            docker image prune -f
 
-          # Copy public assets
-          echo "Copying public assets..."
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r frontend/public/* root@$DEPLOY_HOST:/var/www/myskills/public/ 2>/dev/null || true
-
-          # Restart PM2
-          echo "Restarting PM2..."
-          $SSH_CMD "cd /var/www/myskills && pm2 restart myskills-frontend 2>/dev/null || pm2 start npm --name myskills-frontend -- start"
+            echo "Container started!"
+            docker ps | grep myskills
+          ENDSSH
 
           # Cleanup
           rm -f ~/.ssh/deploy_key
 
           echo "✅ Deployment completed successfully!"
-
-      - name: Cleanup
-        if: always()
-        run: rm -rf deploy-temp
 
       - name: Health check
         if: always()
@@ -113,16 +78,7 @@ jobs:
           if [ -n "$DEPLOY_URL" ]; then
             echo "🏥 Running health check..."
             sleep 10
-
-            # 检查 API 端点
-            curl -f "$DEPLOY_URL/api/health" || echo "API health check failed"
-
-            # 检查前端
-            curl -f "$DEPLOY_URL" || echo "Frontend health check failed"
-
-            echo "✅ Deployment health check completed"
-          else
-            echo "⚠️  No DEPLOY_URL configured, skipping health check"
+            curl -f "$DEPLOY_URL" || echo "Health check failed"
           fi
 
       - name: Deployment summary
@@ -134,13 +90,7 @@ jobs:
           echo ""
           echo "📦 Branch: ${{ github.ref_name }}"
           echo "🔗 Commit: ${{ github.sha }}"
-          echo "⏰ Time: $(date -u '+%Y-%m-%d %H:%M:%S')"
+          echo "🐳 Image: myskills:latest"
           echo ""
-          echo "Deployed components:"
-          echo "  ✓ @myskills/shared"
-          echo "  ✓ frontend"
-          echo "  ✓ CLI"
-          echo ""
-          echo "🌐 URLs to check:"
-          echo "  - Main site: ${{ secrets.DEPLOY_URL || 'Not configured' }}"
-          echo "  - Health check: ${{ secrets.DEPLOY_URL }}/api/health"
+          echo "Server: ${{ secrets.DEPLOY_HOST }}"
+          echo "URL: ${{ secrets.DEPLOY_URL || 'Not configured' }}"
