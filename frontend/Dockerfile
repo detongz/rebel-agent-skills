@@ -72,6 +72,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+# 复制 better-sqlite3 原生模块（确保 .node 二进制文件被包含）
+COPY --from=builder /app/node_modules/better-sqlite3/build/Release ./node_modules/better-sqlite3/build/Release
+COPY --from=builder /app/node_modules/better-sqlite3/package.json ./node_modules/better-sqlite3/
+COPY --from=builder /app/node_modules/better-sqlite3/lib ./node_modules/better-sqlite3/lib
+
 # 设置权限
 RUN chown -R nextjs:nodejs /app
 
