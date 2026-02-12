@@ -16,7 +16,7 @@ while true; do
 
     # Call Claude to do work
     echo "Calling Claude..." | tee -a "$LOG_FILE"
-    claude --dangerously-skip-permissions -p "Analyze feat/moltiverse-openclaw branch code, compare with live demo and pitch deck goals, identify gaps and implement missing features." >> "$LOG_FILE" 2>&1
+    claude --dangerously-skip-permissions -p "Analyze feat/moltiverse-openclaw branch code, compare with live demo and pitch deck goals, identify gaps and implement missing features. Use /using-superpowers skill first." >> "$LOG_FILE" 2>&1
 
     # Check result of last call
     EXIT_CODE=$?
