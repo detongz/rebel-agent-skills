@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
   // Next.js 16: 使用 serverExternalPackages 标记原生模块
   // 这将确保 better-sqlite3 被正确包含在 standalone 输出中
   serverExternalPackages: ['better-sqlite3'],
+
+  // 实验性功能：确保所有 serverExternalPackages 被包含
+  experimental: {
+    serverComponentsExternalPackages: ['better-sqlite3'],
+  },
 };
 
 export default nextConfig;

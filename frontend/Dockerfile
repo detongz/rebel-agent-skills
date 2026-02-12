@@ -78,73 +78,67 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Next.js 16 standalone 输出结构
-# 尝试检测并复制正确的 standalone 路径
-# 脚本会自动找到 server.js 并复制其所在的目录
+# 在一个单独的构建阶段中处理目录结构检测和复制
 
-# 创建临时脚本来检测和复制 standalone 目录
-RUN cat > /tmp/copy_standalone.sh << 'EOF'
-#!/bin/sh
-set -e
-echo "=== Detecting standalone directory structure ==="
+# 复制 standalone 输出（包含 server.js 和必要的 node_modules）
+COPY --from=builder /app/.next/standalone ./
 
-# 检查可能的 server.js 位置
-if [ -f /app/.next/standalone/server.js ]; then
-    echo "✅ Found: .next/standalone/server.js (flat structure)"
-    cp -a /app/.next/standalone/. /app/standalone_temp/
-    STANDALONE_SRC="/app/standalone_temp"
-elif [ -f /app/.next/standalone/frontend/server.js ]; then
-    echo "✅ Found: .next/standalone/frontend/server.js (workspace structure)"
-    cp -a /app/.next/standalone/frontend/. /app/standalone_temp/
-    STANDALONE_SRC="/app/standalone_temp"
-elif [ -d /app/.next/standalone/rebel-agent-skills ]; then
-    echo "✅ Found: .next/standalone/rebel-agent-skills/ directory"
-    if [ -f /app/.next/standalone/rebel-agent-skills/frontend/server.js ]; then
-        cp -a /app/.next/standalone/rebel-agent-skills/frontend/. /app/standalone_temp/
-        STANDALONE_SRC="/app/standalone_temp"
-    elif [ -f /app/.next/standalone/rebel-agent-skills/server.js ]; then
-        cp -a /app/.next/standalone/rebel-agent-skills/. /app/standalone_temp/
-        STANDALONE_SRC="/app/standalone_temp"
-    else
-        echo "❌ Error: Cannot find server.js in rebel-agent-skills directory"
-        find /app/.next/standalone -type f -name "server.js" || true
-        exit 1
-    fi
-else
-    echo "❌ Error: Cannot find standalone directory structure"
-    find /app/.next -type d -name "standalone" || true
-    exit 1
-fi
-
-echo "=== Copying standalone files from: $STANDALONE_SRC ==="
-cp -a "$STANDALONE_SRC"/. /app/
-rm -rf /app/standalone_temp
-echo "✅ Standalone files copied successfully"
-
-EOF
-RUN chmod +x /tmp/copy_standalone.sh
-
-# 从 builder 复制 standalone 输出
-COPY --from=builder /app/.next/standalone /app/.next/standalone
-
-# 运行检测脚本
-RUN /tmp/copy_standalone.sh
-
-# 复制 public 目录
+# 复制 public 目录到正确位置
 COPY --from=builder /app/public ./public
 
 # 复制 .next/static (Next.js 静态资源)
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/static ./apps/frontend/.next/static
 
-# 验证关键文件存在
-RUN echo "=== Verifying copied files ===" && \
+# 处理 better-sqlite3 原生模块
+# 从 builder 阶段复制编译好的 better-sqlite3
+COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
+
+# 验证关键文件存在并设置正确的结构
+RUN echo "=== Verifying Docker image structure ===" && \
+    echo "Root directory contents:" && \
     ls -la /app/ && \
-    echo "=== Checking for server.js ===" && \
-    ls -la /app/server.js && \
-    echo "=== Checking for better-sqlite3 ===" && \
-    ls -la /app/node_modules/better-sqlite3/build/Release/ 2>/dev/null || echo "Warning: better-sqlite3 native module not found" && \
-    echo "✅ File verification complete"
+    echo "" && \
+    echo "Looking for server.js:" && \
+    find /app -maxdepth 3 -type f -name "server.js" && \
+    echo "" && \
+    echo "Checking better-sqlite3 native module:" && \
+    if [ -f /app/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
+        echo "✅ better-sqlite3 native module found at /app/node_modules/better-sqlite3/build/Release/better_sqlite3.node"; \
+        file /app/node_modules/better-sqlite3/build/Release/better_sqlite3.node; \
+    else \
+        echo "❌ better-sqlite3 native module NOT found"; \
+        find /app -name "better_sqlite3.node" || echo "No .node file found anywhere"; \
+    fi && \
+    echo "" && \
+    echo "✅ Structure verification complete"
 
-# 设置权限
+# 如果 server.js 在 apps/frontend 子目录中，创建一个入口点来正确启动
+RUN if [ -f /app/apps/frontend/server.js ]; then \
+        echo "Found server.js in apps/frontend/ - setting up as main entry"; \
+        # 创建启动脚本，从 apps/frontend 目录运行
+        echo '#!/bin/sh' > /app/entrypoint.sh && \
+        echo 'cd /app/apps/frontend && exec node server.js "$@"' >> /app/entrypoint.sh && \
+        chmod +x /app/entrypoint.sh && \
+        WORK_DIR="/app/apps/frontend"; \
+    elif [ -f /app/frontend/server.js ]; then \
+        echo "Found server.js in frontend/ - setting up as main entry"; \
+        echo '#!/bin/sh' > /app/entrypoint.sh && \
+        echo 'cd /app/frontend && exec node server.js "$@"' >> /app/entrypoint.sh && \
+        chmod +x /app/entrypoint.sh && \
+        WORK_DIR="/app/frontend"; \
+    elif [ -f /app/server.js ]; then \
+        echo "Found server.js in root - using as main entry"; \
+        echo '#!/bin/sh' > /app/entrypoint.sh && \
+        echo 'cd /app && exec node server.js "$@"' >> /app/entrypoint.sh && \
+        chmod +x /app/entrypoint.sh && \
+        WORK_DIR="/app"; \
+    else \
+        echo "❌ Error: Cannot find server.js in expected locations"; \
+        find /app -name "server.js" || true; \
+        exit 1; \
+    fi
+
+# 设置工作目录和权限
 RUN chown -R nextjs:nodejs /app
 
 USER nextjs
@@ -154,5 +148,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# server.js 现在在工作目录根目录下
-CMD ["node", "server.js"]
+# 使用入口点脚本启动（会切换到正确的目录）
+CMD ["/app/entrypoint.sh"]
