@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Docker standalone 输出模式
+  output: 'standalone',
+
+  // 优化图片（可选）
+  images: {
+    unoptimized: true,
+  },
 };
 
 export default nextConfig;
