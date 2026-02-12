@@ -23,7 +23,7 @@ jobs:
       - name: Install build tools for native modules
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3 make g++
+          sudo apt-get install -y python3 make g++ build-essential
 
       - name: Cache root node modules
         uses: actions/cache@v4
@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: frontend/node_modules
-          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('frontend/package-lock.json') }}
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('frontend/package-lock.json', 'frontend/package.json') }}
           restore-keys: |
             ${{ runner.os }}-frontend-node-modules-
 
@@ -48,7 +48,7 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd frontend && npm install --force
+          cd frontend && npm ci --force
 
       - name: Build packages
         run: |
@@ -57,6 +57,9 @@ jobs:
 
           echo "🔨 Building frontend..."
           cd ../../frontend && npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          TURBOPACK_ROOT: ${{ github.workspace }}/frontend
 
       - name: Deploy to server
         env:
