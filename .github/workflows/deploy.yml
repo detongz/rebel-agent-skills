@@ -120,7 +120,7 @@ jobs:
 
           # Deploy container on server
           echo "🚀 Starting container on server..."
-          if ! ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST 'bash -s' << 'ENDSSH'
           set -e
           echo "Server: Checking Docker availability..."
           docker --version
@@ -158,7 +158,8 @@ jobs:
 
           echo "✅ Container deployed successfully!"
           ENDSSH
-          then
+
+          if [ $? -ne 0 ]; then
             echo "❌ Error: Container deployment failed"
             exit 1
           fi
