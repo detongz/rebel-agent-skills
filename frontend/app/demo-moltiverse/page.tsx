@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { parseAbi, formatUnits } from "viem";
-import { getSeedSkills, getSeedSkillsSummary } from "@/lib/seed-skills";
+import { getSeedSkills } from "@/lib/seed-skills";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
@@ -658,6 +658,7 @@ export default function DemoPage() {
             )}
           </div>
         )}
+        </section>
 
         {/* Footer */}
         <footer className="py-12 text-center text-[var(--text-muted)] font-['Rajdhani']">
