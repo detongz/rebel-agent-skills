@@ -21,7 +21,7 @@ jobs:
       - name: Build Docker image
         run: |
           echo "🔨 Building Docker image..."
-          docker build -t myskills:latest -f frontend/Dockerfile .
+          docker build -t myskills:latest -f frontend/Dockerfile frontend
           docker tag myskills:latest myskills:${{ github.sha }}
 
       - name: Deploy to server
