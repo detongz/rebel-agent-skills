@@ -120,7 +120,7 @@ jobs:
 
           # Deploy container on server
           echo "Starting container on server..."
-          if ! ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "bash -s" << 'EOF'
+          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash -s << 'EOF'
           set -e
           echo "Server: Checking Docker availability..."
           docker --version
@@ -157,7 +157,7 @@ jobs:
 
           echo "Server: Container deployed successfully!"
           EOF
-          then
+          if [ $? -ne 0 ]; then
             echo "Error: Container deployment failed"
             exit 1
           fi
