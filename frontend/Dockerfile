@@ -75,30 +75,29 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 # Copy standalone output
 # Next.js 16 creates monorepo-aware output: .next/standalone/repo-name/package-name/
-# But when building from frontend/ context, it should be at .next/standalone/frontend/
-COPY --from=builder /app/.next/standalone ./
+# When building from frontend/ directory, the structure is: .next/standalone/repo-name/frontend/
+COPY --from=builder /app/.next/standalone ./rebel-agent-skills/
+
+# Determine the application directory and copy assets
+# Next.js 16 standalone: app is at rebel-agent-skills/frontend/
+WORKDIR /app/rebel-agent-skills/frontend
+
+# Copy public and static assets from builder stage
+COPY --from=builder /app/public ./
+COPY --from=builder /app/.next/static ./.next/static/
 
 # Debug: Show the directory structure
 RUN echo "=== Standalone output structure ===" && \
-    find /app -maxdepth 3 -type f -name "server.js" 2>/dev/null || true && \
-    echo "=== Root directory contents ===" && \
-    ls -la /app/ && \
-    echo "=== Checking for frontend directory ===" && \
-    ls -la /app/frontend/ 2>/dev/null || echo "No frontend directory at root"
+    find . -maxdepth 3 -type f -name "server.js" 2>/dev/null || true && \
+    echo "=== Current directory contents ===" && \
+    ls -la /app/rebel-agent-skills/frontend/ && \
+    echo "=== Checking for node_modules ===" && \
+    ls -la /app/rebel-agent-skills/frontend/node_modules/ 2>/dev/null | head -10 || echo "No node_modules"
 
-# Determine the actual application directory and copy assets accordingly
-RUN APP_DIR=$(find /app -maxdepth 3 -type d -name "node_modules" | head -1 | xargs dirname) && \
-    echo "Detected app directory: $APP_DIR" && \
-    mkdir -p $APP_DIR/public && \
-    cp -r /app/public/* $APP_DIR/public/ 2>/dev/null || true && \
-    mkdir -p $APP_DIR/.next && \
-    cp -r /app/.next/static $APP_DIR/.next/ 2>/dev/null || true
-
-# Verify better-sqlite3 native module exists in the correct location
+# Verify better-sqlite3 native module exists
 RUN echo "=== Verifying better-sqlite3 ===" && \
-    APP_DIR=$(find /app -maxdepth 3 -type d -name "node_modules" | head -1 | xargs dirname) && \
-    if [ -f $APP_DIR/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
-        echo "✅ better-sqlite3 verified at $APP_DIR/node_modules/better-sqlite3/build/Release/better_sqlite3.node"; \
+    if [ -f /app/rebel-agent-skills/frontend/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
+        echo "✅ better-sqlite3 verified at /app/rebel-agent-skills/frontend/node_modules/better-sqlite3/build/Release/better_sqlite3.node"; \
     else \
         echo "ERROR: better-sqlite3 native module not found"; \
         find /app -name "better_sqlite3.node" || true; \
@@ -107,19 +106,17 @@ RUN echo "=== Verifying better-sqlite3 ===" && \
 
 # Verify server.js exists and create entrypoint
 RUN echo "=== Verifying server.js ===" && \
-    APP_DIR=$(find /app -maxdepth 3 -type d -name "node_modules" | head -1 | xargs dirname) && \
-    echo "Using app directory: $APP_DIR" && \
-    if [ -f $APP_DIR/server.js ]; then \
-        echo "✅ server.js found at $APP_DIR/server.js" && \
+    if [ -f /app/rebel-agent-skills/frontend/server.js ]; then \
+        echo "✅ server.js found at /app/rebel-agent-skills/frontend/server.js" && \
         echo "#!/bin/sh" > /app/entrypoint.sh && \
-        echo "cd $APP_DIR && exec node server.js" >> /app/entrypoint.sh; \
-    elif [ -f /app/server.js ]; then \
-        echo "✅ server.js found at /app/server.js" && \
+        echo "cd /app/rebel-agent-skills/frontend && exec node server.js" >> /app/entrypoint.sh; \
+    elif [ -f server.js ]; then \
+        echo "✅ server.js found at ./server.js" && \
         echo "#!/bin/sh" > /app/entrypoint.sh && \
-        echo "cd /app && exec node server.js" >> /app/entrypoint.sh; \
+        echo "cd /app/rebel-agent-skills/frontend && exec node server.js" >> /app/entrypoint.sh; \
     else \
         echo "ERROR: server.js not found" && \
-        find /app -maxdepth 4 -name "server.js" || true; \
+        find /app -maxdepth 5 -name "server.js" || true; \
         echo "" && \
         echo "Directory structure:" && \
         ls -laR /app/ || true; \
