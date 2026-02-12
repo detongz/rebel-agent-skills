@@ -66,7 +66,7 @@ jobs:
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
         run: |
-          echo "🚀 Triggering deployment on server..."
+          echo "🚀 Deploying to server..."
 
           # Setup SSH
           mkdir -p ~/.ssh
@@ -74,13 +74,32 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null
 
-          # Run deployment script on server
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST "/var/www/myscripts/deploy-myskills.sh"
+          SSH_CMD="ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST"
+
+          # Stop PM2 on server
+          echo "Stopping PM2..."
+          $SSH_CMD "pm2 stop myskills-frontend 2>/dev/null || true"
+
+          # Clear old build on server
+          echo "Cleaning old build..."
+          $SSH_CMD "cd /var/www/myskills && rm -rf .next"
+
+          # Copy .next build directory from local to server
+          echo "Copying .next directory..."
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r frontend/.next/* root@$DEPLOY_HOST:/var/www/myskills/.next/
+
+          # Copy public assets
+          echo "Copying public assets..."
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -r frontend/public/* root@$DEPLOY_HOST:/var/www/myskills/public/ 2>/dev/null || true
+
+          # Restart PM2
+          echo "Restarting PM2..."
+          $SSH_CMD "cd /var/www/myskills && pm2 restart myskills-frontend 2>/dev/null || pm2 start npm --name myskills-frontend -- start"
 
           # Cleanup
           rm -f ~/.ssh/deploy_key
 
-          echo "✅ Deployment triggered successfully!"
+          echo "✅ Deployment completed successfully!"
 
       - name: Cleanup
         if: always()
