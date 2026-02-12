@@ -74,24 +74,21 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Copy standalone output
+# Next.js 16 creates monorepo-aware output: .next/standalone/repo-name/package-name/
 COPY --from=builder /app/.next/standalone ./
 
-# Copy public assets
-COPY --from=builder /app/public ./public
+# Copy public assets to the correct location
+RUN mkdir -p rebel-agent-skills/frontend/public && \
+    cp -r /app/public/* rebel-agent-skills/frontend/public/ 2>/dev/null || true
 
-# Copy Next.js static files
-RUN mkdir -p .next/static && \
-    cp -r /app/.next/static ./.next/static 2>/dev/null || true
+# Copy Next.js static files to the correct location
+RUN mkdir -p rebel-agent-skills/frontend/.next && \
+    cp -r /app/.next/static rebel-agent-skills/frontend/.next/ 2>/dev/null || true
 
-# Copy better-sqlite3 native module from builder
-RUN echo "=== Copying better-sqlite3 ===" && \
-    mkdir -p node_modules/better-sqlite3/build/Release && \
-    cp -r /app/node_modules/better-sqlite3 ./node_modules/
-
-# Verify better-sqlite3 native module exists
+# Verify better-sqlite3 native module exists in the correct location
 RUN echo "=== Verifying better-sqlite3 ===" && \
-    if [ -f node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
-        echo "✅ better-sqlite3 verified"; \
+    if [ -f rebel-agent-skills/frontend/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
+        echo "✅ better-sqlite3 verified at correct location"; \
     else \
         echo "ERROR: better-sqlite3 native module not found"; \
         find /app -name "better_sqlite3.node" || true; \
@@ -114,7 +111,10 @@ RUN echo "=== Verifying server.js ===" && \
         echo 'cd /app/rebel-agent-skills/frontend && exec node server.js' >> /app/entrypoint.sh; \
     else \
         echo "ERROR: server.js not found" && \
-        find /app -name "server.js" || true && \
+        find /app -maxdepth 4 -name "server.js" || true; \
+        echo "" && \
+        echo "Directory structure:" && \
+        ls -la /app/ || true; \
         exit 1; \
     fi && \
     chmod +x /app/entrypoint.sh
