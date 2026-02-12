@@ -5,7 +5,16 @@ FROM node:20-alpine AS base
 # 安装依赖
 FROM base AS deps
 # 添加 Python 和构建工具，用于编译 better-sqlite3 等原生模块
-RUN apk add --no-cache libc6-compat python3 make g++ sqlite
+# better-sqlite3 需要完整的构建工具链和 Python
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    sqlite \
+    sqlite-dev \
+    build-base
 WORKDIR /app
 
 # 复制 package 文件
@@ -17,8 +26,15 @@ RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 # 构建阶段
 FROM base AS builder
 WORKDIR /app
-# 添加构建工具
-RUN apk add --no-cache libc6-compat python3 make g++ sqlite
+# 添加构建工具（确保 better-sqlite3 可正确编译）
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    sqlite \
+    sqlite-dev \
+    build-base
 
 # 从 deps 阶段复制 node_modules
 COPY --from=deps /app/node_modules ./node_modules
@@ -37,6 +53,9 @@ RUN npm run build
 # 生产运行阶段
 FROM base AS runner
 WORKDIR /app
+
+# 安装运行时依赖（better-sqlite3 需要 SQLite 运行时库）
+RUN apk add --no-cache sqlite
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

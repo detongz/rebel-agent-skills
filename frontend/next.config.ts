@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+
+  // 确保原生模块（如 better-sqlite3）被正确打包
+  experimental: {
+    serverComponentsExternalPackages: ['better-sqlite3'],
+  },
 };
 
 export default nextConfig;
