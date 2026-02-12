@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySkills - Pitch Decks | Monad Hackathon 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+        }
+        body {
+            background: #000;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        .header {
+            text-align: center;
+            padding: 40px 0;
+        }
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 16px;
+            background: linear-gradient(90deg, #FF6B00, #FF8C33, #FFA500);
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.1rem;
+        }
+        .header a {
+            color: #4ade80;
+            text-decoration: none;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover {
+            border-color: #FF6B00;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(255, 107, 0, 0.2);
+            background: rgba(255, 107, 0, 0.08);
+        }
+        .card-icon {
+            font-size: 56px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+        .card-desc {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+        }
+        .card-tag {
+            display: inline-block;
+            background: rgba(255, 107, 0, 0.2);
+            border: 1px solid rgba(255, 107, 0, 0.4);
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .footer a {
+            color: #4ade80;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footer p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            margin-top: 12px;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 24px 16px; }
+            .header h1 { font-size: 2rem; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MySkills Protocol</h1>
+            <p>Agent Skills 安全雇佣市场 - Monad Hackathon 2026</p>
+        </div>
+
+        <div class="grid">
+            <a href="moltiverse-hackathon-vA.html" class="card">
+                <span class="card-tag">11页完整版</span>
+                <div class="card-icon">📊</div>
+                <div class="card-title">版本 A：经典Hackathon</div>
+                <div class="card-desc">
+                    完整11页结构：封面 → 问题 → 解决方案 → 产品 → 市场 → 技术 → Demo → 团队 → 竞争 → 路线
+                    <br><br>
+                    <strong>适合：</strong>Hackathon展示、完整项目路演
+                </div>
+            </a>
+
+            <a href="moltiverse-hackathon-vB.html" class="card">
+                <span class="card-tag">8页精简版</span>
+                <div class="card-icon">💰</div>
+                <div class="card-title">版本 B：投资者结构</div>
+                <div class="card-desc">
+                    精简8页结构：封面 → 痛点 → 产品demo → 商业模式 → 技术优势 → 团队 → 感谢
+                    <br><br>
+                    <strong>适合：</strong>投资者pitch、快速展示
+                </div>
+            </a>
+
+            <a href="https://myskills2026.ddttupupo.buzz" target="_blank" class="card">
+                <span class="card-tag">在线演示</span>
+                <div class="card-icon">🌐</div>
+                <div class="card-title">MySkills 实时演示</div>
+                <div class="card-desc">
+                    访问完整的产品演示
+                    <br><br>
+                    <strong>myskills2026.ddttupupo.buzz</strong>
+                </div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <a href="https://github.com/detongz/rebel-agent-skills" target="_blank">
+                View on GitHub →
+            </a>
+            <p>MySkills Protocol © 2026 | Monad Hackathon</p>
+        </div>
+    </div>
+</body>
+</html>
