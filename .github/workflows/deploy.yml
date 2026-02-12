@@ -66,7 +66,7 @@ jobs:
 
           # Save Docker image and transfer to server
           echo "Transferring Docker image..."
-          if ! docker save myskills:latest | gzip | timeout 300 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@$DEPLOY_HOST "docker load" 2>&1; then
+          if ! docker save myskills:latest | timeout 300 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@$DEPLOY_HOST "docker load" 2>&1; then
             echo "❌ Error: Failed to transfer Docker image"
             exit 1
           fi
@@ -92,7 +92,7 @@ jobs:
             docker image prune -f
 
             echo "Container started!"
-            docker ps | grep myskills || echo "Warning: Container not found in ps output"
+            docker ps --filter "name=myskills" --format "table {{.Names}}\t{{.Status}}" || echo "Warning: Container not found in ps output"
           ENDSSH
 
           # Cleanup
