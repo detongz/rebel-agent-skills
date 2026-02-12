@@ -42,10 +42,34 @@ jobs:
             exit 1
           fi
 
-          # Setup SSH
+          # Setup SSH with improved key format handling
           mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          # Write the SSH key and validate format
           echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+
+          # Validate SSH key format
+          echo "Validating SSH key format..."
+          if ! ssh-keygen -l -f ~/.ssh/deploy_key >/dev/null 2>&1; then
+            echo "❌ Error: Invalid SSH key format"
+            echo "The SSH key may be corrupted or in an unsupported format"
+            echo "Please ensure the key is in PEM format (RSA)"
+            exit 1
+          fi
+          echo "✅ SSH key format is valid"
+
+          # Disable SSH strict host key checking for this deployment
+          cat > ~/.ssh/config << 'EOF'
+          Host *
+              StrictHostKeyChecking no
+              UserKnownHostsFile /dev/null
+              ConnectTimeout 30
+              ServerAliveInterval 60
+              ServerAliveCountMax 3
+          EOF
+          chmod 600 ~/.ssh/config
 
           # Add server to known hosts (with timeout and retry)
           echo "Adding server to known hosts..."
@@ -53,47 +77,85 @@ jobs:
             echo "⚠️ Warning: ssh-keyscan failed, continuing anyway..."
           }
 
-          # Test SSH connection first
+          # Test SSH connection first with verbose output
           echo "Testing SSH connection..."
-          if ! timeout 30 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes root@$DEPLOY_HOST "echo 'Connection successful'" 2>&1; then
+          SSH_OUTPUT=$(timeout 30 ssh -v -i ~/.ssh/deploy_key root@$DEPLOY_HOST "echo 'Connection successful'" 2>&1) || {
             echo "❌ Error: Cannot connect to server via SSH"
+            echo "SSH debug output:"
+            echo "$SSH_OUTPUT"
+            echo ""
             echo "Please check:"
-            echo "  1. DEPLOY_SSH_KEY secret is correct"
+            echo "  1. DEPLOY_SSH_KEY secret is correct and in PEM format"
             echo "  2. DEPLOY_HOST secret is correct and reachable"
             echo "  3. SSH key is authorized on the server"
+            echo "  4. Server allows SSH connections from GitHub Actions IPs"
             exit 1
-          fi
+          }
+          echo "✅ SSH connection successful"
 
           # Save Docker image and transfer to server
-          echo "Transferring Docker image..."
-          if ! docker save myskills:latest | timeout 300 ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@$DEPLOY_HOST "docker load" 2>&1; then
+          echo "📦 Transferring Docker image to server..."
+          echo "Image size: $(docker images myskills:latest --format "{{.Size}}")"
+
+          # Transfer with better error handling
+          if ! docker save myskills:latest | \
+             timeout 600 ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST "docker load" 2>&1; then
             echo "❌ Error: Failed to transfer Docker image"
+            echo "This could be due to:"
+            echo "  - Network timeout (image too large)"
+            echo "  - Insufficient disk space on server"
+            echo "  - SSH connection instability"
+            echo ""
+            echo "Current image size: $(docker images myskills:latest --format "{{.Size}}")"
             exit 1
           fi
+          echo "✅ Docker image transferred successfully"
 
           # Deploy container on server
-          echo "Starting container..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=30 root@$DEPLOY_HOST bash -x << 'ENDSSH'
+          echo "🚀 Starting container on server..."
+          ssh -i ~/.ssh/deploy_key root@$DEPLOY_HOST bash -x << 'ENDSSH'
             set -e
-            # Stop and remove old container
-            docker stop myskills 2>/dev/null || true
-            docker rm myskills 2>/dev/null || true
+            echo "Server: Checking Docker availability..."
+            docker --version
 
-            # Run new container
+            echo "Server: Stopping and removing old container..."
+            docker stop myskills 2>/dev/null || echo "No existing container to stop"
+            docker rm myskills 2>/dev/null || echo "No existing container to remove"
+
+            echo "Server: Starting new container..."
             docker run -d \
               --name myskills \
               --restart unless-stopped \
               -p 3000:3000 \
               -e NODE_ENV=production \
               -e PORT=3000 \
+              -e HOSTNAME="0.0.0.0" \
+              --health-cmd="curl -f http://localhost:3000/ || exit 1" \
+              --health-interval=30s \
+              --health-timeout=10s \
+              --health-retries=3 \
               myskills:latest
 
-            # Clean up old images
+            echo "Server: Container started, waiting for health check..."
+            sleep 5
+
+            echo "Server: Verifying container status..."
+            docker ps --filter "name=myskills" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+            # Check container logs for any startup errors
+            echo "Server: Checking container logs..."
+            docker logs --tail 20 myskills || echo "Warning: Could not retrieve container logs"
+
+            echo "Server: Cleaning up old images..."
             docker image prune -f
 
-            echo "Container started!"
-            docker ps --filter "name=myskills" --format "table {{.Names}}\t{{.Status}}" || echo "Warning: Container not found in ps output"
+            echo "✅ Container deployed successfully!"
           ENDSSH
+
+          if [ $? -ne 0 ]; then
+            echo "❌ Error: Container deployment failed"
+            exit 1
+          fi
 
           # Cleanup
           rm -f ~/.ssh/deploy_key
