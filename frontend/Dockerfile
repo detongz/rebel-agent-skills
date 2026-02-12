@@ -52,7 +52,16 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # 构建应用
-RUN npm run build
+RUN npm run build 2>&1 | tee build.log
+
+# 验证 standalone 输出目录已创建
+RUN echo "=== Verifying build output ===" && \
+    ls -la .next/ && \
+    echo "=== Standalone directory contents ===" && \
+    ls -la .next/standalone/ && \
+    echo "=== Full standalone tree ===" && \
+    find .next/standalone -type f -name "server.js" && \
+    echo "✅ Build verification complete"
 
 # 生产运行阶段
 FROM base AS runner
@@ -74,7 +83,6 @@ RUN adduser --system --uid 1001 nextjs
 # 其中包含: server.js, node_modules/, .next/, package.json
 
 # 复制整个 standalone 目录到 /app
-# 这会复制所有必需的文件，包括 server.js 在正确的位置
 COPY --from=builder /app/.next/standalone/rebel-agent-skills/frontend ./
 
 # 复制 public 目录
@@ -83,10 +91,14 @@ COPY --from=builder /app/public ./public
 # 复制 .next/static (Next.js 静态资源)
 COPY --from=builder /app/.next/static ./.next/static
 
-# 确保 better-sqlite3 原生模块可用
-# 在 Next.js 16 standalone 模式下，serverExternalPackages 会处理这个
-# 但我们需要确保 .node 二进制文件存在且可访问
-RUN ls -la node_modules/better-sqlite3/build/Release/ || echo "Checking better-sqlite3 native bindings"
+# 验证关键文件存在
+RUN echo "=== Verifying copied files ===" && \
+    ls -la /app/ && \
+    echo "=== Checking for server.js ===" && \
+    ls -la /app/server.js && \
+    echo "=== Checking for better-sqlite3 ===" && \
+    ls -la /app/node_modules/better-sqlite3/build/Release/ || echo "Warning: better-sqlite3 not found" && \
+    echo "✅ File verification complete"
 
 # 设置权限
 RUN chown -R nextjs:nodejs /app

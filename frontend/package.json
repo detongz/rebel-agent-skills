@@ -46,6 +46,5 @@
     "playwright": "^1.58.1",
     "tailwindcss": "^4",
     "typescript": "^5"
-  },
-  "standaloneMode": true
+  }
 }
