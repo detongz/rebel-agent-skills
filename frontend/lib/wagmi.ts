@@ -33,11 +33,11 @@ export const config = getDefaultConfig({
   ssr: true,
 });
 
-// 智能合约地址（已部署到 Monad Testnet）
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ASKL_TOKEN_ADDRESS || '0xc1fFCAD15e2f181E49bFf2cBea79094eC9B5033A';
+// Contract addresses (hidden from UI - used internally for tips only)
+// These are kept for internal functionality but not exposed to users
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ASKL_TOKEN_ADDRESS || '0x0000000000000000000000000000000000000';
 
-// BountyHub 合约地址
-export const BOUNTY_HUB_ADDRESS = process.env.NEXT_PUBLIC_BOUNTY_HUB_ADDRESS || '0x2679Bb99E7Cc239787a74BF6c77c2278311c77a1';
+export const BOUNTY_HUB_ADDRESS = process.env.NEXT_PUBLIC_BOUNTY_HUB_ADDRESS || '0x0000000000000000000000000000000000000000';
 
 // 智能合约 ABI（部分）
 export const CONTRACT_ABI = [
