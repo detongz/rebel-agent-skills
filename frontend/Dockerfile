@@ -1,6 +1,6 @@
 # Frontend Dockerfile - 构建和生产镜像
-# Node.js 20 LTS used for stability (Node 22 has npm compatibility issues in Alpine)
-FROM node:20-alpine AS base
+# Use Node.js 22 LTS for better compatibility
+FROM node:22-alpine AS base
 
 # 安装依赖
 FROM base AS deps
@@ -20,8 +20,8 @@ WORKDIR /app
 # 复制 package 文件
 COPY package.json package-lock.json* ./
 
-# 安装所有依赖（包括 devDependencies）
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# 安装所有依赖（包括 devDependencies），从源构建 better-sqlite3
+RUN if [ -f package-lock.json ]; then npm ci --build-from-source=better-sqlite3; else npm install --build-from-source=better-sqlite3; fi
 
 # 构建阶段
 FROM base AS builder
@@ -48,7 +48,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
 # 重新构建 better-sqlite3 原生模块（确保与当前环境兼容）
-RUN npm rebuild better-sqlite3
+RUN npm rebuild better-sqlite3 --build-from-source
 
 # 构建应用
 RUN npm run build
