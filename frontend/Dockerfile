@@ -58,11 +58,37 @@ RUN apk add --no-cache sqlite
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy standalone output directly from builder
-# When building with frontend/ as context, server.js is at .next/standalone/server.js
-COPY --from=builder /app/.next/standalone ./
+# Copy standalone output from builder
+# Next.js 16 in monorepo creates nested structure, so we copy everything first
+COPY --from=builder /app/.next/standalone ./standalone-temp/
+
+# Copy public and static assets
 COPY --from=builder /app/public ./public/
-COPY --from=builder /app/.next/static ./.next/static/
+COPY --from=builder /app/.next/static ./.next/static/ 2>/dev/null || true
+
+# Detect and move standalone files to correct location
+# Handle both monorepo and non-monorepo structures
+RUN if [ -f ./standalone-temp/rebel-agent-skills/frontend/server.js ]; then \
+        echo "Monorepo structure detected (rebel-agent-skills/frontend/)"; \
+        cp -r ./standalone-temp/rebel-agent-skills/frontend/* ./ && \
+        cp -r ./standalone-temp/rebel-agent-skills/frontend/node_modules ./ && \
+        rm -rf ./standalone-temp; \
+    elif [ -f ./standalone-temp/frontend/server.js ]; then \
+        echo "Monorepo structure detected (frontend/)"; \
+        cp -r ./standalone-temp/frontend/* ./ && \
+        cp -r ./standalone-temp/frontend/node_modules ./ && \
+        rm -rf ./standalone-temp; \
+    elif [ -f ./standalone-temp/server.js ]; then \
+        echo "Standard standalone structure detected"; \
+        cp -r ./standalone-temp/* ./ && \
+        rm -rf ./standalone-temp; \
+    else \
+        echo "ERROR: Could not find server.js in standalone output"; \
+        echo "Contents of standalone-temp:"; \
+        find ./standalone-temp -type f -name "server.js" || true; \
+        ls -laR ./standalone-temp || true; \
+        exit 1; \
+    fi
 
 # Verify better-sqlite3 native module exists
 RUN if [ -f ./node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
@@ -78,7 +104,7 @@ RUN if [ -f ./server.js ]; then \
         echo "✅ server.js found"; \
     else \
         echo "ERROR: server.js not found"; \
-        ls -laR .; \
+        ls -laR . | head -100; \
         exit 1; \
     fi
 
