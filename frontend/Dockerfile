@@ -21,7 +21,7 @@ WORKDIR /app
 
 # Copy npm config and package files from frontend directory
 # Note: Build context is now repo root, so we copy from frontend/
-COPY frontend/.npmrc .npmrc 2>/dev/null || true
+COPY frontend/.npmrc .npmrc
 COPY frontend/package.json frontend/package-lock.json* ./
 
 # Install dependencies with better-sqlite3 built from source
@@ -48,14 +48,14 @@ RUN apk add --no-cache \
 WORKDIR /app
 
 # Copy npm config for monorepo compatibility
-COPY frontend/.npmrc .npmrc 2>/dev/null || true
+COPY frontend/.npmrc .npmrc
 
 # Copy dependencies and application source from frontend directory
 # Build context is repo root, so we copy from frontend/
 COPY --from=deps /app/node_modules ./node_modules
 
 # Copy application source, excluding node_modules and build artifacts
-# Use a wildcard pattern to ensure we don't copy unwanted files
+# Use explicit directory copies to ensure we don't copy unwanted files
 COPY frontend/package*.json ./
 COPY frontend/tsconfig.json ./
 COPY frontend/next.config.ts ./
@@ -64,8 +64,8 @@ COPY frontend/app ./app
 COPY frontend/components ./components
 COPY frontend/lib ./lib
 COPY frontend/public ./public
-COPY frontend/scripts ./scripts 2>/dev/null || true
-COPY frontend/data ./data 2>/dev/null || true
+COPY frontend/scripts ./scripts
+COPY frontend/data ./data
 
 # Set environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
