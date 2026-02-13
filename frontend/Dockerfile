@@ -19,13 +19,8 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy package files and .npmrc to fix Next.js 16 Turbopack workspace detection
+# Copy package files to install dependencies
 COPY package.json package-lock.json* ./
-COPY .npmrc ./
-
-# Copy root .npmrc to prevent workspace detection
-# This is needed for monorepo compatibility
-RUN cp .npmrc .npmrc.backup || true
 
 # Install dependencies with better-sqlite3 built from source
 RUN npm config set loglevel error && \
@@ -50,10 +45,13 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy .npmrc explicitly to ensure it's available
-COPY .npmrc ./
+# Copy dependencies and application source
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Set npm config to prevent workspace detection
+# This tells npm to not look for parent lockfiles
+RUN npm config set workspaces-disabled true
 
 # Set environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
