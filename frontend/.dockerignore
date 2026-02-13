@@ -33,3 +33,6 @@ next-env.d.ts
 # Test results
 test-results
 playwright-report
+
+# Nested frontend directory (monorepo artifact)
+frontend/frontend
