@@ -25,10 +25,10 @@ COPY .npmrc ./
 # the real root package.json in monorepo environments
 # This is critical when GitHub Actions runs: docker build -f frontend/Dockerfile frontend
 # where npm may scan upward to find workspace configuration
+# Note: In Docker, /../ is the same as / (root), so we only create the root blocker
 RUN mkdir -p / /tmp/npm-blocker && \
     echo '{"name":"empty-blocker","version":"0.0.0"}' > /package.json && \
-    echo '{"name":"empty-blocker","version":"0.0.0"}' > /tmp/npm-blocker/package.json && \
-    echo '{"name":"empty-blocker","version":"0.0.0"}' > /../package.json 2>/dev/null || true
+    echo '{"name":"empty-blocker","version":"0.0.0"}' > /tmp/npm-blocker/package.json
 
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
 RUN npm config set loglevel warn && \
