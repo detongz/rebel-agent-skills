@@ -59,8 +59,8 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # Build Next.js application
-# Use webpack explicitly to disable Turbopack and avoid workspace root detection issues in Docker
-RUN NEXT_PRIVATE_SKIP_VALIDATION=1 npm run build -- --webpack
+# Use Turbopack (default in Next.js 16) which works better with standalone mode
+RUN npm run build
 
 # Production runner image
 FROM base AS runner
