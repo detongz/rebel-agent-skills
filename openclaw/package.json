@@ -32,7 +32,6 @@
   "author": "MySkills Team",
   "license": "MIT",
   "dependencies": {
-    "@myskills/shared": "file:../packages/shared",
     "@sinclair/typebox": "^0.32.0",
     "viem": "^2.0.0"
   },
