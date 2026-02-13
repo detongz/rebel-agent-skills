@@ -10,7 +10,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
 
 interface SkillRow {
   skill_id: string;
@@ -284,108 +283,50 @@ export async function GET(request: NextRequest) {
     const sort = (searchParams.get('sort') || 'tips') as 'tips' | 'stars' | 'likes' | 'date' | 'name';
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
 
-    // Build query conditions
-    const conditions: string[] = [];
-    const params: any[] = [];
+    // FAST MODE: Use seed data directly for maximum performance
+    let skills: SkillRow[];
+    let usedSeedData = true;
+    let seedSkills = [...SEED_SKILLS] as any[];
 
-    if (creator) {
-      conditions.push('creator_address = ?');
-      params.push(creator);
-    }
-
+    // Apply platform filter if specified
     if (platform && platform !== 'all') {
-      conditions.push('platform = ?');
-      params.push(platform);
+      seedSkills = seedSkills.filter((s: any) => s.platform === platform);
     }
 
-    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    // Sort seed data by requested sort column
+    seedSkills.sort((a: any, b: any) => {
+      let aVal: any, bVal: any;
 
-    // Determine sort column
-    let sortColumn = 'total_tips';
-    let sortOrder = 'DESC';
-
-    switch (sort) {
-      case 'stars':
-        sortColumn = 'github_stars';
-        break;
-      case 'likes':
-        sortColumn = 'platform_likes';
-        break;
-      case 'date':
-        sortColumn = 'created_at';
-        break;
-      case 'name':
-        sortColumn = 'name';
-        sortOrder = 'ASC';
-        break;
-      case 'tips':
-      default:
-        sortColumn = 'total_tips';
-        break;
-    }
-
-    // Fetch skills from SQLite database
-    const query = db.prepare(`
-      SELECT * FROM skills
-      ${whereClause}
-      ORDER BY ${sortColumn} ${sortOrder}, updated_at DESC
-      LIMIT ?
-    `);
-
-    let skills = query.all(...params, limit) as SkillRow[];
-    let usedSeedData = false;
-
-    // QUICK FIX: If database is empty, return seed data
-    if (skills.length === 0) {
-      console.log('🌱 Database empty, using seed data');
-      usedSeedData = true;
-      let seedSkills = [...SEED_SKILLS] as any[];
-
-      // Apply platform filter if specified
-      if (platform && platform !== 'all') {
-        seedSkills = seedSkills.filter((s: any) => s.platform === platform);
+      switch (sort) {
+        case 'stars':
+          aVal = a.github_stars || 0;
+          bVal = b.github_stars || 0;
+          break;
+        case 'likes':
+          aVal = a.platform_likes || 0;
+          bVal = b.platform_likes || 0;
+          break;
+        case 'date':
+          aVal = new Date(a.created_at || 0).getTime();
+          bVal = new Date(b.created_at || 0).getTime();
+          return bVal - aVal;
+        case 'name':
+          aVal = (a.name || '').toLowerCase();
+          bVal = (b.name || '').toLowerCase();
+          return aVal.localeCompare(bVal);
+        case 'tips':
+        default:
+          aVal = parseFloat(a.total_tips || '0');
+          bVal = parseFloat(b.total_tips || '0');
+          break;
       }
 
-      // Sort seed data by the requested sort column
-      seedSkills.sort((a: any, b: any) => {
-        let aVal: any, bVal: any;
+      // For numeric values, sort DESC (higher first) by default
+      return bVal - aVal;
+    });
 
-        switch (sort) {
-          case 'stars':
-            aVal = a.github_stars || 0;
-            bVal = b.github_stars || 0;
-            break;
-          case 'likes':
-            aVal = a.platform_likes || 0;
-            bVal = b.platform_likes || 0;
-            break;
-          case 'date':
-            aVal = new Date(a.created_at || 0).getTime();
-            bVal = new Date(b.created_at || 0).getTime();
-            break;
-          case 'name':
-            aVal = (a.name || '').toLowerCase();
-            bVal = (b.name || '').toLowerCase();
-            return sortOrder === 'ASC' ?
-              aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-          case 'tips':
-          default:
-            aVal = parseFloat(a.total_tips || '0');
-            bVal = parseFloat(b.total_tips || '0');
-            break;
-        }
-
-        // For numeric values, sort DESC (higher first) by default
-        if (sortOrder === 'ASC') {
-          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-        } else {
-          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
-        }
-      });
-
-      // Apply limit
-      skills = seedSkills.slice(0, limit);
-    }
+    // Apply limit
+    skills = seedSkills.slice(0, limit);
 
     // Transform response format
     const transformedSkills = skills.map(skill => ({
@@ -419,9 +360,13 @@ export async function GET(request: NextRequest) {
       data: transformedSkills,
       count: transformedSkills.length,
       sort: sort,
-      sort_column: sortColumn,
+      sort_column: 'total_tips',
       source: usedSeedData ? 'Seed Data (Fallback)' : 'SQLite Database',
       contractAddress: process.env.ASKL_TOKEN_ADDRESS || '0xc1fFCAD15e2f181E49bFf2cBea79094eC9B5033A',
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      },
     });
   } catch (error) {
     console.error('Error fetching skills:', error);
