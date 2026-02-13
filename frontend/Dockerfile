@@ -91,33 +91,21 @@ RUN echo "=== Standalone directory structure ===" && \
     find /tmp/standalone -maxdepth 4 -name "server.js" -type f
 
 # Detect and set up the correct application directory
+# Next.js 16 standalone output structure varies by build context
+# Simplified approach: Find and copy the directory containing server.js
 RUN echo "=== Detecting application directory ===" && \
-    # Check if there's a direct standalone output (no repo subdirectory)
-    if [ -f /tmp/standalone/server.js ]; then \
-        echo "Found standalone output at /tmp/standalone/" && \
-        cp -r /tmp/standalone/* /app/ && \
-        APP_DIR="/app"; \
-    # Check if there's a repo-name/frontend structure
-    elif [ -d /tmp/standalone/rebel-agent-skills/frontend ] && [ -f /tmp/standalone/rebel-agent-skills/frontend/server.js ]; then \
-        echo "Found rebel-agent-skills/frontend structure" && \
-        cp -r /tmp/standalone/rebel-agent-skills/frontend/* /app/ && \
-        APP_DIR="/app"; \
-    # Check for any other directory structure containing server.js
-    else \
-        SERVER_DIR=$$(find /tmp/standalone -maxdepth 4 -name "server.js" -type f -exec dirname {} \; | head -1); \
-        if [ -n "$$SERVER_DIR" ]; then \
-            echo "Found server.js at $$SERVER_DIR" && \
-            cp -r "$$SERVER_DIR"/* /app/ && \
-            APP_DIR="/app"; \
-        else \
-            echo "ERROR: Could not find server.js in standalone output" && \
-            find /tmp/standalone -type f -name "*.js" || true; \
-            exit 1; \
-        fi; \
+    SERVER_DIR=$$(find /tmp/standalone -maxdepth 5 -name "server.js" -type f -exec dirname {} \; | head -1) && \
+    if [ -z "$$SERVER_DIR" ]; then \
+        echo "ERROR: Could not find server.js in standalone output" && \
+        echo "=== Full directory tree ===" && \
+        find /tmp/standalone -type f || true && \
+        exit 1; \
     fi && \
-    echo "Application directory set to: $$APP_DIR" && \
-    echo "=== Contents of /app ===" && \
-    ls -la /app/
+    echo "Found server.js at $$SERVER_DIR" && \
+    cp -r "$$SERVER_DIR"/* /app/ && \
+    echo "=== Contents of /app after copy ===" && \
+    ls -la /app/ && \
+    APP_DIR="/app"
 
 # Copy public and static assets from builder stage
 COPY --from=builder /app/public /app/public/

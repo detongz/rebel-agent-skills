@@ -10,8 +10,7 @@ const nextConfig: NextConfig = {
   },
 
   // 确保原生模块（如 better-sqlite3）被正确打包
-  // Next.js 16: 使用 serverExternalPackages 标记原生模块
-  // 这将确保 better-sqlite3 被正确包含在 standalone 输出中
+  // Next.js 16.1+: 在使用 Turbopack 时，使用 serverExternalPackages
   serverExternalPackages: ['better-sqlite3'],
 };
 
