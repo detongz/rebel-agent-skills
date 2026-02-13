@@ -21,14 +21,12 @@ COPY package.json ./
 COPY package-lock.json* ./
 COPY .npmrc ./
 
-# Create empty package.json files in parent directories to prevent npm from detecting
-# the real root package.json in monorepo environments
+# Set environment variables to prevent npm workspace detection
 # This is critical when GitHub Actions runs: docker build -f frontend/Dockerfile frontend
 # where npm may scan upward to find workspace configuration
-# Note: In Docker, /../ is the same as / (root), so we only create the root blocker
-RUN mkdir -p / /tmp/npm-blocker && \
-    echo '{"name":"empty-blocker","version":"0.0.0"}' > /package.json && \
-    echo '{"name":"empty-blocker","version":"0.0.0"}' > /tmp/npm-blocker/package.json
+ENV NPM_CONFIG_WORKSPACES=false
+ENV NPM_CONFIG_WORKSPACE_ROOT=false
+ENV NPM_CONFIG_GLOBAL_STYLE=true
 
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
 RUN npm config set loglevel warn && \
