@@ -19,9 +19,9 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy package files to install dependencies
-# Note: We don't copy .npmrc here to avoid workspace detection issues
-COPY package.json package-lock.json* ./
+# Copy package files from frontend directory
+# Note: Build context is now repo root, so we copy from frontend/
+COPY frontend/package.json frontend/package-lock.json* ./
 
 # Install dependencies with better-sqlite3 built from source
 RUN npm config set loglevel error && \
@@ -46,9 +46,10 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy dependencies and application source
+# Copy dependencies and application source from frontend directory
+# Build context is repo root, so we copy from frontend/
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY frontend/ .
 
 # Set environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -110,6 +111,10 @@ RUN echo "=== Detecting application directory ===" && \
 # Copy public and static assets from builder stage
 COPY --from=builder /app/public /app/public/
 COPY --from=builder /app/.next/static /app/.next/static/
+
+# Copy the root .npmrc file to prevent workspace detection
+# This tells npm to use nested installation strategy in a monorepo
+COPY .npmrc /app/.npmrc 2>/dev/null || true
 
 # Verify better-sqlite3 native module exists
 RUN echo "=== Verifying better-sqlite3 ===" && \
