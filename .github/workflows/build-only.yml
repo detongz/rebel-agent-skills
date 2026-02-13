@@ -1,0 +1,45 @@
+name: Build Only (No Docker Image)
+
+on:
+  push:
+    branches:
+      - feat/moltiverse-openclaw
+
+jobs:
+  build:
+    name: Build Next.js Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('frontend/package-lock.json', 'frontend/package.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check build output
+        run: |
+          echo "📦 Checking .next directory..."
+          ls -la .next || echo "No .next directory"
+          du -sh .next || echo "Build directory size"
+
+      - name: Upload build as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next
