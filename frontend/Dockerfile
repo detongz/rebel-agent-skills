@@ -21,15 +21,19 @@ COPY package.json package-lock.json* ./
 COPY .npmrc ./
 
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
+# Explicitly disable workspaces and set isolation mode
 RUN npm config set loglevel warn && \
     npm config set fund false && \
-    npm config set audit false
+    npm config set audit false && \
+    npm config set workspace-root false && \
+    npm config set global-style true
 
 # Install dependencies with better-sqlite3 built from source
 # Using npm install with --legacy-peer-deps for better compatibility
 # Force fresh install to avoid workspace detection issues in CI/monorepo environments
 # Ensure lockfileVersion 2 for better CI compatibility across npm versions
-RUN npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund
+# Add --no-workspaces to explicitly prevent workspace detection
+RUN npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund --no-workspaces --ignore-scripts=false
 
 # Rebuild the application
 FROM base AS builder

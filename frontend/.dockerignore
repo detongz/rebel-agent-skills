@@ -36,3 +36,8 @@ playwright-report
 
 # Nested frontend directory (monorepo artifact)
 frontend/frontend
+
+# Prevent npm from detecting parent workspace configuration
+# This is critical for CI builds in monorepo environments
+**/parent-package.json
+**/root-package.json
