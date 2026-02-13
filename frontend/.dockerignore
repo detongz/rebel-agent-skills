@@ -41,3 +41,11 @@ frontend/frontend
 # This is critical for CI builds in monorepo environments
 **/parent-package.json
 **/root-package.json
+
+# Exclude parent package.json and package-lock.json to prevent workspace detection
+../../package.json
+../../package-lock.json
+
+# Exclude other workspace roots
+../../packages
+../../demo-video

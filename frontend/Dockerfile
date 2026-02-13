@@ -24,7 +24,8 @@ COPY .npmrc ./
 RUN npm config set loglevel warn && \
     npm config set fund false && \
     npm config set audit false && \
-    npm config set global-style true
+    npm config set global-style true && \
+    npm config set workspaces false
 
 # Install dependencies with better-sqlite3 built from source
 # Using npm install with --legacy-peer-deps for better compatibility
