@@ -25,9 +25,10 @@ RUN npm config set loglevel warn && \
     npm config set audit false
 
 # Install dependencies with better-sqlite3 built from source
-# Using npm ci with --legacy-peer-deps for better compatibility
-# npm ci uses package-lock.json for consistent, reproducible installs
-RUN npm ci --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund
+# Using npm install with --legacy-peer-deps for better compatibility
+# Force fresh install to avoid workspace detection issues in CI/monorepo environments
+RUN rm -f package-lock.json && \
+    npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund
 
 # Rebuild the application
 FROM base AS builder
