@@ -17,7 +17,7 @@ RUN apk add --no-cache \
     build-base
 
 # Copy package files to install dependencies
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json* .npmrc ./
 
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
 RUN npm config set loglevel warn && \
