@@ -19,9 +19,9 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy package files and .npmrc to fix Next.js 16 Turbopack workspace detection
+# Copy package files to install dependencies
+# Note: We don't copy .npmrc here to avoid workspace detection issues
 COPY package.json package-lock.json* ./
-COPY .npmrc ./
 
 # Install dependencies with better-sqlite3 built from source
 RUN npm config set loglevel error && \
@@ -46,8 +46,7 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy .npmrc explicitly to ensure it's available
-COPY .npmrc ./
+# Copy dependencies and application source
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
@@ -59,8 +58,9 @@ ENV NODE_ENV=production
 RUN npm rebuild better-sqlite3 --build-from-source
 
 # Build Next.js application
-# Use Turbopack (default in Next.js 16) which works better with standalone mode
-RUN npm run build
+# Use Turbopack (default in Next.js 16) with environment variable to prevent workspace detection
+# The NEXT_PRIVATE_SKIP_VALIDATION tells Next.js to skip certain validation checks
+RUN NEXT_PRIVATE_SKIP_VALIDATION=1 npm run build
 
 # Production runner image
 FROM base AS runner
