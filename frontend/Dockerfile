@@ -2,6 +2,7 @@
 # Use Node.js 22 LTS for better better-sqlite3 compatibility
 
 FROM node:22-alpine AS base
+WORKDIR /app
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -9,27 +10,17 @@ FROM base AS deps
 RUN apk add --no-cache \
     libc6-compat \
     python3 \
-    py3-pip \
     make \
     g++ \
     sqlite \
     sqlite-dev \
-    build-base \
-    pkgconfig
-
-WORKDIR /app
+    build-base
 
 # Copy package files to install dependencies
 COPY package.json package-lock.json* ./
 
 # Install dependencies with better-sqlite3 built from source
-RUN npm config set loglevel error && \
-    npm config set engine-strict false && \
-    if [ -f package-lock.json ]; then \
-        npm ci --build-from-source=better-sqlite3 --prefer-offline --no-audit --no-fund; \
-    else \
-        npm install --build-from-source=better-sqlite3 --prefer-offline --no-audit --no-fund; \
-    fi
+RUN npm ci --build-from-source=better-sqlite3 --prefer-offline --no-audit --no-fund
 
 # Rebuild the application
 FROM base AS builder
@@ -40,35 +31,21 @@ RUN apk add --no-cache \
     g++ \
     sqlite \
     sqlite-dev \
-    build-base \
-    pkgconfig
-
-WORKDIR /app
+    build-base
 
 # Copy dependencies and application source
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set npm config to prevent workspace detection
-# This tells npm to not look for parent lockfiles
-RUN npm config set workspaces-disabled true
-
 # Set environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Rebuild better-sqlite3 for the target environment
-RUN npm rebuild better-sqlite3 --build-from-source
-
 # Build Next.js application
-# Use Turbopack (default in Next.js 16) with environment variable to prevent workspace detection
-# The NEXT_PRIVATE_SKIP_VALIDATION tells Next.js to skip certain validation checks
-RUN NEXT_PRIVATE_SKIP_VALIDATION=1 npm run build
+RUN npm run build
 
 # Production runner image
 FROM base AS runner
-WORKDIR /app
-
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
@@ -81,66 +58,29 @@ RUN apk add --no-cache sqlite
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# Copy standalone output with dynamic path detection
-# Next.js 16 creates monorepo-aware output structure that varies by build context
-# The structure can be: .next/standalone/ or .next/standalone/repo-name/frontend/
-# We need to detect and handle both cases
-COPY --from=builder /app/.next/standalone /tmp/standalone
-
-# Debug: Show standalone structure
-RUN echo "=== Standalone directory structure ===" && \
-    ls -la /tmp/standalone/ && \
-    echo "=== Looking for server.js ===" && \
-    find /tmp/standalone -maxdepth 4 -name "server.js" -type f
-
-# Detect and set up the correct application directory
-# Next.js 16 standalone output structure varies by build context
-# Simplified approach: Find and copy the directory containing server.js
-RUN echo "=== Detecting application directory ===" && \
-    SERVER_DIR=$$(find /tmp/standalone -maxdepth 5 -name "server.js" -type f -exec dirname {} \; | head -1) && \
-    if [ -z "$$SERVER_DIR" ]; then \
-        echo "ERROR: Could not find server.js in standalone output" && \
-        echo "=== Full directory tree ===" && \
-        find /tmp/standalone -type f || true && \
-        exit 1; \
-    fi && \
-    echo "Found server.js at $$SERVER_DIR" && \
-    cp -r "$$SERVER_DIR"/* /app/ && \
-    echo "=== Contents of /app after copy ===" && \
-    ls -la /app/ && \
-    APP_DIR="/app"
-
-# Copy public and static assets from builder stage
-COPY --from=builder /app/public /app/public/
-COPY --from=builder /app/.next/static /app/.next/static/
+# Copy standalone output directly from builder
+# When building with frontend/ as context, server.js is at .next/standalone/server.js
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/public ./public/
+COPY --from=builder /app/.next/static ./.next/static/
 
 # Verify better-sqlite3 native module exists
-RUN echo "=== Verifying better-sqlite3 ===" && \
-    if [ -f /app/node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
+RUN if [ -f ./node_modules/better-sqlite3/build/Release/better_sqlite3.node ]; then \
         echo "✅ better-sqlite3 verified"; \
     else \
         echo "ERROR: better-sqlite3 native module not found"; \
-        find /app -name "better_sqlite3.node" || true; \
+        find . -name "better_sqlite3.node" || true; \
         exit 1; \
     fi
 
 # Verify server.js exists
-RUN echo "=== Verifying server.js ===" && \
-    if [ -f /app/server.js ]; then \
-        echo "✅ server.js found at /app/server.js"; \
+RUN if [ -f ./server.js ]; then \
+        echo "✅ server.js found"; \
     else \
-        echo "ERROR: server.js not found" && \
-        echo "Directory contents:" && \
-        ls -laR /app/; \
+        echo "ERROR: server.js not found"; \
+        ls -laR .; \
         exit 1; \
     fi
-
-# Create entrypoint script
-RUN echo "#!/bin/sh" > /app/entrypoint.sh && \
-    echo "cd /app && exec node server.js" >> /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh && \
-    echo "Entrypoint script created" && \
-    cat /app/entrypoint.sh
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app
@@ -149,4 +89,4 @@ USER nextjs
 
 EXPOSE 3000
 
-CMD ["/app/entrypoint.sh"]
+CMD ["node", "server.js"]
