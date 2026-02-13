@@ -42,10 +42,6 @@ frontend/frontend
 **/parent-package.json
 **/root-package.json
 
-# Exclude parent package.json and package-lock.json to prevent workspace detection
-../../package.json
-../../package-lock.json
-
-# Exclude other workspace roots
-../../packages
-../../demo-video
+# Note: ../../ patterns don't work in Docker build context
+# The Docker build context is the frontend/ directory, not the repo root
+# Parent workspace detection is prevented by .npmrc settings instead
