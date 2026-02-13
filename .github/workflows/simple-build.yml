@@ -1,0 +1,37 @@
+name: Simple Build
+
+on:
+  push:
+    branches:
+      - feat/moltiverse-openclaw
+    workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Next.js
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Check output
+        run: ls -la .next || echo "No .next directory"
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: .next
