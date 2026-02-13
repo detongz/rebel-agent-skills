@@ -21,22 +21,31 @@ COPY package.json ./
 COPY package-lock.json* ./
 COPY .npmrc ./
 
-# Create an empty package.json in parent directory to prevent npm from detecting the real root package.json
-# This is critical in monorepo environments where npm may scan upward for workspace configuration
-RUN touch /package.json && echo "{}" > /package.json
+# Create empty package.json files in parent directories to prevent npm from detecting
+# the real root package.json in monorepo environments
+# This is critical when GitHub Actions runs: docker build -f frontend/Dockerfile frontend
+# where npm may scan upward to find workspace configuration
+RUN mkdir -p / /tmp/npm-blocker && \
+    echo '{"name":"empty-blocker","version":"0.0.0"}' > /package.json && \
+    echo '{"name":"empty-blocker","version":"0.0.0"}' > /tmp/npm-blocker/package.json && \
+    echo '{"name":"empty-blocker","version":"0.0.0"}' > /../package.json 2>/dev/null || true
 
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
 RUN npm config set loglevel warn && \
     npm config set fund false && \
     npm config set audit false && \
     npm config set global-style true && \
-    npm config set workspaces false
+    npm config set workspaces false && \
+    npm config set engine-strict false
 
 # Install dependencies with better-sqlite3 built from source
 # Using npm install with --legacy-peer-deps for better compatibility
 # Ensure lockfileVersion 2 for better CI compatibility across npm versions
 # Add verbose output for debugging
-RUN npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund --loglevel=verbose || \
+# Set environment variables to prevent workspace detection
+RUN NPM_CONFIG_WORKSPACES=false \
+    NPM_CONFIG_WORKSPACE_ROOT=false \
+    npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund --loglevel=verbose || \
     (echo "npm install failed. Debugging info:" && \
      ls -la && \
      cat .npmrc && \
