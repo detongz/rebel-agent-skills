@@ -30,7 +30,13 @@ RUN npm config set loglevel warn && \
 # Install dependencies with better-sqlite3 built from source
 # Using npm install with --legacy-peer-deps for better compatibility
 # Ensure lockfileVersion 2 for better CI compatibility across npm versions
-RUN npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund
+# Add verbose output for debugging
+RUN npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund --loglevel=verbose || \
+    (echo "npm install failed. Debugging info:" && \
+     ls -la && \
+     cat .npmrc && \
+     cat package.json && \
+     exit 1)
 
 # Rebuild the application
 FROM base AS builder

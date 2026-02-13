@@ -21,6 +21,10 @@ jobs:
       - name: Build Docker image
         run: |
           echo "🔨 Building Docker image..."
+          echo "Listing files in frontend directory:"
+          ls -la frontend/
+          echo "Checking for package files:"
+          ls -la frontend/*.json
           docker build -t myskills:latest -f frontend/Dockerfile frontend
           docker tag myskills:latest myskills:${{ github.sha }}
 
