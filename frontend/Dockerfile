@@ -21,6 +21,10 @@ COPY package.json ./
 COPY package-lock.json* ./
 COPY .npmrc ./
 
+# Create an empty package.json in parent directory to prevent npm from detecting the real root package.json
+# This is critical in monorepo environments where npm may scan upward for workspace configuration
+RUN touch /package.json && echo "{}" > /package.json
+
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
 RUN npm config set loglevel warn && \
     npm config set fund false && \
