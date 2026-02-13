@@ -80,7 +80,11 @@ COPY --from=builder /app/.next/standalone ./standalone-temp/
 
 # Copy public and static assets
 COPY --from=builder /app/public ./public/
-COPY --from=builder /app/.next/static ./.next/static/ 2>/dev/null || true
+# Copy static assets if they exist (Next.js 16 may not generate them in standalone mode)
+RUN mkdir -p ./.next/static && \
+    if [ -d /app/.next/static ]; then \
+        cp -r /app/.next/static ./ || true; \
+    fi
 
 # Detect and move standalone files to correct location
 # Handle both monorepo and non-monorepo structures
