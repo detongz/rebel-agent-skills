@@ -19,10 +19,13 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy npm config and package files from frontend directory
-# Note: Build context is now repo root, so we copy from frontend/
-COPY frontend/.npmrc .npmrc
-COPY frontend/package.json frontend/package-lock.json* ./
+# Copy package files and .npmrc to fix Next.js 16 Turbopack workspace detection
+COPY package.json package-lock.json* ./
+COPY .npmrc ./
+
+# Copy root .npmrc to prevent workspace detection
+# This is needed for monorepo compatibility
+RUN cp .npmrc .npmrc.backup || true
 
 # Install dependencies with better-sqlite3 built from source
 RUN npm config set loglevel error && \
@@ -47,25 +50,10 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Copy npm config for monorepo compatibility
-COPY frontend/.npmrc .npmrc
-
-# Copy dependencies and application source from frontend directory
-# Build context is repo root, so we copy from frontend/
+# Copy .npmrc explicitly to ensure it's available
+COPY .npmrc ./
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy application source, excluding node_modules and build artifacts
-# Use explicit directory copies to ensure we don't copy unwanted files
-COPY frontend/package*.json ./
-COPY frontend/tsconfig.json ./
-COPY frontend/next.config.ts ./
-COPY frontend/postcss.config.mjs ./
-COPY frontend/app ./app
-COPY frontend/components ./components
-COPY frontend/lib ./lib
-COPY frontend/public ./public
-COPY frontend/scripts ./scripts
-COPY frontend/data ./data
+COPY . .
 
 # Set environment variables
 ENV NEXT_TELEMETRY_DISABLED=1
