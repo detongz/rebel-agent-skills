@@ -1,0 +1,102 @@
+name: Deploy Static Files to Server
+
+on:
+  push:
+    branches:
+      - feat/moltiverse-openclaw
+    workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Upload build files
+        run: |
+          echo "📤 Uploading Next.js build output..."
+
+          # Upload .next directory
+          mkdir -p build-artifacts
+          tar -czf build-artifacts.tar.gz .next || true
+
+          # Check if upload succeeded
+          if [ $? -eq 0 ]; then
+            echo "✅ Build artifacts uploaded successfully"
+            echo "artifacts_size=$(du -sh build-artifacts.tar.gz | cut -f1)"
+            else
+            echo "❌ Failed to upload build artifacts"
+            exit 1
+          fi
+
+      - name: Deploy to server
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+        run: |
+          echo "🚀 Deploying to server..."
+
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # Download build artifacts if available
+          echo "📥 Downloading build artifacts..."
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST:/tmp/build-artifacts.tar.gz 2>/dev/null || echo "No artifacts available, skipping download"
+
+          # Extract and deploy
+          echo "📂 Extracting and deploying..."
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no root@$DEPLOY_HOST bash << 'ENDSSH'
+            set -e
+
+            # Stop old containers
+            docker stop myskills 2>/dev/null || true
+            docker rm myskills 2>/dev/null || true
+
+            # Remove old build files
+            rm -rf /var/www/myskills/.next 2>/dev/null || true
+
+            # Create new build directory
+            mkdir -p /var/www/myskills/.next 2>/dev/null || true
+
+            # Start Next.js with production mode
+            cd /var/www/myskills && nohup next start 2>/dev/null &
+            NEXT_PID=$!
+
+            # Wait for server to be ready
+            echo "Waiting for server to start..."
+            for i in {1..30}; do
+              if curl -f http://localhost:3000/api/health >/dev/null 2>&1; then
+                echo "Server is ready (attempt $i)"
+                break
+              fi
+              sleep 2
+            done
+
+            # Stop any existing nohup process
+            if [ -n "$NEXT_PID" ]; then
+              kill $NEXT_PID 2>/dev/null
+            fi
+
+            echo "✅ Deployment completed!"
+            echo "Server is running at: ${{ secrets.DEPLOY_URL }}"
+          ENDSSH'
+
+          # Health check
+          echo "🏥 Running health check..."
+          sleep 5
+          curl -f $DEPLOY_URL 2>/dev/null || echo "Health check failed"
+
+      - name: Health check
+        if: always()
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+        run: |
+          sleep 5
+          curl -f $DEPLOY_URL || echo "❌ Health check failed"
