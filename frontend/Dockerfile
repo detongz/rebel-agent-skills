@@ -17,7 +17,8 @@ RUN apk add --no-cache \
     build-base
 
 # Copy package files to install dependencies
-COPY package.json package-lock.json* .npmrc ./
+COPY package.json package-lock.json* ./
+COPY .npmrc ./
 
 # Configure npm to prevent workspace detection issues in CI/monorepo environments
 RUN npm config set loglevel warn && \
@@ -27,8 +28,8 @@ RUN npm config set loglevel warn && \
 # Install dependencies with better-sqlite3 built from source
 # Using npm install with --legacy-peer-deps for better compatibility
 # Force fresh install to avoid workspace detection issues in CI/monorepo environments
-RUN rm -f package-lock.json && \
-    npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund
+# Ensure lockfileVersion 2 for better CI compatibility across npm versions
+RUN npm install --build-from-source=better-sqlite3 --legacy-peer-deps --no-audit --no-fund
 
 # Rebuild the application
 FROM base AS builder
