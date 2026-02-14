@@ -42,6 +42,7 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
         run: |
           set -e
           echo "🚀 Deploying to server..."
@@ -57,41 +58,61 @@ jobs:
             exit 1
           fi
 
+          # Support DEPLOY_HOST formats:
+          # - user@host
+          # - user@host:port
+          # - host
+          # - host:port
+          SSH_TARGET="$DEPLOY_HOST"
+          SSH_PORT="${DEPLOY_PORT:-22}"
+          if [[ "$SSH_TARGET" == *:* ]]; then
+            PORT_CANDIDATE="${SSH_TARGET##*:}"
+            if [[ "$PORT_CANDIDATE" =~ ^[0-9]+$ ]]; then
+              SSH_PORT="$PORT_CANDIDATE"
+              SSH_TARGET="${SSH_TARGET%:*}"
+            fi
+          fi
+          HOST_FOR_SCAN="${SSH_TARGET#*@}"
+          echo "ℹ️ SSH target: $SSH_TARGET (port: $SSH_PORT)"
+
           # Setup SSH
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
           echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $(echo $DEPLOY_HOST | cut -d'@' -f2) >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -p "$SSH_PORT" -H "$HOST_FOR_SCAN" >> ~/.ssh/known_hosts 2>/dev/null || true
+
+          # Verify SSH connectivity early with a clear error
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_TARGET" "echo 'SSH connection OK'" >/dev/null
 
           # Create deployment directory on server
           echo "📁 Creating deployment directory..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $DEPLOY_HOST "mkdir -p /var/www/myskills-frontend"
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_TARGET" "mkdir -p /var/www/myskills-frontend"
 
           # Deploy with rsync - transfer all necessary files
           echo "📦 Transferring .next directory..."
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
             frontend/.next/ \
-            $DEPLOY_HOST:/var/www/myskills-frontend/.next/ \
+            "$SSH_TARGET:/var/www/myskills-frontend/.next/" \
             --progress \
             --timeout=180
 
           echo "📦 Transferring public directory..."
           rsync -avz \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
             frontend/public/ \
-            $DEPLOY_HOST:/var/www/myskills-frontend/public/ \
+            "$SSH_TARGET:/var/www/myskills-frontend/public/" \
             --progress \
             --timeout=180
 
           echo "📦 Transferring config files..."
           rsync -avz \
-            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
             frontend/package.json \
             frontend/next.config.ts \
             frontend/tsconfig.json \
-            $DEPLOY_HOST:/var/www/myskills-frontend/ \
+            "$SSH_TARGET:/var/www/myskills-frontend/" \
             --progress \
             --timeout=180
 
@@ -99,7 +120,7 @@ jobs:
 
           # Restart PM2 service
           echo "🔄 Restarting PM2 service..."
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $DEPLOY_HOST bash << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_TARGET" bash << 'ENDSSH'
             cd /var/www/myskills-frontend
 
             # Install production dependencies if needed
