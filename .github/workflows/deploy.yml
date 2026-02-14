@@ -36,7 +36,7 @@ jobs:
         run: |
           echo "🔨 Building standalone version..."
           cd frontend
-          npm run build -- --no-lint
+          npm run build
 
       - name: Deploy to server
         env:
