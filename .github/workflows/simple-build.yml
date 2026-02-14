@@ -22,16 +22,19 @@ jobs:
           node-version: '20'
 
       - name: Install
+        working-directory: frontend
         run: npm ci
 
       - name: Build
+        working-directory: frontend
         run: npm run build
 
       - name: Check output
+        working-directory: frontend
         run: ls -la .next || echo "No .next directory"
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: .next
+          path: frontend/.next

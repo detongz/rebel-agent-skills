@@ -27,12 +27,15 @@ jobs:
           key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('frontend/package-lock.json', 'frontend/package.json') }}
 
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
       - name: Build
+        working-directory: frontend
         run: npm run build
 
       - name: Check build output
+        working-directory: frontend
         run: |
           echo "📦 Checking .next directory..."
           ls -la .next || echo "No .next directory"
@@ -42,4 +45,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: .next
+          path: frontend/.next
