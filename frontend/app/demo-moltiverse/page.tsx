@@ -619,7 +619,7 @@ export default function DemoPage() {
               <a href="https://twitter.com" target="_blank" className="text-[var(--neon-blue)] hover:underline text-sm">
                 Twitter
               </a>
-              <a href="https://discord.gg" target="_blank" className="text-[var(--neon-purple)] hover:underline text-sm">
+              <a href="https://discord.gg/TfzSeSRZ" target="_blank" className="text-[var(--neon-purple)] hover:underline text-sm">
                 Discord
               </a>
             </div>

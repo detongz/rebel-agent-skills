@@ -288,7 +288,7 @@ flowchart TD
 
 - 🌐 **Website**: myskills.monad
 - 📦 **GitHub**: github.com/detongz/rebel-agent-skills
-- 💬 **Discord**: [即将添加]
+- 💬 **Discord**: https://discord.gg/TfzSeSRZ
 - 🐦 **Twitter**: @myskills_protocol
 
 ### 三大核心

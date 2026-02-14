@@ -33,7 +33,7 @@ export default function Navbar() {
             </Link>
           ))}
           <a
-            href="https://discord.gg/7DSX9ZgF"
+            href="https://discord.gg/TfzSeSRZ"
             target="_blank"
             rel="noopener noreferrer"
             className="nav-link nav-link-discord"

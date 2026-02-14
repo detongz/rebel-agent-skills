@@ -410,7 +410,7 @@ A: 主网上线后可以。
 4. 无使用次数限制
 
 链接示例：
-https://discord.gg/myskills
+https://discord.gg/TfzSeSRZ
 ```
 
 ### 首批邀请目标（20-30人）

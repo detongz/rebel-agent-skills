@@ -650,7 +650,7 @@ solidity, foundry, nextjs, rainbowkit, monad, mcp, openclaw, agent, payments, de
 - Video: (YouTube URL 待添加)
 
 **社区**:
-- Discord: https://discord.gg/myskills
+- Discord: https://discord.gg/TfzSeSRZ
 - Twitter: @myskills_xyz
 
 ---

@@ -277,7 +277,7 @@ First come, first served
 
 5/5
 Questions?
-👉 Discord: discord.gg/myskills
+👉 Discord: discord.gg/TfzSeSRZ
 👉 DM us @myskills_protocol
 
 Let's build the agent economy together!

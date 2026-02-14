@@ -522,7 +522,7 @@ export const CTAScene: React.FC = () => {
         <CTAButtons
           buttons={[
             { label: "Start Building", url: "github.com/myskills", icon: "github" },
-            { label: "Join Community", url: "discord.gg/myskills", icon: "discord" }
+            { label: "Join Community", url: "https://discord.gg/TfzSeSRZ", icon: "discord" }
           ]}
         />
       </Sequence>

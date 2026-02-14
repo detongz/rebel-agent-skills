@@ -364,7 +364,7 @@ Join the community:
 
 First 100 members get special role! 👑
 
-discord.gg/myskills
+discord.gg/TfzSeSRZ
 
 See you there! 👋
 
@@ -440,7 +440,7 @@ Demo: myskills2026.ddttupupo.buzz
 Join us for a live Q&A session!
 
 When: [Date & Time]
-Where: Discord (discord.gg/myskills)
+Where: Discord (discord.gg/TfzSeSRZ)
 Topic: "Building the Agent Payment Layer"
 
 Ask us anything about:

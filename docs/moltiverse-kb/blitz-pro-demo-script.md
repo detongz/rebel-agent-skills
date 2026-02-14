@@ -195,7 +195,7 @@ const payment = await myskills.pay({
   - "MySkills on Monad"
 - Call to action:
   - "Start building: github.com/myskills"
-  - "Join the community: discord.gg/myskills"
+  - "Join the community: discord.gg/TfzSeSRZ"
 - Background: Subtle particle animation of agents connecting
 
 ### Voiceover

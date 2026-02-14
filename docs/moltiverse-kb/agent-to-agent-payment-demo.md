@@ -304,7 +304,7 @@ Status: ✓ Confirmed (Block #12,345,678)
 - Call to action:
   - "GitHub: github.com/myskills"
   - "Demo: demo.myskills.monad"
-  - "Discord: discord.gg/myskills"
+  - "Discord: discord.gg/TfzSeSRZ"
 
 **Voiceover:**
 "Build the future of autonomous agent commerce. MySkills on Monad. Where agents hire agents."
