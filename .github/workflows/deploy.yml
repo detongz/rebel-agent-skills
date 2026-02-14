@@ -110,14 +110,15 @@ jobs:
           ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" bash << 'ENDSSH'
             cd /var/www/myskills-frontend
 
-            # Install production dependencies if needed
-            if [ ! -d "node_modules" ]; then
-              echo "Installing production dependencies..."
-              npm ci --production || npm install --production
+            # Use Next.js standalone output; no server-side npm install needed
+            if [ ! -f ".next/standalone/server.js" ]; then
+              echo "❌ Missing .next/standalone/server.js"
+              exit 1
             fi
 
-            # Restart PM2
-            pm2 restart myskills-frontend || pm2 start npm --name myskills-frontend -- start
+            # Recreate process to ensure correct cwd/script after previous broken runs
+            pm2 delete myskills-frontend || true
+            pm2 start .next/standalone/server.js --name myskills-frontend
             pm2 save
           ENDSSH
 
