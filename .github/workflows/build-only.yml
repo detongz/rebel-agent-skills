@@ -33,7 +33,9 @@ jobs:
 
       - name: Install dependencies
         working-directory: frontend
-        run: npm ci
+        run: |
+          npm ci --ignore-scripts
+          npm rebuild better-sqlite3 --build-from-source || echo "Warning: better-sqlite3 rebuild skipped"
 
       - name: Build
         working-directory: frontend
