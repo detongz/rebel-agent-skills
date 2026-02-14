@@ -87,33 +87,18 @@ jobs:
           # Verify SSH connectivity early with a clear error
           ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" "echo 'SSH connection OK'" >/dev/null
 
-          # Create deployment directory on server
-          echo "📁 Creating deployment directory..."
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" "mkdir -p /var/www/myskills-frontend"
-
-          # Deploy with rsync - transfer all necessary files
-          echo "📦 Transferring .next directory..."
+          # Deploy with a single rsync connection to avoid repeated SSH reconnect failures
+          echo "📦 Transferring build artifacts and runtime files..."
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
-            frontend/.next/ \
-            "$SSH_TARGET:/var/www/myskills-frontend/.next/" \
-            --progress \
-            --timeout=180
-
-          echo "📦 Transferring public directory..."
-          rsync -avz \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
-            frontend/public/ \
-            "$SSH_TARGET:/var/www/myskills-frontend/public/" \
-            --progress \
-            --timeout=180
-
-          echo "📦 Transferring config files..."
-          rsync -avz \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
-            frontend/package.json \
-            frontend/next.config.ts \
-            frontend/tsconfig.json \
+            --rsync-path="mkdir -p /var/www/myskills-frontend && rsync" \
+            --include=".next/***" \
+            --include="public/***" \
+            --include="package.json" \
+            --include="next.config.ts" \
+            --include="tsconfig.json" \
+            --exclude="*" \
+            frontend/ \
             "$SSH_TARGET:/var/www/myskills-frontend/" \
             --progress \
             --timeout=180
