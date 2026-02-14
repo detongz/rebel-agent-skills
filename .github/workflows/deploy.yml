@@ -78,21 +78,23 @@ jobs:
           # Setup SSH
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KEY" | tr -d '\r' > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
+          # Validate key format early to avoid opaque ssh exit 255 errors
+          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null
           ssh-keyscan -p "$SSH_PORT" -H "$HOST_FOR_SCAN" >> ~/.ssh/known_hosts 2>/dev/null || true
 
           # Verify SSH connectivity early with a clear error
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_TARGET" "echo 'SSH connection OK'" >/dev/null
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" "echo 'SSH connection OK'" >/dev/null
 
           # Create deployment directory on server
           echo "📁 Creating deployment directory..."
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_TARGET" "mkdir -p /var/www/myskills-frontend"
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" "mkdir -p /var/www/myskills-frontend"
 
           # Deploy with rsync - transfer all necessary files
           echo "📦 Transferring .next directory..."
           rsync -avz --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
             frontend/.next/ \
             "$SSH_TARGET:/var/www/myskills-frontend/.next/" \
             --progress \
@@ -100,7 +102,7 @@ jobs:
 
           echo "📦 Transferring public directory..."
           rsync -avz \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
             frontend/public/ \
             "$SSH_TARGET:/var/www/myskills-frontend/public/" \
             --progress \
@@ -108,7 +110,7 @@ jobs:
 
           echo "📦 Transferring config files..."
           rsync -avz \
-            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
             frontend/package.json \
             frontend/next.config.ts \
             frontend/tsconfig.json \
@@ -120,7 +122,7 @@ jobs:
 
           # Restart PM2 service
           echo "🔄 Restarting PM2 service..."
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no "$SSH_TARGET" bash << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" bash << 'ENDSSH'
             cd /var/www/myskills-frontend
 
             # Install production dependencies if needed
