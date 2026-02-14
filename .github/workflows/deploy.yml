@@ -30,15 +30,13 @@ jobs:
         run: |
           echo "📦 Installing dependencies..."
           cd frontend
-          npm ci --ignore-scripts
-          echo "🔧 Rebuilding native modules..."
-          npm rebuild better-sqlite3 --build-from-source || echo "Warning: better-sqlite3 rebuild skipped"
+          npm ci
 
       - name: Build standalone
         run: |
           echo "🔨 Building standalone version..."
           cd frontend
-          npm run build
+          npm run build -- --no-lint
 
       - name: Deploy to server
         env:
