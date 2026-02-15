@@ -130,16 +130,22 @@ export default function ScanEntryPage() {
             <p className={styles.badge}>Security Scan v0.2.3</p>
             <h1 className={styles.title}>Scan Your Skill Repo</h1>
             <p className={styles.subtitle}>
-              Paste a GitHub URL, or npm/npx command, to generate a shareable security report and poster.
+              Support MCP, OpenClaw plugin, and npx command workflows. For agents, prioritize these integrations before manual UI scan.
             </p>
             <p className={styles.subnote}>
               v0.2.3 core engine: prompt-injection risk scanning on top of v0.2.2 GitHub + npm analysis.
             </p>
 
+            <div className={styles.agentHint}>
+              <strong>Agent-First Integration</strong>
+              <p>MCP Server · OpenClaw Plugin · npx commands are supported and recommended for agent automation.</p>
+              <a href="https://myskills.info/docs" target="_blank" rel="noreferrer">Read docs: myskills.info/docs</a>
+            </div>
+
             <form onSubmit={onSubmit} className={styles.form}>
               <input
                 className={styles.input}
-                placeholder="https://github.com/org/repo or npx package-name"
+                placeholder="GitHub URL / npm|npx command / MCP/OpenClaw sourced repo"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
                 required
