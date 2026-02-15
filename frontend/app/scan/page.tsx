@@ -114,16 +114,16 @@ export default function ScanEntryPage() {
               <div className={styles.tierCard}>
                 <div className={styles.tierHead}>
                   <span className={styles.tierDot} />
-                  <strong>Free Scan</strong>
+                  <strong>Free Scan · Available Now</strong>
                 </div>
-                <p>Powered by skill-security-scan, direct security check flow.</p>
+                <p>GitHub + npm/npx input, report page, and poster sharing are fully available.</p>
               </div>
               <div className={`${styles.tierCard} ${styles.tierCardSoon}`}>
                 <div className={styles.tierHead}>
                   <span className={styles.tierSoonPill}>COMING SOON</span>
                   <strong>Advanced Scan · 0.01 MON</strong>
                 </div>
-                <p>Dependency recursion, dynamic testing, LLM semantic judge.</p>
+                <p>Paid depth mode: dependency recursion, dynamic testing, semantic judge.</p>
               </div>
             </div>
 
@@ -139,6 +139,36 @@ export default function ScanEntryPage() {
               <strong>Agent-First Integration</strong>
               <p>MCP Server · OpenClaw Plugin · npx commands are supported and recommended for agent automation.</p>
               <a href="https://myskills.info/docs" target="_blank" rel="noreferrer">Read docs: myskills.info/docs</a>
+            </div>
+
+            <div className={styles.freeSpec}>
+              <div className={styles.freeSpecHead}>
+                <h2>Free Scan v0.2.3: What Runs Today</h2>
+                <span>Production Ready</span>
+              </div>
+              <div className={styles.freeSpecGrid}>
+                <article className={styles.freeSpecCard}>
+                  <h3>External CLI Scanners</h3>
+                  <p><code>semgrep --config auto --json</code></p>
+                  <p><code>gitleaks detect --no-git --redact</code></p>
+                  <small>If CLI is missing, scan continues with graceful degradation.</small>
+                </article>
+                <article className={styles.freeSpecCard}>
+                  <h3>Prompt Injection API</h3>
+                  <p>Z.AI API via OpenAI-compatible <code>/chat/completions</code>.</p>
+                  <small>Env: <code>ZAI_API_KEY</code>, <code>ZAI_API_BASE_URL</code>, <code>ZAI_PI_MODEL</code>.</small>
+                </article>
+                <article className={styles.freeSpecCard}>
+                  <h3>Built-In Local Rules</h3>
+                  <p>Command Execution · Download+Execute · Secret Detection · PI Fallback</p>
+                  <small>Rules include instruction override and prompt secret exfil checks.</small>
+                </article>
+                <article className={styles.freeSpecCard}>
+                  <h3>Execution Priority</h3>
+                  <p>1) Semgrep+Gitleaks (parallel) → 2) Z.AI PI → 3) Local rules fallback</p>
+                  <small>Ensures stable output even when external tools are partially unavailable.</small>
+                </article>
+              </div>
             </div>
 
             <form onSubmit={onSubmit} className={styles.form}>
@@ -172,6 +202,7 @@ export default function ScanEntryPage() {
 
           <div className={`glass-card ${styles.visionCard}`}>
             <p className={styles.visionTitle}>Advanced Scan (Coming Soon)</p>
+            <p className={styles.visionSubtitle}>Optional paid layer. Free scan above is the default path.</p>
             <div className={styles.visionGrid}>
               <div className={styles.visionItem}>
                 <div className={styles.visionIcon}>📦</div>
