@@ -29,13 +29,15 @@ type GitHubRepoInfo = {
 };
 
 type GitHubTreeResponse = {
-  tree: Array<{ path: string; type: string }>;
+  tree: Array<{ path: string; type: string; sha?: string; size?: number }>;
+  truncated?: boolean;
 };
 
 type GitHubContent = {
   type: 'file' | 'dir';
   name: string;
   path: string;
+  sha?: string;
   content?: string;
 };
 
@@ -65,12 +67,29 @@ const REQUEST_TIMEOUT_MS = 8000;
 const DISCOVERY_PATHS = [
   '',
   'skills',
+  'skills/.curated',
+  'skills/.experimental',
+  'skills/.system',
+  '.agents/skills',
+  '.agent/skills',
+  '.augment/rules',
   '.claude/skills',
+  '.cline/skills',
   '.codex/skills',
+  '.continue/skills',
   '.cursor/skills',
   '.github/skills',
+  '.iflow/skills',
+  '.kiro/skills',
+  '.mcpjam/skills',
+  '.openclaude/skills',
   '.openclaw/skills',
-  '.agents/skills',
+  '.pochi/skills',
+  '.qwen/skills',
+  '.trae/skills',
+  '.vibe/skills',
+  '.windsurf/skills',
+  '.adal/skills',
 ];
 
 function parseGitHubRepo(input: string): ParsedRepo | null {
@@ -191,7 +210,7 @@ async function getJson<T>(url: string, token?: string): Promise<T> {
   try {
     const headers: Record<string, string> = {
       Accept: 'application/vnd.github+json',
-      'User-Agent': 'agent-reward-hub',
+      'User-Agent': 'agent-skills',
     };
     if (token) headers.Authorization = `Bearer ${token}`;
 
@@ -213,14 +232,39 @@ async function tryGetJson<T>(url: string, token?: string): Promise<T | null> {
   }
 }
 
-async function fetchSkillFile(owner: string, repo: string, path: string, token?: string): Promise<ParsedSkill | null> {
+async function fetchBlobContent(owner: string, repo: string, sha: string, token?: string): Promise<string | null> {
+  const blob = await tryGetJson<{ content?: string; encoding?: string }>(
+    `${API_BASE}/repos/${owner}/${repo}/git/blobs/${sha}`,
+    token
+  );
+  if (!blob?.content) return null;
+  if (blob.encoding === 'base64') {
+    return Buffer.from(blob.content, 'base64').toString('utf-8');
+  }
+  return blob.content;
+}
+
+async function fetchSkillFile(
+  owner: string,
+  repo: string,
+  path: string,
+  token?: string,
+  blobSha?: string
+): Promise<ParsedSkill | null> {
   const file = await tryGetJson<GitHubContent>(
     `${API_BASE}/repos/${owner}/${repo}/contents/${path}`,
     token
   );
-  if (!file || file.type !== 'file' || !file.content) return null;
+  if (!file || file.type !== 'file') return null;
 
-  const content = Buffer.from(file.content, 'base64').toString('utf-8');
+  let content = file.content ? Buffer.from(file.content, 'base64').toString('utf-8') : null;
+  if (!content) {
+    const sha = blobSha || file.sha;
+    if (sha) {
+      content = await fetchBlobContent(owner, repo, sha, token);
+    }
+  }
+  if (!content) return null;
   return toParsedSkill(parseFrontmatter(content));
 }
 
@@ -262,10 +306,11 @@ async function discoverSkillsInPath(
     token
   );
   const items = tree?.tree || [];
+  if (tree?.truncated) return results;
   for (const item of items) {
     if (item.type !== 'blob' || !item.path.endsWith('/SKILL.md')) continue;
     if (basePath && !item.path.startsWith(`${basePath}/`)) continue;
-    const parsed = await fetchSkillFile(owner, repo, item.path, token);
+    const parsed = await fetchSkillFile(owner, repo, item.path, token, item.sha);
     if (parsed) results.push({ path: item.path, skill: parsed });
   }
 

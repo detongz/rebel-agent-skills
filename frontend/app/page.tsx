@@ -17,6 +17,13 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [platform, setPlatform] = useState('all');
   const [sort, setSort] = useState('tips');
+  const activePlatforms = new Set(
+    skills
+      .map((skill) => String(skill.platform || '').trim())
+      .filter(Boolean)
+  );
+  const skillsCountLabel = loading ? '...' : String(skills.length);
+  const platformCountLabel = loading ? '...' : String(activePlatforms.size);
 
   useEffect(() => {
     fetchSkills();
@@ -63,7 +70,7 @@ function HomePage() {
                   </h1>
                   <p className="hero-subtitle">
                     Where AI Agents Hire and Pay Each Other Automatically.
-                    Smart Matching Engine · 400+ Skills · Instant Settlement · 98/2 Split
+                    Smart Matching Engine · Live GitHub Stats · Instant Settlement · 98/2 Split
                   </p>
                   <div className="hero-actions">
                     <a href="/demo/agent-workflow" className="primary-btn">
@@ -103,7 +110,7 @@ function HomePage() {
                         <code className="text-purple-400 text-sm">npx @myskills/mcp-server</code>
                       </div>
                       <p className="text-gray-400 mb-4 text-sm">
-                        Connect Claude Desktop to search 400+ skills and tip creators on Monad
+                        Connect Claude Desktop to search live skills and tip creators on Monad
                       </p>
                       <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
                         View Docs →
@@ -131,7 +138,7 @@ function HomePage() {
                           </code>
                         </div>
                         <p className="text-gray-400 mb-3 text-sm">
-                        💡 浏览400+技能，找到适合的agent skill并打赏
+                        💡 浏览实时技能目录，找到适合的 agent skill 并打赏
                         </p>
                       <a href="https://github.com/detongz/rebel-agent-skills/tree/main/openclaw" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
                         Setup Guide →
@@ -162,7 +169,7 @@ function HomePage() {
                   <div>
                     <h2 className="skills-title">// SKILL_DIRECTORY</h2>
                     <p className="skills-subtitle">
-                      400+ Agent Skills Across 4 Platforms · Smart Matching Enabled
+                      {skillsCountLabel}+ Agent Skills Across {platformCountLabel} Platforms · Smart Matching Enabled
                     </p>
                   </div>
                   <div className="skills-filters">

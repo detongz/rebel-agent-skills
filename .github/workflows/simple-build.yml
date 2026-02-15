@@ -44,3 +44,4 @@ jobs:
         with:
           name: build-output
           path: frontend/.next
+          include-hidden-files: true

@@ -83,8 +83,10 @@ jobs:
           # 2) single-line string with escaped newlines (\n)
           if printf '%s' "$DEPLOY_KEY" | grep -q 'BEGIN .* PRIVATE KEY'; then
             printf '%s' "$DEPLOY_KEY" | sed 's/\\n/\n/g' | tr -d '\r' > ~/.ssh/deploy_key
+          elif printf '%s' "$DEPLOY_KEY" | base64 -d >/tmp/deploy_key.decoded 2>/dev/null && grep -q 'BEGIN .* PRIVATE KEY' /tmp/deploy_key.decoded; then
+            cat /tmp/deploy_key.decoded | tr -d '\r' > ~/.ssh/deploy_key
           else
-            echo "❌ DEPLOY_SSH_KEY does not look like a valid private key (missing BEGIN ... PRIVATE KEY header)."
+            echo "❌ DEPLOY_SSH_KEY is invalid. Use raw private key text (or base64 of full key)."
             exit 1
           fi
           chmod 600 ~/.ssh/deploy_key
@@ -98,19 +100,31 @@ jobs:
           # Verify SSH connectivity early with a clear error
           ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" "echo 'SSH connection OK'" >/dev/null
 
-          # Deploy with a single rsync connection to avoid repeated SSH reconnect failures
-          echo "📦 Transferring build artifacts and runtime files..."
+          # Deploy standalone runtime layout:
+          # app root: /var/www/myskills-frontend
+          # runtime:  /var/www/myskills-frontend/current (contains server.js/public/.next/static)
+          echo "📦 Transferring standalone artifacts..."
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" \
+            "mkdir -p /var/www/myskills-frontend/current/.next /var/www/myskills-frontend/data"
+
           rsync -avz --delete \
             -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
-            --rsync-path="mkdir -p /var/www/myskills-frontend && rsync" \
-            --include=".next/***" \
-            --include="public/***" \
-            --include="package.json" \
-            --include="next.config.ts" \
-            --include="tsconfig.json" \
-            --exclude="*" \
-            frontend/ \
-            "$SSH_TARGET:/var/www/myskills-frontend/" \
+            frontend/.next/standalone/ \
+            "$SSH_TARGET:/var/www/myskills-frontend/current/" \
+            --progress \
+            --timeout=180
+
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
+            frontend/.next/static/ \
+            "$SSH_TARGET:/var/www/myskills-frontend/current/.next/static/" \
+            --progress \
+            --timeout=180
+
+          rsync -avz --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p $SSH_PORT -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no" \
+            frontend/public/ \
+            "$SSH_TARGET:/var/www/myskills-frontend/current/public/" \
             --progress \
             --timeout=180
 
@@ -119,17 +133,20 @@ jobs:
           # Restart PM2 service
           echo "🔄 Restarting PM2 service..."
           ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" bash << 'ENDSSH'
-            cd /var/www/myskills-frontend
+            cd /var/www/myskills-frontend/current
 
             # Use Next.js standalone output; no server-side npm install needed
-            if [ ! -f ".next/standalone/server.js" ]; then
-              echo "❌ Missing .next/standalone/server.js"
+            if [ ! -f "server.js" ]; then
+              echo "❌ Missing standalone server.js"
               exit 1
             fi
 
             # Recreate process to ensure correct cwd/script after previous broken runs
             pm2 delete myskills-frontend || true
-            pm2 start .next/standalone/server.js --name myskills-frontend
+            DB_DIR=/var/www/myskills-frontend/data PORT=3000 pm2 start server.js --name myskills-frontend
+            sleep 2
+            pm2 status myskills-frontend
+            pm2 logs myskills-frontend --lines 20 --nostream || true
             pm2 save
           ENDSSH
 

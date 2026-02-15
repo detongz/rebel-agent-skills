@@ -3,8 +3,16 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 
-const dbDir = path.join(process.cwd(), 'data');
-const dbPath = path.join(dbDir, 'agent-reward.db');
+const configuredDbPath = process.env.DB_PATH?.trim();
+const configuredDbDir = process.env.DB_DIR?.trim() || process.env.DATA_DIR?.trim();
+const dbDir = configuredDbPath
+  ? path.dirname(path.resolve(configuredDbPath))
+  : configuredDbDir
+    ? path.resolve(configuredDbDir)
+    : path.join(process.cwd(), 'data');
+const dbPath = configuredDbPath
+  ? path.resolve(configuredDbPath)
+  : path.join(dbDir, 'agent-reward.db');
 
 // 确保 data 目录存在
 if (!fs.existsSync(dbDir)) {
