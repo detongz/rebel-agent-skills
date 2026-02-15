@@ -43,6 +43,8 @@ type GitHubContent = {
 
 type ImportOptions = {
   token?: string;
+  offset?: number;
+  limit?: number;
 };
 
 type ImportedSkill = {
@@ -59,6 +61,8 @@ type ImportResult = {
   updated: number;
   scanned_paths: number;
   skills: ImportedSkill[];
+  next_offset?: number;
+  completed?: boolean;
 };
 
 const API_BASE = 'https://api.github.com';
@@ -336,12 +340,16 @@ export async function importSkillsFromGitHubRepo(
   }
 
   const skillsPrefix = resolveSkillsPrefix(parsed.skillsPath);
-  const candidates = tree.tree.filter(
+  const allCandidates = tree.tree.filter(
     (item) =>
       item.type === 'blob' &&
       isSkillsDirectorySkill(item.path) &&
       (!skillsPrefix || item.path.startsWith(skillsPrefix))
   );
+
+  const offset = Number.isFinite(options.offset as number) ? Math.max(options.offset as number, 0) : 0;
+  const limit = Number.isFinite(options.limit as number) ? Math.max(options.limit as number, 1) : allCandidates.length;
+  const candidates = allCandidates.slice(offset, offset + limit);
 
   const discovered: Array<{ path: string; skill: ParsedSkill }> = [];
   for (const item of candidates) {
@@ -376,5 +384,7 @@ export async function importSkillsFromGitHubRepo(
     updated,
     scanned_paths: candidates.length,
     skills,
+    next_offset: offset + candidates.length,
+    completed: offset + candidates.length >= allCandidates.length,
   };
 }

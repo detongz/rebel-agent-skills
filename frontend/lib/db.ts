@@ -38,6 +38,22 @@ function ensureSkillsDataSourceColumn() {
   }
 }
 
+function ensureGithubImportStateTable() {
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS github_import_state (
+        repo_url TEXT PRIMARY KEY,
+        next_offset INTEGER NOT NULL DEFAULT 0,
+        completed INTEGER NOT NULL DEFAULT 0,
+        last_synced_at TEXT,
+        last_error TEXT
+      );
+    `);
+  } catch (error) {
+    console.warn('⚠️ Failed to ensure github_import_state table:', error);
+  }
+}
+
 // 初始化表结构
 function initDatabase() {
   // 检查表是否已存在
@@ -92,6 +108,7 @@ function initDatabase() {
 
   // Ensure source tracking for real-vs-seed data
   ensureSkillsDataSourceColumn();
+  ensureGithubImportStateTable();
 }
 
 // 初始化 agent 评估系统表

@@ -51,6 +51,9 @@ const SYNC_STALE_MS = 6 * 60 * 60 * 1000;
 const SYNC_BATCH_SIZE = 8;
 const GITHUB_TIMEOUT_MS = 4000;
 const BOOTSTRAP_COOLDOWN_MS = 30 * 60 * 1000;
+const HYDRATE_COOLDOWN_MS = 8 * 1000;
+const HYDRATE_CHUNK_SIZE = 24;
+const HYDRATE_MAX_STEPS = 2;
 
 const DEFAULT_IMPORT_REPOS = [
   'https://github.com/detongz/rebel-agent-skills',
@@ -62,6 +65,8 @@ let isSyncing = false;
 let lastSyncStartedAt = 0;
 let isBootstrapping = false;
 let lastBootstrapStartedAt = 0;
+let isHydrating = false;
+let lastHydrateStartedAt = 0;
 
 function toSortOption(value: string | null): SortOption {
   const sort = (value || 'tips').toLowerCase();
@@ -236,6 +241,117 @@ function resolveBootstrapRepos(): string[] {
   return Array.from(new Set(fromEnv.length > 0 ? fromEnv : DEFAULT_IMPORT_REPOS));
 }
 
+type RepoSyncState = {
+  repo_url: string;
+  next_offset: number;
+  completed: number;
+  last_synced_at: string | null;
+};
+
+function getRepoSyncState(repoUrl: string): RepoSyncState {
+  const row = db
+    .prepare(
+      `
+      SELECT repo_url, next_offset, completed, last_synced_at
+      FROM github_import_state
+      WHERE repo_url = ?
+    `
+    )
+    .get(repoUrl) as RepoSyncState | undefined;
+
+  if (row) return row;
+  return {
+    repo_url: repoUrl,
+    next_offset: 0,
+    completed: 0,
+    last_synced_at: null,
+  };
+}
+
+function upsertRepoSyncState(repoUrl: string, nextOffset: number, completed: boolean, lastError: string | null = null) {
+  db.prepare(
+    `
+    INSERT INTO github_import_state (repo_url, next_offset, completed, last_synced_at, last_error)
+    VALUES (?, ?, ?, datetime('now'), ?)
+    ON CONFLICT(repo_url) DO UPDATE SET
+      next_offset = excluded.next_offset,
+      completed = excluded.completed,
+      last_synced_at = excluded.last_synced_at,
+      last_error = excluded.last_error
+  `
+  ).run(repoUrl, Math.max(nextOffset, 0), completed ? 1 : 0, lastError);
+}
+
+function pickNextRepoForHydration(repos: string[]): string | null {
+  const states = repos.map((repo) => getRepoSyncState(repo));
+  const active = states.filter((s) => s.completed !== 1);
+  if (active.length === 0) return null;
+  active.sort((a, b) => {
+    const ta = a.last_synced_at ? new Date(a.last_synced_at).getTime() : 0;
+    const tb = b.last_synced_at ? new Date(b.last_synced_at).getTime() : 0;
+    return ta - tb;
+  });
+  return active[0].repo_url;
+}
+
+async function hydrateCacheForRequestedPage(
+  creator: string | null,
+  category: string | null,
+  query: string | null,
+  sort: SortOption,
+  page: number,
+  pageSize: number
+): Promise<{ attempted: boolean; imported: number; updated: number; exhausted: boolean }> {
+  const now = Date.now();
+  if (isHydrating) return { attempted: false, imported: 0, updated: 0, exhausted: false };
+  if (now - lastHydrateStartedAt < HYDRATE_COOLDOWN_MS) {
+    return { attempted: false, imported: 0, updated: 0, exhausted: false };
+  }
+
+  isHydrating = true;
+  lastHydrateStartedAt = now;
+  let imported = 0;
+  let updated = 0;
+  let exhausted = false;
+
+  try {
+    const requiredCount = page * pageSize;
+    const token = getGitHubToken();
+    const repos = resolveBootstrapRepos();
+
+    for (let step = 0; step < HYDRATE_MAX_STEPS; step += 1) {
+      const latest = querySkillsFromCache(creator, category, query, page, pageSize, sort);
+      if (latest.total >= requiredCount) break;
+
+      const repo = pickNextRepoForHydration(repos);
+      if (!repo) {
+        exhausted = true;
+        break;
+      }
+
+      const state = getRepoSyncState(repo);
+      try {
+        const result = await importSkillsFromGitHubRepo(repo, {
+          token,
+          offset: state.next_offset,
+          limit: HYDRATE_CHUNK_SIZE,
+        });
+        imported += result.imported;
+        updated += result.updated;
+        upsertRepoSyncState(repo, result.next_offset || state.next_offset, !!result.completed, null);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        upsertRepoSyncState(repo, state.next_offset, false, message);
+        console.error('Progressive hydration failed:', { repo, error });
+      }
+    }
+
+    return { attempted: true, imported, updated, exhausted };
+  } finally {
+    isHydrating = false;
+  }
+}
+
 async function bootstrapImportIfNeeded(): Promise<{
   attempted: boolean;
   imported: number;
@@ -288,6 +404,27 @@ export async function GET(request: NextRequest) {
     const pageSize = Number.isFinite(rawPageSize) ? Math.min(Math.max(rawPageSize, 1), 100) : 12;
 
     let { rows: cachedSkills, total } = querySkillsFromCache(creator, category, query, page, pageSize, sort);
+    let progressiveHydration: {
+      attempted: boolean;
+      imported: number;
+      updated: number;
+      exhausted: boolean;
+    } | null = null;
+
+    const requiredCount = page * pageSize;
+    if (total < requiredCount) {
+      progressiveHydration = await hydrateCacheForRequestedPage(
+        creator,
+        category,
+        query,
+        sort,
+        page,
+        pageSize
+      );
+      const reloaded = querySkillsFromCache(creator, category, query, page, pageSize, sort);
+      cachedSkills = reloaded.rows;
+      total = reloaded.total;
+    }
 
     if (total > 0) {
       const refreshTriggered = triggerBackgroundGitHubRefresh(cachedSkills);
@@ -313,6 +450,7 @@ export async function GET(request: NextRequest) {
             triggered: refreshTriggered,
             syncing: isSyncing,
           },
+          progressive_hydration: progressiveHydration,
         },
         {
           status: 200,
