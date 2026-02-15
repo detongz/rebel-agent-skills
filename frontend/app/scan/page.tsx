@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import styles from './scan.module.css';
 
@@ -11,6 +10,7 @@ type ScanApiResponse = {
     scan_id?: string;
     scanId?: string;
     status?: string;
+    report_url?: string;
   };
   message?: string;
   error?: string;
@@ -46,7 +46,6 @@ function phaseText(elapsedMs: number): string {
 }
 
 export default function ScanEntryPage() {
-  const router = useRouter();
   const [repoUrl, setRepoUrl] = useState('https://github.com/bowenliang123/md_exporter');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,12 +87,13 @@ export default function ScanEntryPage() {
       }
 
       const scanId = data?.data?.scan_id || data?.data?.scanId;
-      if (!scanId) {
-        setError('Scan created but missing scan ID');
+      const reportUrl = data?.data?.report_url || (scanId ? `https://skill-security-scan.vercel.app/scan/report/${scanId}` : '');
+      if (!reportUrl) {
+        setError('Scan created but missing report URL');
         return;
       }
 
-      router.push(`/scan/report/${scanId}`);
+      window.location.href = reportUrl;
     } catch {
       setError('Network error. Please retry.');
     } finally {

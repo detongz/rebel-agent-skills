@@ -149,6 +149,8 @@ export async function POST(request: NextRequest) {
     const externalUrl = `${EXTERNAL_SCAN_API_URL}/api/scan`;
     let scanId: string;
     let scanResult: any;
+    let reportUrl: string;
+    let source: 'external' | 'internal' = 'external';
 
     try {
       const controller = new AbortController();
@@ -176,6 +178,7 @@ export async function POST(request: NextRequest) {
       const data = await response.json();
       scanId = data.scanId;
       scanResult = data;
+      reportUrl = `${EXTERNAL_SCAN_API_URL}/scan/report/${scanId}`;
 
       // Try to fetch full report payload for richer local report/poster rendering.
       try {
@@ -198,6 +201,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       // If external API fails, fall back to internal scan
       console.log('External API unavailable, using internal scan fallback');
+      source = 'internal';
 
       // Use production URL or fallback to request origin
       const baseUrl = process.env.VERCEL_URL
@@ -217,6 +221,7 @@ export async function POST(request: NextRequest) {
       const internalData = await internalResponse.json();
       scanId = internalData.data?.id || randomUUID();
       scanResult = internalData.data;
+      reportUrl = `${baseUrl}/scan/report/${scanId}`;
     }
 
     // Create scan job record
@@ -275,6 +280,8 @@ export async function POST(request: NextRequest) {
         job_id: jobId,
         scan_id: scanId,
         status: 'completed',
+        source,
+        report_url: reportUrl,
         result: scanResult,
       },
       message: 'Security scan completed successfully',
