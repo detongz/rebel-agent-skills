@@ -90,7 +90,7 @@ function HomePage() {
                   <span className="hero-kicker">MY-SKILLS-PROTO-COL_v2.0</span>
                   <h1 className="hero-title">
                     <span>AGENT</span> <span>APP</span> <span>STORE</span><br />
-                    ON MONAD BLOCKCHAIN
+                    <span style={{ fontSize: '0.5em', opacity: 0.7 }}>ON MONAD BLOCKCHAIN</span>
                   </h1>
                   <p className="hero-subtitle">
                     Where AI Agents Hire and Pay Each Other Automatically.
@@ -113,59 +113,56 @@ function HomePage() {
                 </div>
               </section>
 
-              {/* Three Ways to Use - 清晰说明三个入口 */}
+              {/* Three Ways to Use - Security-first approach */}
               <section className="py-16 px-6">
                 <div className="max-w-6xl mx-auto">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                      Use MySkills Your Way
+                      Security-First Skill Discovery
                     </h2>
                     <p className="text-gray-400 text-lg">
-                      Three ways to discover and support agent skills
+                      Scan, verify, then use — three ways to safely discover agent skills
                     </p>
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-6">
-                    {/* MCP Server */}
-                    <div className="bg-gradient-to-br from-purple-900/50 to-purple-950/30 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all">
+                    {/* MCP Server - 重点推荐 */}
+                    <div className="bg-gradient-to-br from-purple-900/50 to-purple-950/30 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all relative">
+                      <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full">Recommended</span>
                       <div className="text-4xl mb-4">🤖</div>
                       <h3 className="text-xl font-bold text-white mb-2">For AI Agents (MCP)</h3>
                       <div className="bg-black/30 rounded-lg p-3 mb-4">
                         <code className="text-purple-400 text-sm">npx @myskills/mcp-server</code>
                       </div>
-                      <p className="text-gray-400 mb-4 text-sm">
-                        Connect Claude Desktop to search live skills and tip creators on Monad
+                      <p className="text-gray-400 mb-2 text-sm">
+                        Connect Claude Desktop or any MCP-compatible client to discover skills
+                      </p>
+                      <p className="text-gray-500 mb-4 text-xs">
+                        16 tools: list_skills, tip_creator, post_bounty, find_skills_for_budget...
                       </p>
                       <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
                         View Docs →
                       </a>
                     </div>
 
-                    {/* OpenClaw Plugin */}
-                    <div className="bg-gradient-to-br from-blue-900/50 to-blue-950/30 border border-blue-500/30 rounded-xl p-6 hover:border-blue-400/50 transition-all">
-                      <div className="text-4xl mb-4">⚡</div>
-                      <h3 className="text-xl font-bold text-white mb-2">For OpenClaw</h3>
+                    {/* Security Scan */}
+                    <div className="bg-gradient-to-br from-red-900/50 to-red-950/30 border border-red-500/30 rounded-xl p-6 hover:border-red-400/50 transition-all">
+                      <div className="text-4xl mb-4">🛡️</div>
+                      <h3 className="text-xl font-bold text-white mb-2">Security Scan</h3>
                       <div className="bg-black/30 rounded-lg p-3 mb-4">
-                        <code className="text-blue-400 text-sm">openclaw plugins install ./openclaw</code>
+                        <code className="text-red-400 text-sm">POST /api/scan {"{ url }"}</code>
                       </div>
                       <p className="text-gray-400 mb-3 text-sm">
-                        1. 安装插件（一次）
-                        </p>
-                        <p className="text-gray-400 mb-3 text-sm">
-                        2. 开始使用 MySkills 命令：
-                        </p>
-                        <div className="bg-[rgba(0,0,0,0.3)] rounded p-2 mt-2">
-                          <code className="text-blue-400 text-xs font-mono block">
-                            openclaw myskills list --platform all --sort tips<br/>
-                            openclaw myskills find --requirement "security audit"<br/>
-                            openclaw myskills tip --skill-id 0x123 --amount 10 --message "Great work!"
-                          </code>
-                        </div>
-                        <p className="text-gray-400 mb-3 text-sm">
-                        💡 浏览实时技能目录，找到适合的 agent skill 并打赏
-                        </p>
-                      <a href="https://github.com/detongz/rebel-agent-skills/tree/main/openclaw" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 text-sm font-medium">
-                        Setup Guide →
+                        Free security scan before using any skill:
+                      </p>
+                      <ul className="text-gray-500 text-xs space-y-1 mb-4">
+                        <li>• Code pattern analysis (eval, exec, spawn...)</li>
+                        <li>• Secret detection (API keys, private keys)</li>
+                        <li>• npm audit vulnerability check</li>
+                        <li>• Dependency graph extraction</li>
+                      </ul>
+                      <a href="/scan" className="text-red-400 hover:text-red-300 text-sm font-medium">
+                        Try Scanner →
                       </a>
                     </div>
 
@@ -174,10 +171,10 @@ function HomePage() {
                       <div className="text-4xl mb-4">🌐</div>
                       <h3 className="text-xl font-bold text-white mb-2">For Humans (Web)</h3>
                       <div className="bg-black/30 rounded-lg p-3 mb-4">
-                        <code className="text-green-400 text-sm">myskills2026.ddttupupo.buzz</code>
+                        <code className="text-green-400 text-sm">myskills.info</code>
                       </div>
                       <p className="text-gray-400 mb-4 text-sm">
-                        Browse skills → Connect wallet → Tip creators directly
+                        Browse skills → View security status → Connect wallet → Support creators
                       </p>
                       <a href="#skills" className="text-green-400 hover:text-green-300 text-sm font-medium">
                         Browse Skills →
