@@ -10,6 +10,7 @@ import { WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { config, CONTRACT_ABI, CONTRACT_ADDRESS } from '@/lib/wagmi';
 import Navbar from '@/components/Navbar';
+import SecuritySection, { BasicSecurityReport } from '@/components/SecuritySection';
 
 const queryClient = new QueryClient();
 
@@ -23,11 +24,17 @@ function SkillDetailPage() {
   const [skill, setSkill] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tips, setTips] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewStats, setReviewStats] = useState<any>(null);
+  const [reviewStars, setReviewStars] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
     if (skillId) {
       fetchSkill();
       fetchTips();
+      fetchReviews();
     }
   }, [skillId]);
 
@@ -55,6 +62,19 @@ function SkillDetailPage() {
       setTips(data.tips || []);
     } catch (error) {
       console.error('Failed to fetch tips:', error);
+    }
+  };
+
+  const fetchReviews = async () => {
+    try {
+      const res = await fetch(`/api/skills/${skillId}/reviews?limit=20`);
+      const data = await res.json();
+      if (data.success) {
+        setReviews(data.reviews || []);
+        setReviewStats(data.stats || null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch reviews:', error);
     }
   };
 
@@ -163,6 +183,46 @@ function SkillDetailPage() {
 
   const tags = parseTags(skill.tags);
 
+  const submitReview = async () => {
+    if (!isConnected || !address) {
+      alert('Please connect your wallet first');
+      return;
+    }
+    if (reviewComment.trim().length < 10) {
+      alert('Review comment must be at least 10 characters');
+      return;
+    }
+
+    try {
+      setSubmittingReview(true);
+      const res = await fetch(`/api/skills/${skillId}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stars: reviewStars,
+          comment: reviewComment.trim(),
+          wallet_address: address,
+          agent_address: address,
+          compute_used: '0',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.error || 'Failed to submit review');
+        return;
+      }
+      setReviewComment('');
+      await fetchReviews();
+      await fetchSkill();
+      alert('Review submitted');
+    } catch (error) {
+      console.error('Submit review failed:', error);
+      alert('Failed to submit review');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   return (
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
@@ -223,9 +283,15 @@ function SkillDetailPage() {
               </div>
               <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
                 <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-green)' }}>
-                  {skill.tip_count || 0}
+                  {reviewStats?.total_reviews || 0}
                 </p>
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Tip Count</p>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Review Count</p>
+              </div>
+              <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                <p style={{ fontSize: '28px', fontWeight: 700, color: 'var(--accent-blue)' }}>
+                  {Number(reviewStats?.average_stars || 0).toFixed(1)}
+                </p>
+                <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Average Rating</p>
               </div>
               {skill.github_stars > 0 && (
                 <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
@@ -305,6 +371,12 @@ function SkillDetailPage() {
               </div>
             )}
 
+            {/* Security Section */}
+            <SecuritySection
+              security={skill.security_report || null}
+              repository={skill.repository}
+            />
+
             {/* Payment Info */}
             <div className="glass-card" style={{ padding: '20px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>Payment Information</h3>
@@ -322,6 +394,82 @@ function SkillDetailPage() {
                   <span style={{ color: 'var(--accent-green)' }}>98% Creator · 2% Platform</span>
                 </div>
               </div>
+            </div>
+
+            {/* Reviews */}
+            <div className="glass-card" style={{ padding: '20px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '12px' }}>Write a Review</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <label style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Rating</label>
+                <select
+                  className="filter-select"
+                  value={reviewStars}
+                  onChange={(event) => setReviewStars(parseInt(event.target.value, 10))}
+                  style={{ maxWidth: '180px' }}
+                >
+                  <option value={5}>5 - Excellent</option>
+                  <option value={4}>4 - Good</option>
+                  <option value={3}>3 - OK</option>
+                  <option value={2}>2 - Poor</option>
+                  <option value={1}>1 - Bad</option>
+                </select>
+
+                <label style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Comment</label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(event) => setReviewComment(event.target.value)}
+                  placeholder="How was this skill in real usage? (at least 10 chars)"
+                  style={{
+                    minHeight: '96px',
+                    padding: '10px 12px',
+                    borderRadius: '10px',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid rgba(0, 255, 136, 0.15)',
+                    color: 'var(--text-primary)',
+                  }}
+                />
+                <div>
+                  <button
+                    className="primary-btn"
+                    type="button"
+                    onClick={submitReview}
+                    disabled={submittingReview}
+                    style={{ opacity: submittingReview ? 0.6 : 1 }}
+                  >
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>Latest Reviews</h3>
+              {reviews.length === 0 ? (
+                <div className="glass-card" style={{ padding: '20px', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-muted)' }}>No reviews yet. Be the first reviewer.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {reviews.map((review) => (
+                    <div key={review.id} className="glass-card" style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
+                        <div>
+                          <p style={{ fontWeight: 600 }}>{Number(review.stars).toFixed(1)} ★</p>
+                          <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                            {review.comment}
+                          </p>
+                        </div>
+                        <div style={{ textAlign: 'right', fontSize: '12px', color: 'var(--text-muted)' }}>
+                          <p>{new Date(review.created_at).toLocaleDateString('en-US')}</p>
+                          <p style={{ fontFamily: 'monospace' }}>
+                            {review.wallet_address?.slice(0, 6)}...{review.wallet_address?.slice(-4)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Recent Tips */}

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { parseEther } from 'viem';
 import { CONTRACT_ADDRESS, CONTRACT_ABI, MONAD_SYMBOL } from '@/lib/wagmi';
 import SkillInstallButton from './SkillInstallButton';
+import SecurityBadge, { SecurityStatus } from './SecurityBadge';
 
 interface SkillCardProps {
   skill: {
@@ -24,6 +25,10 @@ interface SkillCardProps {
     download_count?: number;
     github_stars?: number;
     github_forks?: number;
+    review_count?: number;
+    average_rating?: number;
+    security_status?: SecurityStatus;
+    security_scanned_at?: string | null;
   };
   onTipped?: () => void;
 }
@@ -127,9 +132,15 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
         <span className="skill-platform-pill">
           {skill.platform}
         </span>
-        <span className="skill-creator" title={skill.payment_address}>
-          {shortenAddress(skill.payment_address)}
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <SecurityBadge
+            status={skill.security_status || 'unscanned'}
+            scannedAt={skill.security_scanned_at}
+          />
+          <span className="skill-creator" title={skill.payment_address}>
+            {shortenAddress(skill.payment_address)}
+          </span>
+        </div>
       </div>
 
       {/* 名称和描述 */}
@@ -184,6 +195,12 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
 
       {/* 统计数据 */}
       <div className="skill-stats">
+        {(skill.review_count || 0) > 0 && (
+          <span title="Reviews">{formatNumber(skill.review_count || 0)} reviews</span>
+        )}
+        {(skill.average_rating || 0) > 0 && (
+          <span title="Average Rating">{Number(skill.average_rating || 0).toFixed(1)} ★</span>
+        )}
         {(skill.download_count || 0) > 0 && (
           <span title="Downloads">{formatNumber(skill.download_count || 0)}</span>
         )}
@@ -196,9 +213,11 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
         {(skill.platform_likes || 0) > 0 && (
           <span title="Likes">{formatNumber(skill.platform_likes || 0)}</span>
         )}
-        <span title="Total Tips" className="skill-tips">
-          {formatTips(skill.total_tips)} MONAD
-        </span>
+        {(skill.total_tips || '0') !== '0' && (
+          <span title="Total Tips" className="skill-tips">
+            {formatTips(skill.total_tips)} MONAD
+          </span>
+        )}
       </div>
 
       {/* Tip按钮 - 功能开发中 */}

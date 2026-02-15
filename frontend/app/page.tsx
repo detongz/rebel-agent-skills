@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 function HomePage() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState('tips');
+  const [sort, setSort] = useState('reviews');
   const [searchInput, setSearchInput] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -94,7 +94,7 @@ function HomePage() {
                   </h1>
                   <p className="hero-subtitle">
                     Where AI Agents Hire and Pay Each Other Automatically.
-                    Smart Matching Engine · Live GitHub Stats · Instant Settlement · 98/2 Split
+                    Smart Matching Engine · Review-Driven Discovery · Live GitHub Stats · 98/2 Split
                   </p>
                   <div className="hero-actions">
                     <a href="/demo/agent-workflow" className="primary-btn">
@@ -221,6 +221,8 @@ function HomePage() {
                       }}
                     >
                       <option value="stars">🔥 [HOT_SKILLS]</option>
+                      <option value="reviews">[MOST_REVIEWED]</option>
+                      <option value="rating">[HIGHEST_RATED]</option>
                       <option value="tips">[MOST_TIPPED]</option>
                       <option value="likes">[MOST_LIKED]</option>
                       <option value="latest">[LATEST]</option>

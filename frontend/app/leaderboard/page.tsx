@@ -11,13 +11,13 @@ import Navbar from '@/components/Navbar';
 
 const queryClient = new QueryClient();
 
-type SortBy = 'tips' | 'stars' | 'likes' | 'downloads';
+type SortBy = 'reviews' | 'rating' | 'tips' | 'stars' | 'likes' | 'downloads';
 
 function LeaderboardPage() {
   const router = useRouter();
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<SortBy>('tips');
+  const [sortBy, setSortBy] = useState<SortBy>('reviews');
   const [searchInput, setSearchInput] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -85,7 +85,19 @@ function LeaderboardPage() {
             <div>
               <h2 className="skills-title">Rankings</h2>
               <p className="skills-subtitle">
-                Skills ranked by {sortBy === 'tips' ? 'total tips received' : sortBy === 'stars' ? 'GitHub stars' : sortBy === 'likes' ? 'platform likes' : 'downloads'}
+                Skills ranked by {
+                  sortBy === 'reviews'
+                    ? 'review count'
+                    : sortBy === 'rating'
+                      ? 'average rating'
+                      : sortBy === 'tips'
+                        ? 'total tips received'
+                        : sortBy === 'stars'
+                          ? 'GitHub stars'
+                          : sortBy === 'likes'
+                            ? 'platform likes'
+                            : 'downloads'
+                }
               </p>
             </div>
             <div className="skills-filters">
@@ -114,6 +126,8 @@ function LeaderboardPage() {
                   setPage(1);
                 }}
               >
+                <option value="reviews">Most Reviewed</option>
+                <option value="rating">Highest Rated</option>
                 <option value="tips">Most Tipped</option>
                 <option value="stars">GitHub Stars</option>
                 <option value="likes">Most Liked</option>
@@ -183,6 +197,12 @@ function LeaderboardPage() {
                   <div className="skill-stats">
                     {skill.github_stars > 0 && (
                       <span title="GitHub Stars">{formatNumber(skill.github_stars)} ⭐</span>
+                    )}
+                    {Number(skill.average_rating || 0) > 0 && (
+                      <span title="Average Rating">{Number(skill.average_rating).toFixed(1)} ★</span>
+                    )}
+                    {Number(skill.review_count || 0) > 0 && (
+                      <span title="Reviews">{formatNumber(skill.review_count)} reviews</span>
                     )}
                     {skill.platform_likes > 0 && (
                       <span title="Likes">{formatNumber(skill.platform_likes)}</span>

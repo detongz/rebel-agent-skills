@@ -1,6 +1,7 @@
 // app/api/skills/[id]/route.ts - 获取单个 Skill 详情
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { getReviewStatistics } from '@/lib/db-reviews';
 
 export async function GET(
   request: NextRequest,
@@ -10,8 +11,8 @@ export async function GET(
     const { id: skillId } = await params;
 
     const skill = db.prepare(`
-      SELECT * FROM skills WHERE id = ?
-    `).get(skillId);
+      SELECT * FROM skills WHERE id = ? OR skill_id = ? LIMIT 1
+    `).get(skillId, skillId) as Record<string, unknown> | undefined;
 
     if (!skill) {
       return NextResponse.json(
@@ -22,7 +23,10 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      skill,
+      skill: {
+        ...skill,
+        review_stats: getReviewStatistics(String(skill.skill_id || '')),
+      },
     });
   } catch (error) {
     console.error('Get skill error:', error);

@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import '@/lib/db-reviews';
 import { parseRepoUrl, fetchRepoInfo, updateSkillGitHubStats } from '@/lib/repos';
 import { getGitHubToken } from '@/lib/github-token';
 import { importSkillsFromGitHubRepo } from '@/lib/github-skill-import';
 
-type SortOption = 'tips' | 'stars' | 'likes' | 'date' | 'name' | 'latest' | 'newest' | 'downloads';
+type SortOption =
+  | 'tips'
+  | 'stars'
+  | 'likes'
+  | 'date'
+  | 'name'
+  | 'latest'
+  | 'newest'
+  | 'downloads'
+  | 'reviews'
+  | 'rating';
 
 type SkillRow = {
   id: number;
@@ -31,6 +42,8 @@ type SkillRow = {
   updated_at: string;
   stats_updated_at: string | null;
   data_source: string | null;
+  review_count: number;
+  average_rating: number;
 };
 
 const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
@@ -60,7 +73,9 @@ function toSortOption(value: string | null): SortOption {
     sort === 'name' ||
     sort === 'latest' ||
     sort === 'newest' ||
-    sort === 'downloads'
+    sort === 'downloads' ||
+    sort === 'reviews' ||
+    sort === 'rating'
   ) {
     return sort;
   }
@@ -75,6 +90,10 @@ function getOrderByClause(sort: SortOption): string {
       return 'platform_likes DESC';
     case 'downloads':
       return 'download_count DESC';
+    case 'reviews':
+      return 'review_count DESC, average_rating DESC';
+    case 'rating':
+      return 'average_rating DESC, review_count DESC';
     case 'date':
     case 'latest':
     case 'newest':
@@ -196,7 +215,9 @@ function querySkillsFromCache(
       creator_address, payment_address, repository, homepage, npm_package,
       download_count, github_stars, github_forks, total_tips,
       tip_count, platform_likes, logo_url, tags, status,
-      created_at, updated_at, stats_updated_at, data_source
+      created_at, updated_at, stats_updated_at, data_source,
+      COALESCE((SELECT COUNT(*) FROM skill_reviews sr WHERE sr.skill_id = skills.skill_id), 0) as review_count,
+      COALESCE((SELECT AVG(sr.stars) FROM skill_reviews sr WHERE sr.skill_id = skills.skill_id), 0) as average_rating
     FROM skills
     WHERE ${where.join(' AND ')}
     ORDER BY ${getOrderByClause(sort)}
