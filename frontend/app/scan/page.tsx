@@ -141,6 +141,36 @@ export default function ScanEntryPage() {
               <a href="https://myskills.info/docs" target="_blank" rel="noreferrer">Read docs: myskills.info/docs</a>
             </div>
 
+            <form onSubmit={onSubmit} className={styles.form}>
+              <input
+                className={styles.input}
+                placeholder="GitHub URL / npm|npx command / MCP/OpenClaw sourced repo"
+                value={repoUrl}
+                onChange={(e) => setRepoUrl(e.target.value)}
+                required
+                disabled={loading}
+              />
+              <button className="primary-btn" disabled={loading}>
+                {loading ? 'Scanning...' : 'Start Scan'}
+              </button>
+            </form>
+
+            {loading ? (
+              <>
+                <p className={styles.loadingHint}>
+                  {phaseText(elapsedMs)} This can take about 20-40 seconds for larger repositories.
+                </p>
+                <div className={styles.progressBarTrack}>
+                  <div className={styles.progressBarFill} />
+                </div>
+              </>
+            ) : null}
+
+            {error ? <p className={styles.error}>{error}</p> : null}
+
+          </div>
+
+          <div className={`glass-card ${styles.freeSpecWrap}`}>
             <div className={styles.freeSpec}>
               <div className={styles.freeSpecHead}>
                 <h2>Free Scan v0.2.3: What Runs Today</h2>
@@ -170,34 +200,6 @@ export default function ScanEntryPage() {
                 </article>
               </div>
             </div>
-
-            <form onSubmit={onSubmit} className={styles.form}>
-              <input
-                className={styles.input}
-                placeholder="GitHub URL / npm|npx command / MCP/OpenClaw sourced repo"
-                value={repoUrl}
-                onChange={(e) => setRepoUrl(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <button className="primary-btn" disabled={loading}>
-                {loading ? 'Scanning...' : 'Start Scan'}
-              </button>
-            </form>
-
-            {loading ? (
-              <>
-                <p className={styles.loadingHint}>
-                  {phaseText(elapsedMs)} This can take about 20-40 seconds for larger repositories.
-                </p>
-                <div className={styles.progressBarTrack}>
-                  <div className={styles.progressBarFill} />
-                </div>
-              </>
-            ) : null}
-
-            {error ? <p className={styles.error}>{error}</p> : null}
-
           </div>
 
           <div className={`glass-card ${styles.visionCard}`}>
