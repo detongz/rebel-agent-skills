@@ -1,0 +1,337 @@
+.container {
+  padding: 20px;
+  background: var(--bg-deep);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: var(--radius-lg);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.headerIcon {
+  font-size: 24px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.statusIcon {
+  font-size: 14px;
+}
+
+/* Scanned Info */
+.scannedInfo {
+  padding: 16px;
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.infoRow + .infoRow {
+  border-top: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.infoLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.infoValue {
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.infoValueMono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.summary {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 255, 136, 0.1);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* Risk Factors */
+.riskFactors {
+  margin-bottom: 16px;
+}
+
+.riskFactorsLabel {
+  margin: 0 0 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.riskFactorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.riskFactor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+}
+
+.riskFactorIcon {
+  font-size: 14px;
+}
+
+.riskFactorLabel {
+  flex: 1;
+  color: var(--text-secondary);
+}
+
+.riskFactorStatus {
+  font-size: 12px;
+}
+
+.riskClear {
+  border-color: rgba(0, 255, 136, 0.15);
+}
+
+.riskClear .riskFactorStatus {
+  color: var(--neon-green);
+}
+
+.riskDetected {
+  border-color: rgba(255, 102, 0, 0.3);
+  background: rgba(255, 102, 0, 0.05);
+}
+
+.riskDetected .riskFactorStatus {
+  color: var(--warning-orange);
+}
+
+/* Scan More Link */
+.scanMoreLink {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--neon-blue);
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.scanMoreLink:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.4);
+}
+
+/* Unscanned State */
+.unscannedState {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.unscannedText {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.scanButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--metal-dark);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neon-green);
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.scanButton:hover {
+  background: var(--neon-green);
+  color: var(--bg-void);
+  box-shadow: 0 0 20px var(--neon-green-glow);
+}
+
+.scanButtonIcon {
+  font-size: 16px;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  margin: 20px 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(147, 51, 234, 0.3) 50%,
+    transparent 100%
+  );
+}
+
+/* Coming Soon Section */
+.comingSoon {
+  opacity: 0.7;
+}
+
+.comingSoonHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.comingSoonIcon {
+  font-size: 24px;
+}
+
+.comingSoonTitle {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neon-purple);
+}
+
+.comingSoonBadge {
+  display: inline-block;
+  margin: 4px 0 0;
+  padding: 2px 8px;
+  background: rgba(147, 51, 234, 0.15);
+  border: 1px solid rgba(147, 51, 234, 0.3);
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--neon-purple);
+}
+
+/* Advanced Features */
+.advancedFeatures {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.advancedFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-surface);
+  border: 1px dashed rgba(147, 51, 234, 0.2);
+  border-radius: var(--radius-sm);
+}
+
+.advancedFeatureIcon {
+  font-size: 20px;
+  opacity: 0.6;
+}
+
+.advancedFeatureTitle {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.advancedFeatureDesc {
+  margin: 2px 0 0;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .riskFactorsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .advancedFeatures {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .statusBadge {
+    align-self: flex-start;
+  }
+}
