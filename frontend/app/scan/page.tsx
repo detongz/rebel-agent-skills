@@ -144,7 +144,7 @@ export default function ScanEntryPage() {
             <form onSubmit={onSubmit} className={styles.form}>
               <input
                 className={styles.input}
-                placeholder="https://github.com/your-org/your-skill (Monad Hackathon 2026)"
+                placeholder="https://github.com/org/repo or npx create-next-app@14"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
                 required
