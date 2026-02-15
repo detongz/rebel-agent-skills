@@ -27,6 +27,17 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd(),
   },
+
+  // 重定向规则
+  async redirects() {
+    return [
+      {
+        source: '/goto/discord',
+        destination: 'https://discord.gg/TfzSeSRZ',
+        permanent: true, // 301 永久重定向
+      },
+    ];
+  },
 };
 
 export default nextConfig;
