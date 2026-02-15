@@ -73,14 +73,14 @@ export default async function ScanReportPage({
         {/* Navigation */}
         <nav className="flex items-center justify-between mb-8">
           <Link
-            href="/demo-moltiverse"
+            href="/skill"
             className="text-[var(--neon-purple)] hover:underline font-['Orbitron']"
           >
-            ← Back to Demo
+            ← Back to Scanner
           </Link>
           <div className="flex gap-4">
             <Link
-              href="/demo-moltiverse"
+              href="/skill"
               className="text-[var(--text-muted)] hover:text-[var(--text-primary)] font-['Rajdhani']"
             >
               New Scan

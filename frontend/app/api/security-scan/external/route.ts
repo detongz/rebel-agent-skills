@@ -12,7 +12,7 @@ import { randomUUID } from 'crypto';
 import db from '@/lib/db';
 
 // Environment variables for external API
-const EXTERNAL_SCAN_API_URL = process.env.SKILL_SCAN_API_URL || 'http://localhost:3001';
+const EXTERNAL_SCAN_API_URL = process.env.SKILL_SCAN_API_URL || 'https://skill-security-scan.vercel.app';
 const EXTERNAL_SCAN_API_KEY = process.env.SKILL_SCAN_API_KEY || '';
 
 interface ExternalScanRequest {
