@@ -5,6 +5,73 @@ import { parseRepoUrl, fetchRepoInfo, updateSkillGitHubStats } from '@/lib/repos
 import { getGitHubToken } from '@/lib/github-token';
 import { importSkillsFromGitHubRepo } from '@/lib/github-skill-import';
 
+// ============================================================================
+// ClawHub API Integration (External Search Fallback)
+// ============================================================================
+
+interface ClawHubResult {
+  score: number;
+  slug: string;
+  displayName: string;
+  summary: string;
+  version: string;
+  updatedAt: number;
+}
+
+async function searchClawHub(query: string, limit: number = 12): Promise<SkillRow[]> {
+  try {
+    const url = `https://clawhub.ai/api/search?q=${encodeURIComponent(query)}&limit=${limit}`;
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'MySkills/1.0',
+        'Accept': 'application/json',
+      },
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      console.error('ClawHub API error:', response.status);
+      return [];
+    }
+
+    const data = (await response.json()) as { results: ClawHubResult[] };
+
+    return (data.results || []).map((result, index) => ({
+      id: -(index + 1),
+      skill_id: `clawhub:${result.slug}`,
+      name: result.displayName,
+      description: result.summary,
+      platform: 'claude-code' as const,
+      version: result.version,
+      creator_address: '0x0000000000000000000000000000000000000000',
+      payment_address: '0x0000000000000000000000000000000000000000',
+      repository: `https://clawhub.ai/skill/${result.slug}`,
+      homepage: null,
+      npm_package: null,
+      download_count: 0,
+      github_stars: Math.round(result.score * 100),
+      github_forks: 0,
+      total_tips: '0',
+      tip_count: 0,
+      platform_likes: 0,
+      logo_url: null,
+      tags: null,
+      status: 'active' as const,
+      created_at: new Date(result.updatedAt).toISOString(),
+      updated_at: new Date(result.updatedAt).toISOString(),
+      stats_updated_at: new Date(result.updatedAt).toISOString(),
+      data_source: 'clawhub',
+      review_count: 0,
+      average_rating: 0,
+    }));
+  } catch (error) {
+    console.error('Failed to search ClawHub:', error);
+    return [];
+  }
+}
+
+// ============================================================================
+
 type SortOption =
   | 'tips'
   | 'stars'
@@ -495,6 +562,45 @@ export async function GET(request: NextRequest) {
             status: 200,
             headers: {
               'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+            },
+          }
+        );
+      }
+    }
+
+    // Fallback: Search ClawHub if local cache is empty and we have a query
+    if (query && total === 0) {
+      const clawhubSkills = await searchClawHub(query, pageSize);
+
+      if (clawhubSkills.length > 0) {
+        return NextResponse.json(
+          {
+            success: true,
+            data: clawhubSkills,
+            skills: clawhubSkills,
+            count: clawhubSkills.length,
+            sort,
+            q: query,
+            source: 'clawhub',
+            bootstrap,
+            pagination: {
+              page: 1,
+              pageSize,
+              total: clawhubSkills.length,
+              totalPages: 1,
+              hasNext: false,
+              hasPrev: false,
+            },
+            background_sync: {
+              triggered: false,
+              syncing: isSyncing,
+            },
+            progressive_hydration: progressiveHydration,
+          },
+          {
+            status: 200,
+            headers: {
+              'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
             },
           }
         );
