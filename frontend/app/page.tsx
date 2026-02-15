@@ -112,95 +112,63 @@ function HomePage() {
               </section>
 
               {/* Product Entry Points */}
-              <section className="px-6 py-12">
-                <div className="mx-auto max-w-6xl">
-                  <header className="mb-7">
-                    <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/80">Start Here</p>
-                    <h2 className="mt-2 text-3xl font-semibold text-white md:text-4xl">Choose the Workflow That Fits You</h2>
-                    <p className="mt-3 max-w-3xl text-sm text-slate-300 md:text-base">
-                      Agent-first by default, human-friendly when needed. Discover real skills from GitHub, run a security check, then
-                      decide with confidence.
-                    </p>
-                  </header>
+              <section className="entry-section">
+                <header className="entry-header">
+                  <p className="entry-kicker">START HERE</p>
+                  <h2 className="entry-title">Choose Your Path</h2>
+                  <p className="entry-subtitle">
+                    Agent-first workflow for automation, scanner-first workflow for trust checks, and web workflow for discovery and reviews.
+                  </p>
+                </header>
 
-                  <div className="grid gap-5 md:grid-cols-5">
-                    <article className="relative overflow-hidden rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/15 via-slate-900 to-slate-950 p-6 md:col-span-3">
-                      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-400/20 blur-2xl" aria-hidden="true" />
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <span className="inline-flex rounded-full border border-cyan-300/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200">
-                            Recommended
-                          </span>
-                          <h3 className="mt-3 text-2xl font-semibold text-white">For AI Agents</h3>
-                          <p className="mt-2 text-sm text-slate-300">
-                            Use MCP Server, OpenClaw plugin, or npx commands. Let agents discover, evaluate, and call skills directly.
-                          </p>
-                        </div>
-                        <span className="text-3xl" aria-hidden="true">🤖</span>
-                      </div>
-                      <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                        <code className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-cyan-200">npx @myskills/mcp-server</code>
-                        <code className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-cyan-200">openclaw myskills list</code>
-                        <code className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-cyan-200">npx myskills search</code>
-                      </div>
-                      <div className="mt-5 flex flex-wrap gap-4 text-sm">
-                        <a
-                          href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="font-medium text-cyan-300 hover:text-cyan-200"
-                        >
-                          Setup Guide →
-                        </a>
-                        <a
-                          href="/docs"
-                          className="font-medium text-cyan-300/90 hover:text-cyan-200"
-                        >
-                          Docs →
-                        </a>
-                      </div>
-                    </article>
-
-                    <article className="rounded-2xl border border-red-400/30 bg-gradient-to-br from-red-500/15 to-slate-950 p-6 md:col-span-2">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <span className="inline-flex rounded-full border border-red-300/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-red-200">
-                            Free Core Scan
-                          </span>
-                          <h3 className="mt-3 text-xl font-semibold text-white">Security Scanner</h3>
-                        </div>
-                        <span className="text-3xl" aria-hidden="true">🛡️</span>
-                      </div>
-                      <p className="mt-3 text-sm text-slate-300">
-                        Submit a GitHub URL or npm/npx package to generate a report and shareable poster.
-                      </p>
-                      <code className="mt-4 block rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-red-200">
-                        POST /api/scan {"{ repoUrl | npm | npx }"}
-                      </code>
-                      <a href="/scan" className="mt-5 inline-block text-sm font-medium text-red-300 hover:text-red-200">
-                        Open Scanner →
+                <div className="entry-grid">
+                  <article className="entry-card entry-card-agent">
+                    <div className="entry-card-top">
+                      <span className="entry-pill">Recommended</span>
+                      <span className="entry-icon" aria-hidden="true">AGENT</span>
+                    </div>
+                    <h3>For AI Agents</h3>
+                    <p>Use MCP Server, OpenClaw plugin, or npx commands to discover and execute skills autonomously.</p>
+                    <div className="entry-code-row">
+                      <code>npx @myskills/mcp-server</code>
+                      <code>openclaw myskills list</code>
+                      <code>npx myskills search</code>
+                    </div>
+                    <div className="entry-links">
+                      <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer">
+                        Setup Guide →
                       </a>
-                    </article>
+                      <a href="/docs">Docs →</a>
+                    </div>
+                  </article>
 
-                    <article className="rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 to-slate-950 p-6 md:col-span-5">
-                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                        <div className="min-w-0">
-                          <h3 className="text-xl font-semibold text-white">For Humans: Directory, Reviews, Leaderboard</h3>
-                          <p className="mt-2 text-sm text-slate-300">
-                            Search real GitHub-based skills, read community reviews, and compare momentum on the leaderboard.
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap gap-3">
-                          <a href="#skills" className="rounded-lg border border-emerald-300/35 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-400/10">
-                            Browse Skills
-                          </a>
-                          <a href="/leaderboard" className="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
-                            View Leaderboard
-                          </a>
-                        </div>
-                      </div>
-                    </article>
-                  </div>
+                  <article className="entry-card entry-card-scan">
+                    <div className="entry-card-top">
+                      <span className="entry-pill">Free Core Scan</span>
+                      <span className="entry-icon" aria-hidden="true">SCAN</span>
+                    </div>
+                    <h3>Security Scanner</h3>
+                    <p>Scan GitHub repositories and npm/npx packages, then generate shareable reports.</p>
+                    <div className="entry-code-row">
+                      <code>POST /api/scan {"{ repoUrl | npm | npx }"}</code>
+                    </div>
+                    <div className="entry-links">
+                      <a href="/scan">Open Scanner →</a>
+                    </div>
+                  </article>
+
+                  <article className="entry-card entry-card-human">
+                    <div className="entry-card-top">
+                      <span className="entry-pill">Explorer</span>
+                      <span className="entry-icon" aria-hidden="true">WEB</span>
+                    </div>
+                    <h3>For Humans</h3>
+                    <p>Browse GitHub-sourced skills, read reviews, and compare performance on the leaderboard.</p>
+                    <div className="entry-links">
+                      <a href="#skills">Browse Skills →</a>
+                      <a href="/leaderboard">Leaderboard →</a>
+                    </div>
+                  </article>
                 </div>
               </section>
 
