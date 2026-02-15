@@ -108,13 +108,32 @@ export default function ScanEntryPage() {
       <main className="app-main">
         <section className={styles.page}>
           <div className={`glass-card ${styles.card}`}>
+            <p className={styles.wrapperBadge}>MySkills Wrapper Mode</p>
+
+            <div className={styles.tierGrid}>
+              <div className={styles.tierCard}>
+                <div className={styles.tierHead}>
+                  <span className={styles.tierDot} />
+                  <strong>Free Scan</strong>
+                </div>
+                <p>Powered by skill-security-scan, direct security check flow.</p>
+              </div>
+              <div className={`${styles.tierCard} ${styles.tierCardSoon}`}>
+                <div className={styles.tierHead}>
+                  <span className={styles.tierSoonPill}>COMING SOON</span>
+                  <strong>Advanced Scan · 0.01 MON</strong>
+                </div>
+                <p>Dependency recursion, dynamic testing, LLM semantic judge.</p>
+              </div>
+            </div>
+
             <p className={styles.badge}>Security Scan v0.2.3</p>
             <h1 className={styles.title}>Scan Your Skill Repo</h1>
             <p className={styles.subtitle}>
               Paste a GitHub URL, or npm/npx command, to generate a shareable security report and poster.
             </p>
             <p className={styles.subnote}>
-              v0.2.3: Adds prompt-injection risk scanning on top of the v0.2.2 GitHub + npm analysis.
+              v0.2.3 core engine: prompt-injection risk scanning on top of v0.2.2 GitHub + npm analysis.
             </p>
 
             <form onSubmit={onSubmit} className={styles.form}>
@@ -143,6 +162,10 @@ export default function ScanEntryPage() {
             ) : null}
 
             {error ? <p className={styles.error}>{error}</p> : null}
+
+            <div className={styles.footerHint}>
+              <span>Free path: /scan → /scan/report/:id → /scan/poster/:id</span>
+            </div>
           </div>
         </section>
       </main>
