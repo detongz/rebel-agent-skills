@@ -57,13 +57,22 @@ jobs:
             echo "❌ Error: DEPLOY_HOST secret is not set"
             exit 1
           fi
+          echo "ℹ️ DEPLOY_SSH_KEY length: ${#DEPLOY_KEY}"
+          echo "ℹ️ DEPLOY_HOST raw: $DEPLOY_HOST"
 
           # Support DEPLOY_HOST formats:
           # - user@host
           # - user@host:port
           # - host
           # - host:port
-          SSH_TARGET="$DEPLOY_HOST"
+          SSH_TARGET="$(printf '%s' "$DEPLOY_HOST" | tr -d '\r' | xargs)"
+          SSH_TARGET="${SSH_TARGET#http://}"
+          SSH_TARGET="${SSH_TARGET#https://}"
+          SSH_TARGET="${SSH_TARGET%%/*}"
+          EXTRACTED_TARGET="$(printf '%s' "$SSH_TARGET" | grep -Eo '([A-Za-z0-9._-]+@)?([0-9]{1,3}\.){3}[0-9]{1,3}(:[0-9]+)?' | head -n1 || true)"
+          if [ -n "$EXTRACTED_TARGET" ]; then
+            SSH_TARGET="$EXTRACTED_TARGET"
+          fi
           SSH_PORT="${DEPLOY_PORT:-22}"
           if [[ "$SSH_TARGET" == *:* ]]; then
             PORT_CANDIDATE="${SSH_TARGET##*:}"
