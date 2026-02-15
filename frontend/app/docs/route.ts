@@ -19,8 +19,11 @@ async function readFirstExistingFile(paths: string[]): Promise<string | null> {
 
 export async function GET() {
   const candidates = [
+    // Production: served from public folder
+    path.join(process.cwd(), 'public', 'docs.html'),
+    // Local development: try pitch folder
     path.join(process.cwd(), '..', 'pitch', 'moltiverse-hackathon-en.html'),
-    path.join(process.cwd(), 'pitch', 'moltiverse-hackathon-en.html'),
+    // Fallback absolute path
     '/Users/zhangdetong/Documents/workspace/gzh/agent-reward-hub/pitch/moltiverse-hackathon-en.html',
   ];
 
@@ -30,7 +33,7 @@ export async function GET() {
       {
         success: false,
         error: 'Docs file not found on server',
-        expected_file: 'pitch/moltiverse-hackathon-en.html',
+        expected_file: 'public/docs.html',
       },
       { status: 404 }
     );

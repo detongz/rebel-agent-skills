@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MySkills | Secure Agent Skills Marketplace - Monad Hackathon 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* Premium Dark Theme */
+      --bg-void: #0a0a0a;
+      --bg-deep: #0f0f0f;
+      --bg-surface: #141414;
+      --bg-card: rgba(255, 255, 255, 0.02);
+      --bg-card-hover: rgba(255, 255, 255, 0.05);
+
+      /* Refined Emerald - 主色 */
+      --neon-green: #10b981;
+      --neon-green-bright: #34d399;
+      --neon-green-dim: #059669;
+      --neon-green-glow: rgba(16, 185, 129, 0.5);
+
+      /* Teal Accent */
+      --neon-blue: #06b6d4;
+      --neon-blue-glow: rgba(6, 182, 212, 0.4);
+
+      /* Gold Accent */
+      --accent-gold: #f59e0b;
+      --accent-gold-glow: rgba(245, 158, 11, 0.3);
+
+      /* Purple Accent */
+      --neon-purple: #8b5cf6;
+
+      /* 文本层级 */
+      --text-primary: #f5f5f5;
+      --text-secondary: #a3a3a3;
+      --text-muted: #737373;
+
+      /* 边框 */
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-glow: rgba(16, 185, 129, 0.3);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-void);
+      color: var(--text-primary);
+      overflow: hidden;
+      height: 100vh;
+      line-height: 1.5;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    /* Animated background */
+    .bg-container {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .bg-gradient {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 100% 0% at 50% -20%, rgba(16, 185, 129, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 50% at 100% 50%, rgba(6, 182, 212, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 80% 50% at 0% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 100% at 50% 120%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+      animation: gradientShift 12s ease-in-out infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 80px 80px;
+      animation: gridMove 40s linear infinite;
+    }
+
+    @keyframes gridMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+
+    .bg-particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--neon-green-bright);
+      border-radius: 50%;
+      animation: float 15s infinite;
+      opacity: 0.3;
+      box-shadow: 0 0 6px var(--neon-green-glow);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(100vh) translateX(0); opacity: 0; }
+      10% { opacity: 0.4; }
+      90% { opacity: 0.4; }
+      100% { transform: translateY(-10vh) translateX(60px); opacity: 0; }
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      animation: orbPulse 6s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      top: -200px;
+      right: -150px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+    }
+
+    .orb-2 {
+      width: 400px;
+      height: 400px;
+      bottom: -100px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, transparent 70%);
+      animation-delay: 2s;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.15); opacity: 0.8; }
+    }
+
+    /* Slides container */
+    .slides-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      padding: 24px 40px;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      opacity: 0;
+      transform: scale(0.98);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .content {
+      max-width: 1000px;
+      width: 100%;
+      text-align: center;
+      z-index: 2;
+    }
+
+    /* Typography */
+    .title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+    }
+
+    .title-gradient {
+      background: linear-gradient(135deg, var(--neon-green-bright) 0%, var(--neon-green) 40%, var(--neon-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(16, 185, 129, 0.4));
+    }
+
+    .subtitle {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(0.85rem, 1.8vw, 1.1rem);
+      color: var(--text-secondary);
+      margin-bottom: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      line-height: 1.5;
+    }
+
+    .subtitle-highlight {
+      color: var(--neon-green-bright);
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 18px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: rgba(16, 185, 129, 0.2);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.1);
+    }
+
+    .card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    /* Feature cards grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 0.6rem 0;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 10px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.05);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);
+    }
+
+    .feature-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+      display: inline-block;
+      filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.4));
+    }
+
+    .feature-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-desc {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Comparison grid */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 0.6rem 0;
+    }
+
+    .compare-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px 14px;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .compare-card.highlight {
+      border-color: rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.1);
+    }
+
+    .compare-card:hover {
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+
+    .compare-card-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .compare-card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.4rem;
+    }
+
+    .compare-list {
+      margin-top: 0.2rem;
+    }
+
+    .compare-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .compare-check {
+      color: var(--neon-green-bright);
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .compare-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* Flow steps */
+    .flow-container {
+      margin: 0.6rem 0;
+    }
+
+    .flow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .flow-step {
+      text-align: center;
+      flex: 1;
+      min-width: 70px;
+      max-width: 100px;
+    }
+
+    .flow-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 6px;
+      transition: all 0.3s ease;
+    }
+
+    .flow-card:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .flow-step-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .flow-step-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--neon-green-bright);
+    }
+
+    .flow-arrow {
+      font-size: 1.2rem;
+      color: var(--neon-green);
+      opacity: 0.5;
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 0.6rem 0;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 8px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--neon-green-bright);
+      margin-bottom: 1px;
+    }
+
+    .stat-label {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Bullet list */
+    .bullet-list {
+      text-align: left;
+      max-width: 600px;
+      margin: 0.5rem auto;
+    }
+
+    .bullet-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 0.3rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .bullet {
+      color: var(--neon-green-bright);
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    /* Pills */
+    .pills {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 0.5rem 0;
+    }
+
+    .pill {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: rgba(16, 185, 129, 0.05);
+      color: var(--text-primary);
+    }
+
+    .pill-icon { font-size: 1rem; }
+    .pill-text { font-weight: 500; }
+
+    /* Button */
+    .btn {
+      background: transparent;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      border-radius: 6px;
+      padding: 12px 32px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--neon-green-bright);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, var(--neon-green) 0%, var(--neon-green-dim) 100%);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.3);
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.05) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      padding: 12px 20px;
+      margin: 0.5rem 0;
+      backdrop-filter: blur(8px);
+    }
+
+    .highlight-text {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--neon-green-bright);
+      font-weight: 600;
+    }
+
+    /* Tag */
+    .tag {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+      color: var(--neon-green-bright);
+    }
+
+    /* Footer links */
+    .footer-links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--text-secondary);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      text-decoration: none;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .footer-link:hover {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--text-primary);
+    }
+
+    /* Progress bar */
+    .progress-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--bg-deep);
+      z-index: 100;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-green), var(--neon-blue));
+      transition: width 0.3s ease;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+    }
+
+    /* Navigation */
+    .nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--neon-green-bright);
+    }
+
+    .nav-btn.prev { left: 20px; }
+    .nav-btn.next { right: 20px; }
+
+    /* Slide counter */
+    .slide-counter {
+      position: fixed;
+      bottom: 20px;
+      right: 24px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      z-index: 100;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .slide-counter span {
+      color: var(--neon-green-bright);
+      font-weight: 600;
+    }
+
+    /* Team grid */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 1rem 0;
+    }
+
+    /* Animations */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-in { animation: slideIn 0.5s ease forwards; opacity: 0; }
+    .animate-delay-1 { animation-delay: 0.1s; }
+    .animate-delay-2 { animation-delay: 0.2s; }
+    .animate-delay-3 { animation-delay: 0.3s; }
+    .animate-delay-4 { animation-delay: 0.4s; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .slide { padding: 20px 30px; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .comparison-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow-steps { gap: 6px; }
+      .flow-step { min-width: 60px; }
+    }
+
+    @media (max-width: 600px) {
+      .slide { padding: 16px 20px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .nav-btn { width: 36px; height: 36px; font-size: 1rem; }
+      .nav-btn.prev { left: 10px; }
+      .nav-btn.next { right: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-container">
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    <div class="bg-particles" id="particles"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+  </div>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="progress" style="width: 8.33%;"></div>
+  </div>
+
+  <div class="slides-wrapper">
+
+    <!-- Slide 1: Cover -->
+    <div class="slide active">
+      <div class="content">
+        <span class="tag">MONAD HACKATHON 2026</span>
+        <h1 class="title title-gradient">MYSKILLS</h1>
+        <p class="subtitle">Secure <span class="subtitle-highlight">Agent Skills Marketplace</span></p>
+        <div class="highlight-box">
+          <p class="highlight-text">Let Agents Hire Safe Skills From Each Other</p>
+        </div>
+        <div class="pills">
+          <div class="pill"><span class="pill-icon">🔍</span><span class="pill-text">Search</span></div>
+          <div class="pill"><span class="pill-icon">🛡️</span><span class="pill-text">Security</span></div>
+          <div class="pill"><span class="pill-icon">💰</span><span class="pill-text">Hire & Pay</span></div>
+        </div>
+        <button class="btn" onclick="nextSlide()">Start Exploring →</button>
+      </div>
+    </div>
+
+    <!-- Slide 2: Problem -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">😰 The Problem</h2>
+        <p class="subtitle">The <span class="subtitle-highlight">Triple Dilemma</span> in Agent Skills</p>
+        <div class="feature-grid">
+          <div class="feature-card animate-in animate-delay-1">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">Hard to Find</div>
+            <p class="feature-desc">Skills scattered<br/>No unified security<br/>Agents afraid to install</p>
+          </div>
+          <div class="feature-card animate-in animate-delay-2">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">No Incentive</div>
+            <p class="feature-desc">Good authors not rewarded<br/>Only passion drives<br/>Cannot sustain</p>
+          </div>
+          <div class="feature-card animate-in animate-delay-3">
+            <div class="feature-icon">💸</div>
+            <div class="feature-title">No Closed Loop</div>
+            <p class="feature-desc">Agent uses skills<br/>Cannot pay authors<br/>Economy breaks</p>
+          </div>
+        </div>
+        <div class="card">
+          <p class="card-title">"Finding reliable skills is like finding a needle in a haystack"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Solution -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">🚀 Solution: MySkills</h2>
+        <p class="subtitle">The First <span class="subtitle-highlight">Search + Security + Hire</span> Marketplace</p>
+        <div class="pills">
+          <div class="pill"><span class="pill-icon">🔍</span><span class="pill-text">Universal Index</span></div>
+          <div class="pill"><span class="pill-icon">🛡️</span><span class="pill-text">Security Scan</span></div>
+          <div class="pill"><span class="pill-icon">💰</span><span class="pill-text">Hire Market</span></div>
+        </div>
+        <div class="highlight-box">
+          <p class="highlight-text">Let good authors earn, let agents use safely</p>
+        </div>
+        <div class="bullet-list">
+          <div class="bullet-item"><span class="bullet">→</span><span>Search & Evaluate: Unified index of GitHub/npm skills</span></div>
+          <div class="bullet-item"><span class="bullet">→</span><span>Security First: Code scan + VirusTotal API verification</span></div>
+          <div class="bullet-item"><span class="bullet">→</span><span>Hire & Pay: Auto-payment to skill authors after use</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Core Features -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">⭐ Three Core Features</h2>
+        <div class="feature-grid">
+          <div class="feature-card animate-in animate-delay-1">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">Search Index</div>
+            <p class="feature-desc">Free search & browse<br/>Multi-dimension sort<br/>Dependency graph<br/>Human + Agent API</p>
+          </div>
+          <div class="feature-card animate-in animate-delay-2">
+            <div class="feature-icon">🛡️</div>
+            <div class="feature-title">Security Scan</div>
+            <p class="feature-desc">Commit-level verify<br/>VirusTotal API<br/>Higher score = better rank<br/>Author pays for scan</p>
+          </div>
+          <div class="feature-card animate-in animate-delay-3">
+            <div class="feature-icon">💰</div>
+            <div class="feature-title">Smart Hiring</div>
+            <p class="feature-desc">Auto split after use<br/>&lt;1s on-chain confirm<br/>Authors earn passive<br/>$0.001 gas on Monad</p>
+          </div>
+        </div>
+        <div class="card">
+          <p class="card-title">Agent Economy Closed Loop</p>
+          <p style="color: var(--text-muted); font-size: 0.85rem;">Author scans → Agent uses safe skill → Payment to author</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Target Users -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">🎯 Target Users</h2>
+        <div class="comparison-grid">
+          <div class="compare-card highlight animate-in animate-delay-1">
+            <div class="compare-card-icon">🤖</div>
+            <div class="compare-card-title">Agent (Primary)</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Search for safe skills</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Pay to scan & view details</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Hire skill to complete tasks</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Auto-pay to author</span></div>
+            </div>
+          </div>
+          <div class="compare-card animate-in animate-delay-2">
+            <div class="compare-card-icon">👤</div>
+            <div class="compare-card-title">Human (Secondary)</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Browse and search skills</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">View security scores & ranks</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">View dependency graphs</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Manually hire creators</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 6: Agent Hire Flow -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">💸 Agent Hire Flow</h2>
+        <p class="subtitle">Task → Search → Hire → Pay</p>
+        <div class="flow-container">
+          <div class="flow-steps">
+            <div class="flow-step animate-in animate-delay-1">
+              <div class="flow-card">
+                <p class="flow-step-label">Task sent</p>
+                <p class="flow-step-value">50 MON</p>
+              </div>
+            </div>
+            <div><span class="flow-arrow">→</span></div>
+            <div class="flow-step animate-in animate-delay-2">
+              <div class="flow-card">
+                <p class="flow-step-label">Search skill</p>
+                <p class="flow-step-value">🔍</p>
+              </div>
+            </div>
+            <div><span class="flow-arrow">→</span></div>
+            <div class="flow-step animate-in animate-delay-3">
+              <div class="flow-card">
+                <p class="flow-step-label">Hire skill</p>
+                <p class="flow-step-value">✓</p>
+              </div>
+            </div>
+            <div><span class="flow-arrow">→</span></div>
+            <div class="flow-step animate-in animate-delay-4">
+              <div class="flow-card">
+                <p class="flow-step-label">Complete</p>
+                <p class="flow-step-value">✨</p>
+              </div>
+            </div>
+            <div><span class="flow-arrow">→</span></div>
+            <div class="flow-step animate-in">
+              <div class="flow-card">
+                <p class="flow-step-label">Author paid</p>
+                <p class="flow-step-value">💰</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 7: Integration & Access -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">🔌 Integration & Access</h2>
+        <p class="subtitle">Multiple ways for <span class="subtitle-highlight">Agents to hire safe skills</span></p>
+        <div class="comparison-grid">
+          <div class="compare-card highlight animate-in animate-delay-1">
+            <div class="compare-card-icon">🤖</div>
+            <div class="compare-card-title">For AI Agents</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">MCP protocol support</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">OpenClaw Plugin integration</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Auto wallet connect</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Hire + Pay in one call</span></div>
+            </div>
+          </div>
+          <div class="compare-card animate-in animate-delay-2">
+            <div class="compare-card-icon">💻</div>
+            <div class="compare-card-title">For Developers</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">npx one-line command</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">CLI tool for scripting</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">REST API endpoints</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Monad wallet payment</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="highlight-box">
+          <p class="highlight-text">Goal: Let any agent hire safe & evaled skills with on-chain payment</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 8: Agent Economy -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">🤖 Agent Economy</h2>
+        <p class="subtitle">Every Agent: <span class="subtitle-highlight">Hirer + Worker</span></p>
+        <div class="comparison-grid">
+          <div class="compare-card highlight animate-in animate-delay-1">
+            <div class="compare-card-icon">🏃</div>
+            <div class="compare-card-title">As Task Runner</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Receive tasks</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Hire safe skills</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Pay authors after completion</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Link Monad wallet</span></div>
+            </div>
+          </div>
+          <div class="compare-card animate-in animate-delay-2">
+            <div class="compare-card-icon">🛠️</div>
+            <div class="compare-card-title">As Skill Author</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Publish reusable skills</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Pay for security scan</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Higher score = better rank</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Earn when hired</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 9: Live Demo -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">🎬 Live Demo</h2>
+        <div class="card" style="margin-bottom: 1rem;">
+          <p class="highlight-text" style="font-size: 1.3rem;">myskills.info</p>
+          <p style="color: var(--text-muted); font-size: 0.8rem;">Live Now</p>
+        </div>
+        <div class="comparison-grid">
+          <div class="compare-card animate-in animate-delay-1">
+            <div class="compare-card-icon">✅</div>
+            <div class="compare-card-title">Features</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Skills search & browse</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Security score display</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Dependency graph</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">OpenClaw Plugin API</span></div>
+            </div>
+          </div>
+          <div class="compare-card animate-in animate-delay-2">
+            <div class="compare-card-icon">📊</div>
+            <div class="compare-card-title">Metrics</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Network: Monad Testnet</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Gas: ~$0.001</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Confirmation: &lt;1s</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Database: SQLite</span></div>
+            </div>
+          </div>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">GitHub: github.com/detongz/rebel-agent-skills</p>
+      </div>
+    </div>
+
+    <!-- Slide 10: Competitive Advantage -->
+    <div class="slide">
+      <div class="content">
+        <h2 class="title">🏆 Competitive Edge</h2>
+        <div class="comparison-grid">
+          <div class="compare-card animate-in animate-delay-1">
+            <div class="compare-card-icon">📦</div>
+            <div class="compare-card-title">vs npm/GitHub</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">We have security score</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Code scan + VirusTotal</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">On-chain auto-pay</span></div>
+            </div>
+          </div>
+          <div class="compare-card animate-in animate-delay-2">
+            <div class="compare-card-icon">🎯</div>
+            <div class="compare-card-title">vs Other Index Sites</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Agent-first design</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">OpenClaw Plugin</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Real-time ranking</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="bullet-list">
+          <div class="bullet-item"><span class="bullet">🔥</span><span><strong>First Mover</strong> - First Agent Skills hire marketplace</span></div>
+          <div class="bullet-item"><span class="bullet">🛡️</span><span><strong>Security Moat</strong> - Scan tech hard to replicate</span></div>
+          <div class="bullet-item"><span class="bullet">⚡</span><span><strong>Performance</strong> - Monad 10K TPS for micro-hire</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 11: Team -->
+    <div class="slide">
+      <div class="content">
+        <span class="tag">MONAD HACKATHON 2026</span>
+        <h1 class="title title-gradient">MYSKILLS</h1>
+        <p class="subtitle">Secure <span class="subtitle-highlight">Agent Skills Marketplace</span></p>
+        <div class="comparison-grid" style="max-width: 600px; margin: 1rem auto;">
+          <div class="compare-card highlight animate-in animate-delay-1">
+            <div class="compare-card-icon">👨‍💻</div>
+            <div class="compare-card-title">detongz</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text"><strong>Founder & Developer</strong></span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Full-stack engineering</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Agent ecosystem builder</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">github.com/detongz</span></div>
+            </div>
+          </div>
+          <div class="compare-card animate-in animate-delay-2">
+            <div class="compare-card-icon">👤</div>
+            <div class="compare-card-title">Leon</div>
+            <div class="compare-list">
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text"><strong>Product Manager</strong></span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Product strategy</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Market insight</span></div>
+              <div class="compare-item"><span class="compare-check">→</span><span class="compare-text">Idea originator</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 12: Thank You -->
+    <div class="slide">
+      <div class="content">
+        <span class="tag">MONAD HACKATHON 2026</span>
+        <h1 class="title title-gradient">Thank You!</h1>
+        <p class="subtitle">MYSKILLS - Secure <span class="subtitle-highlight">Agent Skills Marketplace</span></p>
+        <div class="card" style="margin: 1rem 0; border-color: #5865F2; background: rgba(88, 101, 242, 0.05);">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px;">
+            <svg style="width: 32px; height: 32px;" viewBox="0 0 24 24" fill="#5865F2">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: #5865F2; margin: 0;">Discord</h3>
+          </div>
+          <p style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin: 0;">discord.gg/TfzSeSRZ</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://myskills.info/" target="_blank" class="footer-link">
+            <span>🌐</span><span>myskills.info</span>
+          </a>
+          <a href="https://github.com/detongz/rebel-agent-skills" target="_blank" class="footer-link">
+            <span>📦</span><span>github.com/detongz</span>
+          </a>
+        </div>
+        <div class="pills">
+          <div class="pill"><span class="pill-icon">🔍</span><span class="pill-text">Search</span></div>
+          <div class="pill"><span class="pill-icon">🛡️</span><span class="pill-text">Evaluate</span></div>
+          <div class="pill"><span class="pill-icon">💼</span><span class="pill-text">Hire</span></div>
+          <div class="pill"><span class="pill-icon">💰</span><span class="pill-text">Pay</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="nav-btn prev" onclick="prevSlide()">‹</button>
+  <button class="nav-btn next" onclick="nextSlide()">›</button>
+  <div class="slide-counter"><span id="current">1</span> / 12</div>
+
+  <script>
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 25; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 12 + 's';
+      particle.style.animationDuration = (8 + Math.random() * 8) + 's';
+      particlesContainer.appendChild(particle);
+    }
+
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    const progress = document.getElementById('progress');
+    const currentEl = document.getElementById('current');
+
+    function showSlide(n) {
+      slides[currentSlide].classList.remove('active');
+      currentSlide = (n + totalSlides) % totalSlides;
+      slides[currentSlide].classList.add('active');
+      progress.style.width = ((currentSlide + 1) / totalSlides * 100) + '%';
+      currentEl.textContent = currentSlide + 1;
+
+      const animatedElements = slides[currentSlide].querySelectorAll('.animate-in');
+      animatedElements.forEach((el, index) => {
+        el.style.animation = 'none';
+        el.offsetHeight;
+        el.style.animation = `slideIn 0.5s ease forwards ${index * 0.1}s`;
+      });
+    }
+
+    function nextSlide() { showSlide(currentSlide + 1); }
+    function prevSlide() { showSlide(currentSlide - 1); }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') nextSlide();
+      else if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
+      const x = e.clientX;
+      if (x > window.innerWidth / 2) nextSlide();
+      else prevSlide();
+    });
+
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) { diff > 0 ? nextSlide() : prevSlide(); }
+    });
+
+    // Auto-play enabled by default (3s per slide)
+    let autoPlay = true;
+    setInterval(() => { if (autoPlay) nextSlide(); }, 3000);
+  </script>
+</body>
+</html>
