@@ -14,7 +14,7 @@ import db from '@/lib/db';
 // Environment variables for external API
 const EXTERNAL_SCAN_API_URL = process.env.SKILL_SCAN_API_URL || 'https://skill-security-scan.vercel.app';
 const EXTERNAL_SCAN_API_KEY = process.env.SKILL_SCAN_API_KEY || '';
-const EXTERNAL_TIMEOUT_MS = 12000;
+const EXTERNAL_TIMEOUT_MS = 60000;
 
 interface ExternalScanRequest {
   repo_url: string;
@@ -44,6 +44,17 @@ interface ScanJob {
   updated_at: string;
   result?: any;
   error_message?: string;
+}
+
+function normalizeRepoUrl(raw: string): string {
+  const value = raw.trim();
+  if (/^https?:\/\//i.test(value)) return value;
+  if (/^github\.com\//i.test(value)) return `https://${value}`;
+  if (/^git@github\.com:/i.test(value)) {
+    const path = value.replace(/^git@github\.com:/i, '').replace(/\.git$/i, '');
+    return `https://github.com/${path}`;
+  }
+  return value;
 }
 
 // Initialize scan_jobs table if not exists
@@ -118,8 +129,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { repo_url, scan_type = 'github', skill_id } = body as ExternalScanRequest;
+    const normalizedRepoUrl = normalizeRepoUrl(repo_url || '');
 
-    if (!repo_url) {
+    if (!normalizedRepoUrl) {
       return NextResponse.json(
         { success: false, error: 'Missing required field: repo_url' },
         { status: 400 }
@@ -128,7 +140,7 @@ export async function POST(request: NextRequest) {
 
     // Validate repo_url format
     try {
-      new URL(repo_url);
+      new URL(normalizedRepoUrl);
     } catch {
       return NextResponse.json(
         { success: false, error: 'Invalid repo_url format' },
@@ -165,7 +177,7 @@ export async function POST(request: NextRequest) {
           'Origin': EXTERNAL_SCAN_API_URL,
           ...(EXTERNAL_SCAN_API_KEY && { 'Authorization': `Bearer ${EXTERNAL_SCAN_API_KEY}` }),
         },
-        body: JSON.stringify({ repoUrl: repo_url }),
+        body: JSON.stringify({ repoUrl: normalizedRepoUrl }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -211,7 +223,7 @@ export async function POST(request: NextRequest) {
       const internalResponse = await fetch(`${baseUrl}/api/scan`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: repo_url }),
+        body: JSON.stringify({ url: normalizedRepoUrl }),
       });
 
       if (!internalResponse.ok) {
@@ -228,7 +240,7 @@ export async function POST(request: NextRequest) {
     const scanJob: ScanJob = {
       id: jobId,
       scan_id: scanId,
-      repo_url,
+      repo_url: normalizedRepoUrl,
       scan_type,
       skill_id,
       status: 'completed',
@@ -243,7 +255,7 @@ export async function POST(request: NextRequest) {
     `).run(
       jobId,
       scanId,
-      repo_url,
+      normalizedRepoUrl,
       scan_type,
       skill_id || null,
       'completed',
@@ -265,7 +277,7 @@ export async function POST(request: NextRequest) {
     `).run(
       randomUUID(),
       scanId,
-      repo_url,
+      normalizedRepoUrl,
       score,
       status,
       scanResult.vulnerabilities || scanResult.warnings?.length || 0,
@@ -282,6 +294,7 @@ export async function POST(request: NextRequest) {
         status: 'completed',
         source,
         report_url: reportUrl,
+        normalized_repo_url: normalizedRepoUrl,
         result: scanResult,
       },
       message: 'Security scan completed successfully',
