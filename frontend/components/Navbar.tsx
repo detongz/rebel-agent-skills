@@ -8,7 +8,7 @@ export default function Navbar() {
 
   const navLinks = [
     { href: '/', label: 'HOME', active: pathname === '/' },
-    { href: '/skill', label: 'SECURITY SCAN', active: pathname?.includes('/skill') },
+    { href: '/scan', label: 'SECURITY SCAN', active: pathname?.includes('/scan') || pathname?.includes('/skill') },
     { href: '/leaderboard', label: 'LEADERBOARD', active: pathname?.includes('/leaderboard') },
     { href: '/bounties', label: 'BOUNTIES', active: pathname?.includes('/bounties') },
   ];

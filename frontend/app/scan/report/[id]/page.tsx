@@ -32,6 +32,12 @@ async function getScanReport(id: string): Promise<ScanReport | null> {
   }
 }
 
+function toStatus(score: number, critical: number, high: number): 'safe' | 'needs_review' | 'risky' {
+  if (critical > 0 || score < 70) return 'risky';
+  if (critical === 0 && score >= 85 && high <= 2) return 'safe';
+  return 'needs_review';
+}
+
 export default async function ScanReportPage({
   params,
 }: {
@@ -45,17 +51,30 @@ export default async function ScanReportPage({
   }
 
   // Parse report data
-  const reportData = report.report_data;
+  const reportData =
+    typeof report.report_data === 'string'
+      ? (() => {
+          try {
+            return JSON.parse(report.report_data);
+          } catch {
+            return {};
+          }
+        })()
+      : (report.report_data || {});
+  const findings = reportData?.findings || reportData?.result?.findings || [];
+  const critical = Array.isArray(findings) ? findings.filter((f: any) => f?.severity === 'critical').length : 0;
+  const high = Array.isArray(findings) ? findings.filter((f: any) => f?.severity === 'high').length : 0;
+
   const scanResult = {
     scanId: report.scan_id,
     score: report.overall_score,
-    status: reportData?.status || (report.overall_score >= 90 ? 'safe' : report.overall_score >= 70 ? 'needs_review' : 'risky'),
+    status: reportData?.status || toStatus(report.overall_score || 0, critical, high),
     grade: report.security_grade || (report.overall_score >= 90 ? 'A' : report.overall_score >= 80 ? 'B' : report.overall_score >= 70 ? 'C' : 'D'),
     vulnerabilities: report.findings_count,
     warnings: reportData?.warnings || [],
     repoUrl: report.repo_url,
     createdAt: report.created_at,
-    findings: reportData?.result?.findings || reportData?.details?.dependencyCheck?.warnings?.map((w: string, i: number) => ({
+    findings: findings || reportData?.details?.dependencyCheck?.warnings?.map((w: string, i: number) => ({
       ruleId: `dep-${i}`,
       title: 'Dependency Warning',
       severity: 'medium' as const,
@@ -73,14 +92,14 @@ export default async function ScanReportPage({
         {/* Navigation */}
         <nav className="flex items-center justify-between mb-8">
           <Link
-            href="/skill"
+            href="/scan"
             className="text-[var(--neon-purple)] hover:underline font-['Orbitron']"
           >
             ← Back to Scanner
           </Link>
           <div className="flex gap-4">
             <Link
-              href="/skill"
+              href="/scan"
               className="text-[var(--text-muted)] hover:text-[var(--text-primary)] font-['Rajdhani']"
             >
               New Scan

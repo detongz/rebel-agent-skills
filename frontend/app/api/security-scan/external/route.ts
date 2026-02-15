@@ -173,6 +173,24 @@ export async function POST(request: NextRequest) {
       scanId = data.scanId;
       scanResult = data;
 
+      // Try to fetch full report payload for richer local report/poster rendering.
+      try {
+        const detailResponse = await fetch(`${EXTERNAL_SCAN_API_URL}/api/scan/${scanId}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            ...(EXTERNAL_SCAN_API_KEY && { 'Authorization': `Bearer ${EXTERNAL_SCAN_API_KEY}` }),
+          },
+          signal: controller.signal,
+        });
+        if (detailResponse.ok) {
+          const detail = await detailResponse.json();
+          scanResult = detail?.data || detail;
+        }
+      } catch (detailError) {
+        console.warn('Failed to fetch external detailed report, fallback to initial response:', detailError);
+      }
+
     } catch (error) {
       // If external API fails, fall back to internal scan
       console.log('External API unavailable, using internal scan fallback');

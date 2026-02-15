@@ -93,7 +93,7 @@ export default async function ScanPosterPage({
           <a href={`/scan/report/${report.scan_id}`} className="px-4 py-2 rounded-lg bg-cyan-500 text-black font-semibold">
             Full Report
           </a>
-          <a href="/skill" className="px-4 py-2 rounded-lg border border-cyan-300/40">
+          <a href="/scan" className="px-4 py-2 rounded-lg border border-cyan-300/40">
             New Scan
           </a>
         </div>
