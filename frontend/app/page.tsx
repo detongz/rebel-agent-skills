@@ -8,7 +8,7 @@ import { WagmiProvider } from 'wagmi';
 import { config } from '@/lib/wagmi';
 import Navbar from '@/components/Navbar';
 import SkillCard from '@/components/SkillCard';
-import { useEffect, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 
 const queryClient = new QueryClient();
 
@@ -16,33 +16,59 @@ function HomePage() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('tips');
+  const [searchInput, setSearchInput] = useState('');
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const activePlatforms = new Set(
     skills
       .map((skill) => String(skill.platform || '').trim())
       .filter(Boolean)
   );
-  const skillsCountLabel = loading ? '...' : String(skills.length);
+  const skillsCountLabel = loading ? '...' : String(total);
   const platformCountLabel = loading ? '...' : String(activePlatforms.size);
 
   useEffect(() => {
     fetchSkills();
-  }, [sort]);
+  }, [sort, query, page, pageSize]);
 
   const fetchSkills = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
       if (sort) params.set('sort', sort);
+      if (query) params.set('q', query);
+      params.set('page', String(page));
+      params.set('pageSize', String(pageSize));
 
       const url = params.toString() ? `/api/skills?${params.toString()}` : '/api/skills';
       const res = await fetch(url);
       const data = await res.json();
-      setSkills(data.data || []);
+      const rows = data.data || data.skills || [];
+      const count = Number(data?.pagination?.total ?? data?.count ?? rows.length);
+      const pages = Number(data?.pagination?.totalPages ?? Math.max(Math.ceil(count / pageSize), 1));
+      setSkills(rows);
+      setTotal(count);
+      setTotalPages(pages);
     } catch (error) {
       console.error('获取 Skills 失败:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const onSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setPage(1);
+    setQuery(searchInput.trim());
+  };
+
+  const clearSearch = () => {
+    setSearchInput('');
+    setQuery('');
+    setPage(1);
   };
 
   return (
@@ -171,11 +197,28 @@ function HomePage() {
                     </p>
                   </div>
                   <div className="skills-filters">
+                    <form className="skills-search" onSubmit={onSearch}>
+                      <input
+                        className="filter-input"
+                        type="text"
+                        placeholder="Search skills..."
+                        value={searchInput}
+                        onChange={(event) => setSearchInput(event.target.value)}
+                        aria-label="Search skills"
+                      />
+                      <button className="filter-btn" type="submit">Search</button>
+                      {query ? (
+                        <button className="filter-btn ghost" type="button" onClick={clearSearch}>Clear</button>
+                      ) : null}
+                    </form>
                     <select
                       className="filter-select"
                       aria-label="Sort by"
                       value={sort}
-                      onChange={(event) => setSort(event.target.value)}
+                      onChange={(event) => {
+                        setSort(event.target.value);
+                        setPage(1);
+                      }}
                     >
                       <option value="stars">🔥 [HOT_SKILLS]</option>
                       <option value="tips">[MOST_TIPPED]</option>
@@ -199,11 +242,34 @@ function HomePage() {
                     </a>
                   </div>
                 ) : (
-                  <div className="skills-grid">
-                    {skills.map((skill) => (
-                      <SkillCard key={skill.id} skill={skill} onTipped={fetchSkills} />
-                    ))}
-                  </div>
+                  <>
+                    <div className="skills-grid">
+                      {skills.map((skill) => (
+                        <SkillCard key={skill.id} skill={skill} onTipped={fetchSkills} />
+                      ))}
+                    </div>
+                    <div className="pagination-bar">
+                      <button
+                        className="filter-btn"
+                        type="button"
+                        disabled={page <= 1 || loading}
+                        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                      >
+                        Prev
+                      </button>
+                      <span className="pagination-text">
+                        Page {page} / {totalPages}
+                      </span>
+                      <button
+                        className="filter-btn"
+                        type="button"
+                        disabled={page >= totalPages || loading}
+                        onClick={() => setPage((prev) => prev + 1)}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </>
                 )}
               </section>
             </main>

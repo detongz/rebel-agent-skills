@@ -142,9 +142,11 @@ function triggerBackgroundGitHubRefresh(skills: SkillRow[]): boolean {
 function querySkillsFromCache(
   creator: string | null,
   category: string | null,
-  limit: number,
+  query: string | null,
+  page: number,
+  pageSize: number,
   sort: SortOption
-): SkillRow[] {
+): { rows: SkillRow[]; total: number } {
   const where: string[] = [
     "status = 'active'",
     "repository IS NOT NULL",
@@ -171,7 +173,22 @@ function querySkillsFromCache(
     params.push(fuzzy, fuzzy, fuzzy);
   }
 
-  params.push(limit);
+  if (query) {
+    where.push('(name LIKE ? OR description LIKE ? OR tags LIKE ?)');
+    const fuzzy = `%${query}%`;
+    params.push(fuzzy, fuzzy, fuzzy);
+  }
+
+  const countSql = `
+    SELECT COUNT(*) as total
+    FROM skills
+    WHERE ${where.join(' AND ')}
+  `;
+  const countRow = db.prepare(countSql).get(...params) as { total?: number } | undefined;
+  const total = Number(countRow?.total || 0);
+
+  const offset = (page - 1) * pageSize;
+  const dataParams = [...params, pageSize, offset];
 
   const sql = `
     SELECT
@@ -183,10 +200,11 @@ function querySkillsFromCache(
     FROM skills
     WHERE ${where.join(' AND ')}
     ORDER BY ${getOrderByClause(sort)}
-    LIMIT ?
+    LIMIT ? OFFSET ?
   `;
 
-  return db.prepare(sql).all(...params) as SkillRow[];
+  const rows = db.prepare(sql).all(...dataParams) as SkillRow[];
+  return { rows, total };
 }
 
 function resolveBootstrapRepos(): string[] {
@@ -240,14 +258,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const creator = searchParams.get('creator');
     const category = searchParams.get('category');
+    const query = (searchParams.get('q') || '').trim() || null;
     const sort = toSortOption(searchParams.get('sort'));
 
-    const rawLimit = parseInt(searchParams.get('limit') || '50', 10);
-    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 50;
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const page = Number.isFinite(rawPage) ? Math.max(rawPage, 1) : 1;
+    const rawPageSize = parseInt(searchParams.get('pageSize') || searchParams.get('limit') || '12', 10);
+    const pageSize = Number.isFinite(rawPageSize) ? Math.min(Math.max(rawPageSize, 1), 100) : 12;
 
-    let cachedSkills = querySkillsFromCache(creator, category, limit, sort);
+    let { rows: cachedSkills, total } = querySkillsFromCache(creator, category, query, page, pageSize, sort);
 
-    if (cachedSkills.length > 0) {
+    if (total > 0) {
       const refreshTriggered = triggerBackgroundGitHubRefresh(cachedSkills);
 
       return NextResponse.json(
@@ -255,9 +276,18 @@ export async function GET(request: NextRequest) {
           success: true,
           data: cachedSkills,
           skills: cachedSkills,
-          count: cachedSkills.length,
+          count: total,
           sort,
+          q: query,
           source: 'github-cache',
+          pagination: {
+            page,
+            pageSize,
+            total,
+            totalPages: Math.max(Math.ceil(total / pageSize), 1),
+            hasNext: page * pageSize < total,
+            hasPrev: page > 1,
+          },
           background_sync: {
             triggered: refreshTriggered,
             syncing: isSyncing,
@@ -274,7 +304,9 @@ export async function GET(request: NextRequest) {
 
     const bootstrap = await bootstrapImportIfNeeded();
     if (bootstrap.attempted) {
-      cachedSkills = querySkillsFromCache(creator, category, limit, sort);
+      const queried = querySkillsFromCache(creator, category, query, page, pageSize, sort);
+      cachedSkills = queried.rows;
+      total = queried.total;
       if (cachedSkills.length > 0) {
         const refreshTriggered = triggerBackgroundGitHubRefresh(cachedSkills);
         return NextResponse.json(
@@ -282,10 +314,19 @@ export async function GET(request: NextRequest) {
             success: true,
             data: cachedSkills,
             skills: cachedSkills,
-            count: cachedSkills.length,
+            count: total,
             sort,
+            q: query,
             source: 'github-cache',
             bootstrap,
+            pagination: {
+              page,
+              pageSize,
+              total,
+              totalPages: Math.max(Math.ceil(total / pageSize), 1),
+              hasNext: page * pageSize < total,
+              hasPrev: page > 1,
+            },
             background_sync: {
               triggered: refreshTriggered,
               syncing: isSyncing,
@@ -306,10 +347,19 @@ export async function GET(request: NextRequest) {
         success: true,
         data: [],
         skills: [],
-        count: 0,
+        count: total,
         sort,
+        q: query,
         source: 'github-cache',
         bootstrap,
+        pagination: {
+          page,
+          pageSize,
+          total,
+          totalPages: Math.max(Math.ceil(total / pageSize), 1),
+          hasNext: false,
+          hasPrev: page > 1,
+        },
         background_sync: {
           triggered: false,
           syncing: isSyncing,

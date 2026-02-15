@@ -64,33 +64,10 @@ type ImportResult = {
 const API_BASE = 'https://api.github.com';
 const REQUEST_TIMEOUT_MS = 8000;
 
-const DISCOVERY_PATHS = [
-  '',
-  'skills',
-  'skills/.curated',
-  'skills/.experimental',
-  'skills/.system',
-  '.agents/skills',
-  '.agent/skills',
-  '.augment/rules',
-  '.claude/skills',
-  '.cline/skills',
-  '.codex/skills',
-  '.continue/skills',
-  '.cursor/skills',
-  '.github/skills',
-  '.iflow/skills',
-  '.kiro/skills',
-  '.mcpjam/skills',
-  '.openclaude/skills',
-  '.openclaw/skills',
-  '.pochi/skills',
-  '.qwen/skills',
-  '.trae/skills',
-  '.vibe/skills',
-  '.windsurf/skills',
-  '.adal/skills',
-];
+function isSkillsDirectorySkill(path: string): boolean {
+  if (!path.endsWith('/SKILL.md') && path !== 'skills/SKILL.md') return false;
+  return path.startsWith('skills/') || path.includes('/skills/');
+}
 
 function parseGitHubRepo(input: string): ParsedRepo | null {
   const trimmed = input.trim().replace(/\.git$/, '');
@@ -268,53 +245,10 @@ async function fetchSkillFile(
   return toParsedSkill(parseFrontmatter(content));
 }
 
-async function discoverSkillsInPath(
-  owner: string,
-  repo: string,
-  basePath: string,
-  token?: string
-): Promise<Array<{ path: string; skill: ParsedSkill }>> {
-  const results: Array<{ path: string; skill: ParsedSkill }> = [];
-  const prefix = basePath ? `${basePath}/` : '';
-
-  const baseSkillPath = `${prefix}SKILL.md`;
-  const rootSkill = await fetchSkillFile(owner, repo, baseSkillPath, token);
-  if (rootSkill) results.push({ path: baseSkillPath, skill: rootSkill });
-
-  const dir = await tryGetJson<GitHubContent[]>(
-    `${API_BASE}/repos/${owner}/${repo}/contents/${basePath}`,
-    token
-  );
-  if (Array.isArray(dir)) {
-    for (const item of dir) {
-      if (item.type !== 'dir') continue;
-      const path = `${prefix}${item.name}/SKILL.md`;
-      const parsed = await fetchSkillFile(owner, repo, path, token);
-      if (parsed) results.push({ path, skill: parsed });
-    }
-  }
-
-  if (results.length > 0) return results;
-
-  const repoInfo = await tryGetJson<GitHubRepoInfo>(
-    `${API_BASE}/repos/${owner}/${repo}`,
-    token
-  );
-  const branch = repoInfo?.default_branch || 'main';
-  const tree = await tryGetJson<GitHubTreeResponse>(
-    `${API_BASE}/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
-    token
-  );
-  const items = tree?.tree || [];
-  if (tree?.truncated) return results;
-  for (const item of items) {
-    if (item.type !== 'blob' || !item.path.endsWith('/SKILL.md')) continue;
-    if (basePath && !item.path.startsWith(`${basePath}/`)) continue;
-    const parsed = await fetchSkillFile(owner, repo, item.path, token, item.sha);
-    if (parsed) results.push({ path: item.path, skill: parsed });
-  }
-
-  return results;
+function resolveSkillsPrefix(input?: string): string | null {
+  const normalized = normalizeSkillsPath(input);
+  if (!normalized) return null;
+  return normalized.endsWith('/') ? normalized : `${normalized}/`;
 }
 
 function upsertSkill(
@@ -392,14 +326,28 @@ export async function importSkillsFromGitHubRepo(
   const stars = repoInfo.stargazers_count || 0;
   const forks = repoInfo.forks_count || 0;
 
-  const scannedPaths = parsed.skillsPath ? [parsed.skillsPath] : DISCOVERY_PATHS;
-  let discovered: Array<{ path: string; skill: ParsedSkill }> = [];
+  const branch = repoInfo.default_branch || 'main';
+  const tree = await getJson<GitHubTreeResponse>(
+    `${API_BASE}/repos/${parsed.owner}/${parsed.repo}/git/trees/${branch}?recursive=1`,
+    options.token
+  );
+  if (tree.truncated) {
+    throw new Error(`Repository tree is truncated for ${parsed.owner}/${parsed.repo}`);
+  }
 
-  for (const path of scannedPaths) {
-    const found = await discoverSkillsInPath(parsed.owner, parsed.repo, path, options.token);
-    if (found.length > 0) {
-      discovered = found;
-      break;
+  const skillsPrefix = resolveSkillsPrefix(parsed.skillsPath);
+  const candidates = tree.tree.filter(
+    (item) =>
+      item.type === 'blob' &&
+      isSkillsDirectorySkill(item.path) &&
+      (!skillsPrefix || item.path.startsWith(skillsPrefix))
+  );
+
+  const discovered: Array<{ path: string; skill: ParsedSkill }> = [];
+  for (const item of candidates) {
+    const parsedSkill = await fetchSkillFile(parsed.owner, parsed.repo, item.path, options.token, item.sha);
+    if (parsedSkill) {
+      discovered.push({ path: item.path, skill: parsedSkill });
     }
   }
 
@@ -426,7 +374,7 @@ export async function importSkillsFromGitHubRepo(
     repo: `${parsed.owner}/${parsed.repo}`,
     imported,
     updated,
-    scanned_paths: scannedPaths.length,
+    scanned_paths: candidates.length,
     skills,
   };
 }

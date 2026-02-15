@@ -12,29 +12,36 @@ import Navbar from '@/components/Navbar';
 const queryClient = new QueryClient();
 
 type SortBy = 'tips' | 'stars' | 'likes' | 'downloads';
-type Platform = 'all' | 'coze' | 'claude-code' | 'manus' | 'minimax';
 
 function LeaderboardPage() {
   const router = useRouter();
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState<SortBy>('tips');
-  const [platform, setPlatform] = useState<Platform>('all');
+  const [searchInput, setSearchInput] = useState('');
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     fetchSkills();
-  }, [sortBy, platform]);
+  }, [sortBy, query, page, pageSize]);
 
   const fetchSkills = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       if (sortBy) params.set('sort', sortBy);
-      if (platform !== 'all') params.set('platform', platform);
+      if (query) params.set('q', query);
+      params.set('page', String(page));
+      params.set('pageSize', String(pageSize));
 
       const res = await fetch(`/api/skills?${params}`);
       const data = await res.json();
-      setSkills(data.skills || []);
+      setSkills(data.skills || data.data || []);
+      const pages = Number(data?.pagination?.totalPages || 1);
+      setTotalPages(Math.max(pages, 1));
     } catch (error) {
       console.error('Failed to fetch skills:', error);
     } finally {
@@ -82,27 +89,35 @@ function LeaderboardPage() {
               </p>
             </div>
             <div className="skills-filters">
+              <form
+                className="skills-search"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  setPage(1);
+                  setQuery(searchInput.trim());
+                }}
+              >
+                <input
+                  className="filter-input"
+                  type="text"
+                  placeholder="Search skills..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                />
+                <button className="filter-btn" type="submit">Search</button>
+              </form>
               <select
                 className="filter-select"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortBy)}
+                onChange={(e) => {
+                  setSortBy(e.target.value as SortBy);
+                  setPage(1);
+                }}
               >
                 <option value="tips">Most Tipped</option>
                 <option value="stars">GitHub Stars</option>
                 <option value="likes">Most Liked</option>
                 <option value="downloads">Downloads</option>
-              </select>
-
-              <select
-                className="filter-select"
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value as Platform)}
-              >
-                <option value="all">All Platforms</option>
-                <option value="coze">Coze</option>
-                <option value="claude-code">Claude Code</option>
-                <option value="manus">Manus</option>
-                <option value="minimax">MiniMax</option>
               </select>
             </div>
           </header>
@@ -119,7 +134,9 @@ function LeaderboardPage() {
             </div>
           ) : (
             <div className="skills-grid">
-              {skills.map((skill, index) => (
+              {skills.map((skill, index) => {
+                const rank = (page - 1) * pageSize + index + 1;
+                return (
                 <div
                   key={skill.id}
                   className="skill-card"
@@ -134,18 +151,18 @@ function LeaderboardPage() {
                     width: '40px',
                     height: '40px',
                     borderRadius: '50%',
-                    background: index < 3
+                    background: rank <= 3
                       ? 'linear-gradient(135deg, #ffd700, #ff8c00)'
                       : 'var(--glass-bg-strong)',
                     border: '2px solid var(--glass-border)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: index < 3 ? '18px' : '14px',
+                    fontSize: rank <= 3 ? '18px' : '14px',
                     fontWeight: 'bold',
                     boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
                   }}>
-                    {getRankIcon(index)}
+                    {getRankIcon(rank - 1)}
                   </div>
 
                   {/* Platform & Creator */}
@@ -178,7 +195,28 @@ function LeaderboardPage() {
                     </span>
                   </div>
                 </div>
-              ))}
+              )})}
+            </div>
+          )}
+          {!loading && (
+            <div className="pagination-bar">
+              <button
+                className="filter-btn"
+                type="button"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              >
+                Prev
+              </button>
+              <span className="pagination-text">Page {page} / {totalPages}</span>
+              <button
+                className="filter-btn"
+                type="button"
+                disabled={page >= totalPages}
+                onClick={() => setPage((prev) => prev + 1)}
+              >
+                Next
+              </button>
             </div>
           )}
         </section>
