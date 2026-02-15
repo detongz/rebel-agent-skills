@@ -5,6 +5,7 @@ import { useAccount, useSendTransaction, useBalance } from 'wagmi';
 import { parseEther } from 'viem';
 import Navbar from '@/components/Navbar';
 import ConnectButton from '@/components/ConnectButton';
+import styles from './skill.module.css';
 
 const SCAN_URL = 'https://skill-security-scan.vercel.app/scan';
 const TIP_AMOUNT = '0.001'; // 0.001 MON
@@ -102,88 +103,42 @@ export default function SkillPage() {
         </section>
 
         {/* Payment Card */}
-        <section className="max-w-2xl mx-auto px-6" style={{ marginTop: '-2rem' }}>
-          <div className="glass-card p-8">
+        <section className={styles.paymentSection}>
+          <div className={`glass-card ${styles.paymentCard}`}>
             {/* Wallet Status */}
             {!isConnected ? (
-              <div className="text-center mb-6">
-                <div className="p-6 rounded-lg" style={{
-                  background: 'rgba(255, 102, 0, 0.05)',
-                  border: '1px solid rgba(255, 102, 0, 0.2)'
-                }}>
-                  <p style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '12px',
-                    color: 'var(--warning-orange)',
-                    marginBottom: '16px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.1em'
-                  }}>
-                    ⚠️ Wallet Not Connected
-                  </p>
-                  <div className="flex justify-center">
-                    <ConnectButton />
-                  </div>
+              <div className={styles.walletWarning}>
+                <p className={styles.walletWarningText}>
+                  ⚠️ Wallet Not Connected
+                </p>
+                <div className={styles.connectWrapper}>
+                  <ConnectButton />
                 </div>
               </div>
             ) : (
-              <div className="mb-6 p-4 rounded-lg" style={{
-                background: 'rgba(0, 255, 136, 0.03)',
-                border: '1px solid rgba(0, 255, 136, 0.2)'
-              }}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '10px',
-                      color: 'var(--neon-green)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.1em'
-                    }}>
-                      ● Connected to Monad Testnet
-                    </p>
-                    <p style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '11px',
-                      color: 'var(--text-muted)',
-                      marginTop: '4px'
-                    }}>
-                      {address?.slice(0, 10)}...{address?.slice(-8)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p style={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: '10px',
-                      color: 'var(--text-muted)',
-                      textTransform: 'uppercase'
-                    }}>
-                      Balance
-                    </p>
-                    <p style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: '18px',
-                      fontWeight: '700',
-                      color: 'var(--text-primary)'
-                    }}>
-                      {balance ? `${parseFloat(balance.formatted).toFixed(4)} MON` : '...'}
-                    </p>
-                  </div>
+              <div className={styles.walletStatus}>
+                <div>
+                  <p className={styles.walletConnectedLabel}>
+                    ● Connected to Monad Testnet
+                  </p>
+                  <p className={styles.walletAddress}>
+                    {address?.slice(0, 10)}...{address?.slice(-8)}
+                  </p>
+                </div>
+                <div className={styles.balanceSection}>
+                  <p className={styles.balanceLabel}>
+                    Balance
+                  </p>
+                  <p className={styles.balanceValue}>
+                    {balance ? `${parseFloat(balance.formatted).toFixed(4)} MON` : '...'}
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Input Field */}
-            <div className="mb-6">
-              <label style={{
-                display: 'block',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '10px',
-                color: 'var(--text-muted)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.1em',
-                marginBottom: '8px'
-              }}>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel}>
                 GitHub Repository URL
               </label>
               <input
@@ -191,60 +146,22 @@ export default function SkillPage() {
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
                 placeholder="https://github.com/org/repo"
-                style={{
-                  width: '100%',
-                  height: '48px',
-                  padding: '0 16px',
-                  background: 'var(--bg-void)',
-                  border: '1px solid rgba(0, 255, 136, 0.2)',
-                  borderRadius: 'var(--radius-sm)',
-                  color: 'var(--text-primary)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '14px',
-                  outline: 'none',
-                  transition: 'all var(--transition-base)'
-                }}
+                className={styles.urlInput}
                 disabled={status === 'paying' || status === 'success'}
-                onFocus={(e) => {
-                  e.target.style.borderColor = 'var(--neon-green)';
-                  e.target.style.boxShadow = '0 0 20px rgba(0, 255, 136, 0.1)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(0, 255, 136, 0.2)';
-                  e.target.style.boxShadow = 'none';
-                }}
               />
             </div>
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 p-4 rounded-lg" style={{
-                background: 'rgba(255, 0, 0, 0.05)',
-                border: '1px solid rgba(255, 0, 0, 0.2)'
-              }}>
-                <p style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
-                  color: '#ff6b6b'
-                }}>
-                  {error}
-                </p>
+              <div className={styles.errorMessage}>
+                <p>{error}</p>
               </div>
             )}
 
             {/* Success Message */}
             {status === 'success' && (
-              <div className="mb-6 p-4 rounded-lg" style={{
-                background: 'rgba(0, 255, 136, 0.05)',
-                border: '1px solid rgba(0, 255, 136, 0.3)'
-              }}>
-                <p style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
-                  color: 'var(--neon-green)'
-                }}>
-                  ✓ Payment successful! Redirecting to scanner...
-                </p>
+              <div className={styles.successMessage}>
+                <p>✓ Payment successful! Redirecting to scanner...</p>
               </div>
             )}
 
@@ -252,16 +169,10 @@ export default function SkillPage() {
             <button
               onClick={handlePayAndScan}
               disabled={!isConnected || status === 'paying' || status === 'success'}
-              className="primary-btn w-full"
-              style={{
-                height: '56px',
-                fontSize: '14px',
-                opacity: (!isConnected || status === 'paying' || status === 'success') ? 0.5 : 1,
-                cursor: (!isConnected || status === 'paying' || status === 'success') ? 'not-allowed' : 'pointer'
-              }}
+              className={`primary-btn ${styles.payButton}`}
             >
               {status === 'paying' ? (
-                <span className="flex items-center justify-center gap-3">
+                <span className={styles.buttonLoading}>
                   <span className="loading-orb" style={{ width: '20px', height: '20px', borderWidth: '2px' }} />
                   Confirming Payment...
                 </span>
@@ -273,19 +184,14 @@ export default function SkillPage() {
             </button>
 
             {/* Footer Info */}
-            <div className="mt-6 text-center">
-              <p style={{
-                fontFamily: 'var(--font-mono)',
-                fontSize: '10px',
-                color: 'var(--text-faint)',
-                letterSpacing: '0.05em'
-              }}>
+            <div className={styles.footerInfo}>
+              <p>
                 Powered by{' '}
                 <a
                   href={SCAN_URL}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: 'var(--neon-blue)' }}
+                  className={styles.footerLink}
                 >
                   skill-security-scan
                 </a>
@@ -295,22 +201,13 @@ export default function SkillPage() {
         </section>
 
         {/* Features Section */}
-        <section className="max-w-4xl mx-auto px-6 mt-12">
+        <section className={styles.featuresSection}>
           {/* Basic Features */}
-          <div className="mb-8">
-            <h2 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '14px',
-              fontWeight: '700',
-              color: 'var(--neon-green)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.15em',
-              marginBottom: '16px',
-              textAlign: 'center'
-            }}>
+          <div className={styles.featureGroup}>
+            <h2 className={styles.featureTitle}>
               // Basic Scan (Active)
             </h2>
-            <div className="skills-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <div className={`skills-grid ${styles.basicGrid}`}>
               <FeatureCard
                 icon="🔍"
                 title="Static Analysis"
@@ -330,20 +227,11 @@ export default function SkillPage() {
           </div>
 
           {/* Advanced Features (Coming Soon) */}
-          <div>
-            <h2 style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '14px',
-              fontWeight: '700',
-              color: 'var(--neon-purple)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.15em',
-              marginBottom: '16px',
-              textAlign: 'center'
-            }}>
+          <div className={styles.featureGroup}>
+            <h2 className={`${styles.featureTitle} ${styles.featureTitlePurple}`}>
               // Advanced Scan (Coming Soon)
             </h2>
-            <div className="skills-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)', opacity: 0.5 }}>
+            <div className={`skills-grid ${styles.advancedGrid}`}>
               <FeatureCard
                 icon="📦"
                 title="Dependency Scan"
@@ -390,32 +278,13 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="skill-card"
-      style={{
-        padding: '20px',
-        textAlign: 'center',
-        opacity: disabled ? 0.6 : 1,
-        borderStyle: disabled ? 'dashed' : 'solid'
-      }}
+      className={`skill-card ${disabled ? styles.featureCardDisabled : ''}`}
     >
-      <div style={{ fontSize: '28px', marginBottom: '12px' }}>{icon}</div>
-      <h3 style={{
-        fontFamily: 'var(--font-mono)',
-        fontSize: '12px',
-        fontWeight: '700',
-        color: disabled ? 'var(--text-muted)' : 'var(--text-primary)',
-        textTransform: 'uppercase',
-        letterSpacing: '0.05em',
-        marginBottom: '6px'
-      }}>
+      <div className={styles.featureIcon}>{icon}</div>
+      <h3 className={styles.featureCardTitle}>
         {title}
       </h3>
-      <p style={{
-        fontFamily: 'var(--font-tech)',
-        fontSize: '12px',
-        color: 'var(--text-muted)',
-        margin: 0
-      }}>
+      <p className={styles.featureCardDesc}>
         {desc}
       </p>
     </div>

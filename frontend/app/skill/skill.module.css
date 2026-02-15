@@ -1,0 +1,290 @@
+/* Payment Section */
+.paymentSection {
+  max-width: 672px;
+  margin: -2rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.paymentCard {
+  padding: 2rem;
+}
+
+/* Wallet Status Styles */
+.walletWarning {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 102, 0, 0.05);
+  border: 1px solid rgba(255, 102, 0, 0.2);
+}
+
+.walletWarningText {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--warning-orange);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.connectWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.walletStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.walletConnectedLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--neon-green);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.walletAddress {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.balanceSection {
+  text-align: right;
+}
+
+.balanceLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.balanceValue {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Input Styles */
+.inputGroup {
+  margin-bottom: 1.5rem;
+}
+
+.inputLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.urlInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--bg-void);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+  transition: all var(--transition-base);
+}
+
+.urlInput:focus {
+  border-color: var(--neon-green);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+}
+
+.urlInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error Message */
+.errorMessage {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 0, 0, 0.05);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.errorMessage p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #ff6b6b;
+  margin: 0;
+}
+
+/* Success Message */
+.successMessage {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.successMessage p {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--neon-green);
+  margin: 0;
+}
+
+/* Pay Button */
+.payButton {
+  width: 100%;
+  height: 56px;
+  font-size: 14px;
+}
+
+.payButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Footer Info */
+.footerInfo {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.footerInfo p {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.footerLink {
+  color: var(--neon-blue);
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
+/* Features Section */
+.featuresSection {
+  max-width: 896px;
+  margin: 3rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.featureGroup {
+  margin-bottom: 2rem;
+}
+
+.featureTitle {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neon-green);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.featureTitlePurple {
+  color: var(--neon-purple);
+}
+
+/* Grid layouts */
+.basicGrid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.advancedGrid {
+  grid-template-columns: repeat(2, 1fr);
+  opacity: 0.5;
+}
+
+/* Feature Card */
+.featureIcon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.featureCardTitle {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.featureCardDesc {
+  font-family: var(--font-tech);
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.featureCardDisabled {
+  opacity: 0.6;
+  border-style: dashed;
+  cursor: default;
+}
+
+.featureCardDisabled .featureCardTitle {
+  color: var(--text-muted);
+}
+
+.featureCardDisabled:hover {
+  transform: none;
+  border-color: rgba(0, 255, 136, 0.1);
+  box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .paymentSection {
+    padding: 0 1rem;
+  }
+
+  .walletStatus {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .balanceSection {
+    text-align: center;
+  }
+
+  .basicGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .advancedGrid {
+    grid-template-columns: 1fr;
+  }
+}
