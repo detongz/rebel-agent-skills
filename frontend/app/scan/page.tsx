@@ -127,8 +127,7 @@ export default function ScanEntryPage() {
               </div>
             </div>
 
-            <p className={styles.badge}>Security Scan v0.2.3</p>
-            <h1 className={styles.title}>Scan Your Skill Repo</h1>
+            <h1 className={styles.title}>Scan MySkill</h1>
             <p className={styles.subtitle}>
               Support MCP, OpenClaw plugin, and npx command workflows. For agents, prioritize these integrations before manual UI scan.
             </p>
