@@ -38,11 +38,6 @@ jobs:
           cd frontend
           npm run build
 
-      - name: Copy pitch docs to public
-        run: |
-          echo "📄 Copying pitch docs..."
-          cp pitch/moltiverse-hackathon-en.html frontend/public/docs.html
-
       - name: Deploy to server
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
