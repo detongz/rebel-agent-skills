@@ -25,6 +25,19 @@ const db = new Database(dbPath);
 // 启用外键约束
 db.pragma('foreign_keys = ON');
 
+function ensureSkillsDataSourceColumn() {
+  try {
+    const columns = db.prepare("PRAGMA table_info('skills')").all() as Array<{ name: string }>;
+    const hasDataSource = columns.some((c) => c.name === 'data_source');
+    if (!hasDataSource) {
+      db.exec("ALTER TABLE skills ADD COLUMN data_source TEXT DEFAULT 'unknown';");
+      console.log('✅ Added skills.data_source column');
+    }
+  } catch (error) {
+    console.warn('⚠️ Failed to ensure skills.data_source column:', error);
+  }
+}
+
 // 初始化表结构
 function initDatabase() {
   // 检查表是否已存在
@@ -77,12 +90,21 @@ function initDatabase() {
   // 初始化 agents 和 agent_evaluations 表
   initAgentTables();
 
+  // Ensure source tracking for real-vs-seed data
+  ensureSkillsDataSourceColumn();
+
   // 自动加载种子数据（如果表为空）
   seedDatabaseIfEmpty();
 }
 
 // 加载种子数据
 async function seedDatabaseIfEmpty() {
+  const shouldAutoSeed = (process.env.AUTO_SEED_SKILLS || '').toLowerCase() === 'true';
+  if (!shouldAutoSeed) {
+    console.log('ℹ️ AUTO_SEED_SKILLS is not enabled; skip automatic seed loading');
+    return;
+  }
+
   const countResult = db.prepare('SELECT COUNT(*) as count FROM skills').get() as { count: number };
 
   if (countResult.count === 0) {
@@ -98,8 +120,8 @@ async function seedDatabaseIfEmpty() {
           repository, homepage, download_count,
           github_stars, github_forks, total_tips,
           tip_count, platform_likes, logo_url, tags,
-          status, created_at, updated_at, stats_updated_at
-        ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), NULL)
+          status, created_at, updated_at, stats_updated_at, data_source
+        ) VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), NULL, 'seed')
       `);
 
       const insertMany = db.transaction((skills: any[]) => {

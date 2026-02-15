@@ -335,8 +335,8 @@ function upsertSkill(
       skill_id, name, description, platform, version,
       creator_address, payment_address, repository, homepage,
       download_count, github_stars, github_forks, total_tips, tip_count,
-      platform_likes, logo_url, tags, status, created_at, updated_at, stats_updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, '0', 0, 0, NULL, ?, 'active', ?, ?, ?)
+      platform_likes, logo_url, tags, status, created_at, updated_at, stats_updated_at, data_source
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, '0', 0, 0, NULL, ?, 'active', ?, ?, ?, 'github')
     ON CONFLICT(skill_id) DO UPDATE SET
       name=excluded.name,
       description=excluded.description,
@@ -347,7 +347,8 @@ function upsertSkill(
       github_forks=excluded.github_forks,
       tags=excluded.tags,
       updated_at=excluded.updated_at,
-      stats_updated_at=excluded.stats_updated_at
+      stats_updated_at=excluded.stats_updated_at,
+      data_source='github'
   `).run(
     skillId,
     item.skill.name,

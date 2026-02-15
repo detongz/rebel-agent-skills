@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
-import { getSeedSkills } from '@/lib/seed-skills';
 import { parseRepoUrl, fetchRepoInfo, updateSkillGitHubStats } from '@/lib/repos';
 
 type SortOption = 'tips' | 'stars' | 'likes' | 'date' | 'name' | 'latest' | 'newest' | 'downloads';
@@ -29,6 +28,7 @@ type SkillRow = {
   created_at: string;
   updated_at: string;
   stats_updated_at: string | null;
+  data_source: string | null;
 };
 
 const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
@@ -130,22 +130,28 @@ function triggerBackgroundGitHubRefresh(skills: SkillRow[]): boolean {
 
 function querySkillsFromCache(
   creator: string | null,
-  platform: string | null,
   category: string | null,
   limit: number,
   sort: SortOption
 ): SkillRow[] {
-  const where: string[] = ["status = 'active'"];
+  const where: string[] = [
+    "status = 'active'",
+    "repository IS NOT NULL",
+    "repository != ''",
+    "repository LIKE 'https://github.com/%'",
+    "(" +
+      "data_source = 'github' " +
+      "OR (" +
+        "(data_source IS NULL OR data_source = 'unknown') " +
+        "AND (npm_package IS NULL OR npm_package = '')" +
+      ")" +
+    ")",
+  ];
   const params: Array<string | number> = [];
 
   if (creator) {
     where.push('creator_address = ?');
     params.push(creator);
-  }
-
-  if (platform && platform !== 'all') {
-    where.push('platform = ?');
-    params.push(platform);
   }
 
   if (category) {
@@ -162,7 +168,7 @@ function querySkillsFromCache(
       creator_address, payment_address, repository, homepage, npm_package,
       download_count, github_stars, github_forks, total_tips,
       tip_count, platform_likes, logo_url, tags, status,
-      created_at, updated_at, stats_updated_at
+      created_at, updated_at, stats_updated_at, data_source
     FROM skills
     WHERE ${where.join(' AND ')}
     ORDER BY ${getOrderByClause(sort)}
@@ -172,27 +178,17 @@ function querySkillsFromCache(
   return db.prepare(sql).all(...params) as SkillRow[];
 }
 
-function mapSeedToApiShape(seed: Record<string, unknown>) {
-  return {
-    ...seed,
-    tags: Array.isArray(seed.tags)
-      ? seed.tags.map((tag) => String(tag)).join(',')
-      : seed.tags,
-  };
-}
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const creator = searchParams.get('creator');
     const category = searchParams.get('category');
-    const platform = searchParams.get('platform');
     const sort = toSortOption(searchParams.get('sort'));
 
     const rawLimit = parseInt(searchParams.get('limit') || '50', 10);
     const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 50;
 
-    const cachedSkills = querySkillsFromCache(creator, platform, category, limit, sort);
+    const cachedSkills = querySkillsFromCache(creator, category, limit, sort);
 
     if (cachedSkills.length > 0) {
       const refreshTriggered = triggerBackgroundGitHubRefresh(cachedSkills);
@@ -204,7 +200,7 @@ export async function GET(request: NextRequest) {
           skills: cachedSkills,
           count: cachedSkills.length,
           sort,
-          source: 'sqlite-cache',
+          source: 'github-cache',
           background_sync: {
             triggered: refreshTriggered,
             syncing: isSyncing,
@@ -219,16 +215,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const seed = getSeedSkills().slice(0, limit).map(mapSeedToApiShape);
-
     return NextResponse.json(
       {
         success: true,
-        data: seed,
-        skills: seed,
-        count: seed.length,
+        data: [],
+        skills: [],
+        count: 0,
         sort,
-        source: 'seed-fallback',
+        source: 'github-cache',
         background_sync: {
           triggered: false,
           syncing: isSyncing,

@@ -15,7 +15,6 @@ const queryClient = new QueryClient();
 function HomePage() {
   const [skills, setSkills] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [platform, setPlatform] = useState('all');
   const [sort, setSort] = useState('tips');
   const activePlatforms = new Set(
     skills
@@ -27,13 +26,12 @@ function HomePage() {
 
   useEffect(() => {
     fetchSkills();
-  }, [platform, sort]);
+  }, [sort]);
 
   const fetchSkills = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (platform && platform !== 'all') params.set('platform', platform);
       if (sort) params.set('sort', sort);
 
       const url = params.toString() ? `/api/skills?${params.toString()}` : '/api/skills';
@@ -173,18 +171,6 @@ function HomePage() {
                     </p>
                   </div>
                   <div className="skills-filters">
-                    <select
-                      className="filter-select"
-                      aria-label="Filter by platform"
-                      value={platform}
-                      onChange={(event) => setPlatform(event.target.value)}
-                    >
-                      <option value="all">[ALL_PLATFORMS]</option>
-                      <option value="coze">COZE</option>
-                      <option value="claude-code">CLAUDE_CODE</option>
-                      <option value="manus">MANUS</option>
-                      <option value="minimax">MINIMAX</option>
-                    </select>
                     <select
                       className="filter-select"
                       aria-label="Sort by"

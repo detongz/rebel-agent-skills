@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
         repository, homepage, download_count,
         github_stars, github_forks, total_tips,
         tip_count, platform_likes, logo_url, tags,
-        status, created_at, updated_at, stats_updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), NULL)
+        status, created_at, updated_at, stats_updated_at, data_source
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'), NULL, 'seed')
     `);
 
     let inserted = 0;
