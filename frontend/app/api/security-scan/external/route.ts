@@ -14,6 +14,7 @@ import db from '@/lib/db';
 // Environment variables for external API
 const EXTERNAL_SCAN_API_URL = process.env.SKILL_SCAN_API_URL || 'https://skill-security-scan.vercel.app';
 const EXTERNAL_SCAN_API_KEY = process.env.SKILL_SCAN_API_KEY || '';
+const EXTERNAL_TIMEOUT_MS = 12000;
 
 interface ExternalScanRequest {
   repo_url: string;
@@ -150,6 +151,8 @@ export async function POST(request: NextRequest) {
     let scanResult: any;
 
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), EXTERNAL_TIMEOUT_MS);
       const response = await fetch(externalUrl, {
         method: 'POST',
         headers: {
@@ -157,7 +160,9 @@ export async function POST(request: NextRequest) {
           ...(EXTERNAL_SCAN_API_KEY && { 'Authorization': `Bearer ${EXTERNAL_SCAN_API_KEY}` }),
         },
         body: JSON.stringify({ repoUrl: repo_url }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
