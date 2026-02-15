@@ -46,7 +46,7 @@ function phaseText(elapsedMs: number): string {
 }
 
 export default function ScanEntryPage() {
-  const [repoUrl, setRepoUrl] = useState('https://github.com/bowenliang123/md_exporter');
+  const [repoUrl, setRepoUrl] = useState('https://github.com/detongz/convert-markdown-to-docx-or-pdf-agent-skill');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
