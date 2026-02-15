@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccount, useSendTransaction, useBalance } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount } from 'wagmi';
 import Navbar from '@/components/Navbar';
 import ConnectButton from '@/components/ConnectButton';
 import styles from './skill.module.css';
 
 const SCAN_URL = 'https://skill-security-scan.vercel.app/scan';
-const TIP_AMOUNT = '0.001'; // 0.001 MON
-const RECEIVING_ADDRESS = process.env.NEXT_PUBLIC_SCAN_TIP_ADDRESS || '0x2679Bb99E7Cc239787a74BF6c77c2278311c77a1';
+const ADVANCED_SCAN_PRICE = '0.01';
 
 // 检测是否是有效的 Git 链接
 function isValidGitUrl(input: string): boolean {
@@ -25,11 +23,9 @@ function isValidGitUrl(input: string): boolean {
 
 export default function SkillPage() {
   const { address, isConnected } = useAccount();
-  const { data: balance } = useBalance({ address });
-  const { sendTransactionAsync, isPending } = useSendTransaction();
 
   const [repoUrl, setRepoUrl] = useState('');
-  const [status, setStatus] = useState<'idle' | 'paying' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'redirecting' | 'error'>('idle');
   const [error, setError] = useState<string | null>(null);
 
   // 自动跳转到扫描页面
@@ -38,7 +34,7 @@ export default function SkillPage() {
     window.location.href = `${SCAN_URL}?repo=${encodedUrl}`;
   };
 
-  const handlePayAndScan = async () => {
+  const handleFreeScan = async () => {
     setError(null);
 
     if (!isValidGitUrl(repoUrl)) {
@@ -46,39 +42,13 @@ export default function SkillPage() {
       return;
     }
 
-    if (!isConnected || !address) {
-      setError('Please connect your wallet first');
-      return;
-    }
-
-    if (balance && balance.value < parseEther(TIP_AMOUNT)) {
-      setError(`Insufficient balance. Need ${TIP_AMOUNT} MON to scan.`);
-      return;
-    }
-
-    setStatus('paying');
-
+    setStatus('redirecting');
     try {
-      const hash = await sendTransactionAsync({
-        to: RECEIVING_ADDRESS as `0x${string}`,
-        value: parseEther(TIP_AMOUNT),
-      });
-
-      console.log('Payment successful:', hash);
-      setStatus('success');
-
-      setTimeout(() => {
-        redirectToScanner(repoUrl);
-      }, 1500);
+      setTimeout(() => redirectToScanner(repoUrl), 400);
     } catch (err: any) {
-      console.error('Payment failed:', err);
+      console.error('Redirect failed:', err);
       setStatus('error');
-
-      if (err?.message?.includes('User rejected') || err?.code === 4001) {
-        setError('Transaction rejected by user');
-      } else {
-        setError(err?.message || 'Payment failed. Please try again.');
-      }
+      setError(err?.message || 'Failed to redirect. Please try again.');
     }
   };
 
@@ -96,8 +66,8 @@ export default function SkillPage() {
               <span>AGENT</span> <span>SKILL</span> <span>SCANNER</span>
             </h1>
             <p className="hero-subtitle">
-              Pay {TIP_AMOUNT} MON to scan any GitHub skill for security issues.
-              Static analysis + Prompt injection detection + Shareable reports.
+              Free scan now via skill-security-scan. Advanced LLM/recursive scan
+              will launch at {ADVANCED_SCAN_PRICE} MON (coming soon).
             </p>
           </div>
         </section>
@@ -126,12 +96,8 @@ export default function SkillPage() {
                   </p>
                 </div>
                 <div className={styles.balanceSection}>
-                  <p className={styles.balanceLabel}>
-                    Balance
-                  </p>
-                  <p className={styles.balanceValue}>
-                    {balance ? `${parseFloat(balance.formatted).toFixed(4)} MON` : '...'}
-                  </p>
+                  <p className={styles.balanceLabel}>Mode</p>
+                  <p className={styles.balanceValue}>FREE SCAN</p>
                 </div>
               </div>
             )}
@@ -147,7 +113,7 @@ export default function SkillPage() {
                 onChange={(e) => setRepoUrl(e.target.value)}
                 placeholder="https://github.com/org/repo"
                 className={styles.urlInput}
-                disabled={status === 'paying' || status === 'success'}
+                disabled={status === 'redirecting'}
               />
             </div>
 
@@ -159,29 +125,30 @@ export default function SkillPage() {
             )}
 
             {/* Success Message */}
-            {status === 'success' && (
+            {status === 'redirecting' && (
               <div className={styles.successMessage}>
-                <p>✓ Payment successful! Redirecting to scanner...</p>
+                <p>✓ Redirecting to scanner...</p>
               </div>
             )}
 
-            {/* Pay Button */}
-            <button
-              onClick={handlePayAndScan}
-              disabled={!isConnected || status === 'paying' || status === 'success'}
-              className={`primary-btn ${styles.payButton}`}
-            >
-              {status === 'paying' ? (
-                <span className={styles.buttonLoading}>
-                  <span className="loading-orb" style={{ width: '20px', height: '20px', borderWidth: '2px' }} />
-                  Confirming Payment...
-                </span>
-              ) : status === 'success' ? (
-                '✓ Redirecting...'
-              ) : (
-                `Pay ${TIP_AMOUNT} MON & Start Scan`
-              )}
-            </button>
+            <div className={styles.actionRow}>
+              <button
+                onClick={handleFreeScan}
+                disabled={status === 'redirecting'}
+                className={`primary-btn ${styles.payButton}`}
+              >
+                {status === 'redirecting' ? 'Redirecting...' : 'Start Free Scan'}
+              </button>
+
+              <button
+                type="button"
+                disabled
+                className={`${styles.advancedButton}`}
+                title="Coming soon"
+              >
+                Advanced Scan ({ADVANCED_SCAN_PRICE} MON) · Coming Soon
+              </button>
+            </div>
 
             {/* Footer Info */}
             <div className={styles.footerInfo}>
@@ -198,6 +165,20 @@ export default function SkillPage() {
               </p>
             </div>
           </div>
+        </section>
+
+        <section className={styles.flowSection}>
+          <h2 className={styles.flowTitle}>Complete User Flow</h2>
+          <div className={styles.flowGrid}>
+            <div className={styles.flowCard}><strong>/scan</strong><span>扫描入口</span></div>
+            <div className={styles.flowArrow}>→</div>
+            <div className={styles.flowCard}><strong>/scan/report</strong><span>详细报告</span></div>
+            <div className={styles.flowArrow}>→</div>
+            <div className={styles.flowCard}><strong>/scan/poster</strong><span>海报分享</span></div>
+          </div>
+          <p className={styles.flowNote}>
+            Share poster QR and open report with <code>?src=poster_qr</code>.
+          </p>
         </section>
 
         {/* Features Section */}

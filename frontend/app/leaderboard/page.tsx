@@ -21,12 +21,19 @@ function LeaderboardPage() {
   const [searchInput, setSearchInput] = useState('');
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(12);
+  const [pageSize] = useState(6);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     fetchSkills();
   }, [sortBy, query, page, pageSize]);
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const fetchSkills = async () => {
     setLoading(true);
@@ -41,6 +48,8 @@ function LeaderboardPage() {
       const data = await res.json();
       setSkills(data.skills || data.data || []);
       const pages = Number(data?.pagination?.totalPages || 1);
+      const total = Number(data?.pagination?.total || data?.count || 0);
+      setTotalCount(total);
       setTotalPages(Math.max(pages, 1));
     } catch (error) {
       console.error('Failed to fetch skills:', error);
@@ -99,6 +108,7 @@ function LeaderboardPage() {
                             : 'downloads'
                 }
               </p>
+              <p className="skills-subtitle">{totalCount} skills</p>
             </div>
             <div className="skills-filters">
               <form
