@@ -167,6 +167,50 @@ export default function ScanEntryPage() {
               <span>Free path: /scan → /scan/report/:id → /scan/poster/:id</span>
             </div>
           </div>
+
+          <div className={`glass-card ${styles.visionCard}`}>
+            <p className={styles.visionTitle}>Advanced Scan (Coming Soon)</p>
+            <div className={styles.visionGrid}>
+              <div className={styles.visionItem}>
+                <div className={styles.visionIcon}>📦</div>
+                <div>
+                  <strong>Dependency Scan</strong>
+                  <p>npm/pip vulnerabilities</p>
+                </div>
+              </div>
+              <div className={styles.visionItem}>
+                <div className={styles.visionIcon}>🧪</div>
+                <div>
+                  <strong>Dynamic Testing</strong>
+                  <p>Sandbox execution</p>
+                </div>
+              </div>
+              <div className={styles.visionItem}>
+                <div className={styles.visionIcon}>🤖</div>
+                <div>
+                  <strong>LLM-as-Judge</strong>
+                  <p>Semantic evaluation</p>
+                </div>
+              </div>
+              <div className={styles.visionItem}>
+                <div className={styles.visionIcon}>📈</div>
+                <div>
+                  <strong>Benchmark Score</strong>
+                  <p>pass@k metrics</p>
+                </div>
+              </div>
+            </div>
+            <p className={styles.referenceText}>
+              Reference:{' '}
+              <a
+                href="https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Demystifying Evals for AI Agents
+              </a>
+            </p>
+          </div>
         </section>
       </main>
     </div>

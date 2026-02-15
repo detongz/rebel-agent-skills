@@ -157,6 +157,10 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; MySkillsScanBridge/1.0)',
+          'Referer': `${EXTERNAL_SCAN_API_URL}/scan`,
+          'Origin': EXTERNAL_SCAN_API_URL,
           ...(EXTERNAL_SCAN_API_KEY && { 'Authorization': `Bearer ${EXTERNAL_SCAN_API_KEY}` }),
         },
         body: JSON.stringify({ repoUrl: repo_url }),

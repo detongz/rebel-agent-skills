@@ -153,6 +153,64 @@
   font-family: var(--font-mono);
 }
 
+.visionCard {
+  margin-top: 14px;
+  padding: 18px;
+}
+
+.visionTitle {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffcf8b;
+}
+
+.visionGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.visionItem {
+  border: 1px dashed rgba(255, 179, 71, 0.55);
+  border-radius: 10px;
+  background: rgba(255, 179, 71, 0.08);
+  padding: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.visionIcon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.visionItem strong {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #ffd89d;
+}
+
+.visionItem p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #cbbda8;
+}
+
+.referenceText {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: #96aac1;
+}
+
+.referenceText a {
+  color: var(--neon-blue);
+  text-decoration: underline;
+}
+
 @keyframes scan-progress {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
@@ -160,6 +218,10 @@
 
 @media (max-width: 768px) {
   .tierGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .visionGrid {
     grid-template-columns: 1fr;
   }
 }
