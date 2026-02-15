@@ -1,6 +1,7 @@
 // app/api/sync-github/stats/route.ts - 同步 GitHub 统计数据
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
+import { getGitHubToken } from '@/lib/github-token';
 
 // 从 GitHub 仓库 URL 提取 owner/repo
 function extractRepoFromUrl(url: string): { owner: string; repo: string } | null {
@@ -25,11 +26,11 @@ function extractRepoFromUrl(url: string): { owner: string; repo: string } | null
 // 调用 GitHub API 获取仓库信息
 async function fetchGitHubStats(owner: string, repo: string): Promise<{ stars: number; forks: number } | null> {
   try {
+    const token = getGitHubToken();
     const res = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
       headers: {
-        // 可选：添加 GitHub token 提高 rate limit
-        // 'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
         'User-Agent': 'Agent-Reward-Hub',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
       // 缓存 5 分钟
       next: { revalidate: 300 },

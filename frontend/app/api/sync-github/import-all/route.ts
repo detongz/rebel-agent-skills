@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { importSkillsFromGitHubRepo } from '@/lib/github-skill-import';
+import { getGitHubToken } from '@/lib/github-token';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -21,7 +22,7 @@ function resolveRepoList(): string[] {
 }
 
 export async function GET() {
-  const token = process.env.GITHUB_TOKEN;
+  const token = getGitHubToken();
   const repos = resolveRepoList();
 
   const results: Array<Record<string, unknown>> = [];

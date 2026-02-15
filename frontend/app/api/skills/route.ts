@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { parseRepoUrl, fetchRepoInfo, updateSkillGitHubStats } from '@/lib/repos';
+import { getGitHubToken } from '@/lib/github-token';
 
 type SortOption = 'tips' | 'stars' | 'likes' | 'date' | 'name' | 'latest' | 'newest' | 'downloads';
 
@@ -107,7 +108,7 @@ function triggerBackgroundGitHubRefresh(skills: SkillRow[]): boolean {
 
   void (async () => {
     try {
-      const token = process.env.GITHUB_TOKEN;
+      const token = getGitHubToken();
       for (const skill of candidates) {
         if (!skill.repository) continue;
         const parsed = parseRepoUrl(skill.repository);

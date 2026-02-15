@@ -43,6 +43,7 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          MYSKILLS_GITHUB_TOKEN: ${{ secrets.MYSKILLS_GITHUB_TOKEN }}
         run: |
           set -e
           echo "🚀 Deploying to server..."
@@ -59,6 +60,7 @@ jobs:
           fi
           echo "ℹ️ DEPLOY_SSH_KEY length: ${#DEPLOY_KEY}"
           echo "ℹ️ DEPLOY_HOST raw: $DEPLOY_HOST"
+          echo "ℹ️ MYSKILLS_GITHUB_TOKEN set: $([ -n \"$MYSKILLS_GITHUB_TOKEN\" ] && echo yes || echo no)"
 
           # Support DEPLOY_HOST formats:
           # - user@host
@@ -158,7 +160,7 @@ jobs:
 
           # Restart PM2 service
           echo "🔄 Restarting PM2 service..."
-          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" bash << 'ENDSSH'
+          ssh -i ~/.ssh/deploy_key -p "$SSH_PORT" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=no "$SSH_TARGET" "MYSKILLS_GITHUB_TOKEN='$MYSKILLS_GITHUB_TOKEN' bash" << 'ENDSSH'
             cd /var/www/myskills-frontend/current
 
             # Use Next.js standalone output; no server-side npm install needed
@@ -169,7 +171,7 @@ jobs:
 
             # Recreate process to ensure correct cwd/script after previous broken runs
             pm2 delete myskills-frontend || true
-            DB_DIR=/var/www/myskills-frontend/data PORT=3000 pm2 start server.js --name myskills-frontend
+            DB_DIR=/var/www/myskills-frontend/data PORT=3000 MYSKILLS_GITHUB_TOKEN="$MYSKILLS_GITHUB_TOKEN" pm2 start server.js --name myskills-frontend
             sleep 2
             pm2 status myskills-frontend
             pm2 logs myskills-frontend --lines 20 --nostream || true

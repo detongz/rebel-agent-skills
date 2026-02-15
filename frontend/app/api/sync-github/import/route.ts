@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { importSkillsFromGitHubRepo } from '@/lib/github-skill-import';
+import { getGitHubToken } from '@/lib/github-token';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,7 @@ type ImportBody = {
 export async function POST(request: NextRequest) {
   try {
     const body = (await request.json()) as ImportBody;
-    const token = body.token || process.env.GITHUB_TOKEN;
+    const token = body.token || getGitHubToken();
 
     const repoList = (body.repos && body.repos.length > 0)
       ? body.repos
