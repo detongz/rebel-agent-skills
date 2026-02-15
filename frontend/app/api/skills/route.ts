@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { parseRepoUrl, fetchRepoInfo, updateSkillGitHubStats } from '@/lib/repos';
 import { getGitHubToken } from '@/lib/github-token';
+import { importSkillsFromGitHubRepo } from '@/lib/github-skill-import';
 
 type SortOption = 'tips' | 'stars' | 'likes' | 'date' | 'name' | 'latest' | 'newest' | 'downloads';
 
@@ -36,9 +37,18 @@ const SYNC_COOLDOWN_MS = 5 * 60 * 1000;
 const SYNC_STALE_MS = 6 * 60 * 60 * 1000;
 const SYNC_BATCH_SIZE = 8;
 const GITHUB_TIMEOUT_MS = 4000;
+const BOOTSTRAP_COOLDOWN_MS = 30 * 60 * 1000;
+
+const DEFAULT_IMPORT_REPOS = [
+  'https://github.com/detongz/rebel-agent-skills',
+  'https://github.com/vercel-labs/skills',
+  'https://github.com/anthropics/claude-code',
+];
 
 let isSyncing = false;
 let lastSyncStartedAt = 0;
+let isBootstrapping = false;
+let lastBootstrapStartedAt = 0;
 
 function toSortOption(value: string | null): SortOption {
   const sort = (value || 'tips').toLowerCase();
@@ -179,6 +189,52 @@ function querySkillsFromCache(
   return db.prepare(sql).all(...params) as SkillRow[];
 }
 
+function resolveBootstrapRepos(): string[] {
+  const fromEnv = (process.env.GITHUB_IMPORT_REPOS || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return Array.from(new Set(fromEnv.length > 0 ? fromEnv : DEFAULT_IMPORT_REPOS));
+}
+
+async function bootstrapImportIfNeeded(): Promise<{
+  attempted: boolean;
+  imported: number;
+  updated: number;
+  failed: number;
+}> {
+  const now = Date.now();
+  if (isBootstrapping) return { attempted: false, imported: 0, updated: 0, failed: 0 };
+  if (now - lastBootstrapStartedAt < BOOTSTRAP_COOLDOWN_MS) {
+    return { attempted: false, imported: 0, updated: 0, failed: 0 };
+  }
+
+  isBootstrapping = true;
+  lastBootstrapStartedAt = now;
+  let imported = 0;
+  let updated = 0;
+  let failed = 0;
+
+  try {
+    const token = getGitHubToken();
+    const repos = resolveBootstrapRepos();
+
+    for (const repo of repos) {
+      try {
+        const result = await importSkillsFromGitHubRepo(repo, { token });
+        imported += result.imported;
+        updated += result.updated;
+      } catch (error) {
+        failed += 1;
+        console.error('Bootstrap import failed for repo:', repo, error);
+      }
+    }
+    return { attempted: true, imported, updated, failed };
+  } finally {
+    isBootstrapping = false;
+  }
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -189,7 +245,7 @@ export async function GET(request: NextRequest) {
     const rawLimit = parseInt(searchParams.get('limit') || '50', 10);
     const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 100) : 50;
 
-    const cachedSkills = querySkillsFromCache(creator, category, limit, sort);
+    let cachedSkills = querySkillsFromCache(creator, category, limit, sort);
 
     if (cachedSkills.length > 0) {
       const refreshTriggered = triggerBackgroundGitHubRefresh(cachedSkills);
@@ -216,6 +272,35 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const bootstrap = await bootstrapImportIfNeeded();
+    if (bootstrap.attempted) {
+      cachedSkills = querySkillsFromCache(creator, category, limit, sort);
+      if (cachedSkills.length > 0) {
+        const refreshTriggered = triggerBackgroundGitHubRefresh(cachedSkills);
+        return NextResponse.json(
+          {
+            success: true,
+            data: cachedSkills,
+            skills: cachedSkills,
+            count: cachedSkills.length,
+            sort,
+            source: 'github-cache',
+            bootstrap,
+            background_sync: {
+              triggered: refreshTriggered,
+              syncing: isSyncing,
+            },
+          },
+          {
+            status: 200,
+            headers: {
+              'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=120',
+            },
+          }
+        );
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -224,6 +309,7 @@ export async function GET(request: NextRequest) {
         count: 0,
         sort,
         source: 'github-cache',
+        bootstrap,
         background_sync: {
           triggered: false,
           syncing: isSyncing,
