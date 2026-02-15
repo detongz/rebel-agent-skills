@@ -169,9 +169,6 @@ export default function ScanEntryPage() {
 
             {error ? <p className={styles.error}>{error}</p> : null}
 
-            <div className={styles.footerHint}>
-              <span>Free path: /scan → /scan/report/:id → /scan/poster/:id</span>
-            </div>
           </div>
 
           <div className={`glass-card ${styles.visionCard}`}>

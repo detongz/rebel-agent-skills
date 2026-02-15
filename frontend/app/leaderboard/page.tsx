@@ -69,6 +69,29 @@ function LeaderboardPage() {
     return `#${index + 1}`;
   };
 
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+  const parseGitHubRepo = (repo?: string) => {
+    if (!repo) return null;
+    const match = repo.match(/github\.com\/([^/]+)\/([^/#?]+)/i);
+    if (!match) return null;
+    return {
+      owner: match[1],
+      name: match[2].replace(/\.git$/i, ''),
+    };
+  };
+
+  const getSkillPath = (skill: any) => {
+    const repo = parseGitHubRepo(skill.repository);
+    if (!repo) return `/skill/${skill.id}`;
+    return `/skill/gh--${repo.owner}--${repo.name}--${slugify(skill.name || '')}`;
+  };
+
   return (
     <div className="app-shell">
       <div className="app-backdrop" aria-hidden="true" />
@@ -160,7 +183,7 @@ function LeaderboardPage() {
                 <div
                   key={skill.id}
                   className="skill-card"
-                  onClick={() => router.push(`/skill/${skill.id}`)}
+                  onClick={() => router.push(getSkillPath(skill))}
                   style={{ position: 'relative' }}
                 >
                   {/* Rank Badge */}

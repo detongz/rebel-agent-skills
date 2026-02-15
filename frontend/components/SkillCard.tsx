@@ -55,6 +55,29 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
     return formatNumber(n);
   };
 
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
+  const parseGitHubRepo = (repo?: string) => {
+    if (!repo) return null;
+    const match = repo.match(/github\.com\/([^/]+)\/([^/#?]+)/i);
+    if (!match) return null;
+    return {
+      owner: match[1],
+      name: match[2].replace(/\.git$/i, ''),
+    };
+  };
+
+  const getSkillPath = () => {
+    const repo = parseGitHubRepo(skill.repository);
+    if (!repo) return `/skill/${skill.id}`;
+    return `/skill/gh--${repo.owner}--${repo.name}--${slugify(skill.name)}`;
+  };
+
   const handleTip = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -119,7 +142,7 @@ export default function SkillCard({ skill, onTipped }: SkillCardProps) {
   const isHotSkill = (skill.github_stars || 0) >= 100;
 
   return (
-    <div className="skill-card" onClick={() => router.push(`/skill/${skill.id}`)}>
+    <div className="skill-card" onClick={() => router.push(getSkillPath())}>
       {/* HOT Badge */}
       {isHotSkill && (
         <div className="skill-hot-badge" title="Hot Skill - High GitHub Stars!">
