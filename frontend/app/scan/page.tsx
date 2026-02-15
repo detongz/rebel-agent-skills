@@ -46,7 +46,7 @@ function phaseText(elapsedMs: number): string {
 }
 
 export default function ScanEntryPage() {
-  const [repoUrl, setRepoUrl] = useState('https://github.com/detongz/convert-markdown-to-docx-or-pdf-agent-skill');
+  const [repoUrl, setRepoUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [elapsedMs, setElapsedMs] = useState(0);
@@ -144,7 +144,7 @@ export default function ScanEntryPage() {
             <form onSubmit={onSubmit} className={styles.form}>
               <input
                 className={styles.input}
-                placeholder="GitHub URL / npm|npx command / MCP/OpenClaw sourced repo"
+                placeholder="https://github.com/your-org/your-skill (Monad Hackathon 2026)"
                 value={repoUrl}
                 onChange={(e) => setRepoUrl(e.target.value)}
                 required
