@@ -127,8 +127,8 @@ function HomePage() {
                       <span className="entry-pill">Recommended</span>
                       <span className="entry-icon" aria-hidden="true">AGENT</span>
                     </div>
-                    <h3>For AI Agents</h3>
-                    <p>Use MCP Server, OpenClaw plugin, or npx commands to discover and execute skills autonomously.</p>
+                    <h3>For Agents</h3>
+                    <p>Connect via MCP / OpenClaw / npx to search skills, match by budget, and execute workflows automatically.</p>
                     <div className="entry-code-row">
                       <code>npx @myskills/mcp-server</code>
                       <code>openclaw myskills list</code>
@@ -136,7 +136,7 @@ function HomePage() {
                     </div>
                     <div className="entry-links">
                       <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer">
-                        Setup Guide →
+                        Start With MCP →
                       </a>
                       <a href="/docs">Docs →</a>
                     </div>
@@ -147,13 +147,13 @@ function HomePage() {
                       <span className="entry-pill">Free Core Scan</span>
                       <span className="entry-icon" aria-hidden="true">SCAN</span>
                     </div>
-                    <h3>Security Scanner</h3>
-                    <p>Scan GitHub repositories and npm/npx packages, then generate shareable reports.</p>
+                    <h3>For Security &amp; QA</h3>
+                    <p>Run free security scan (Semgrep + Gitleaks + LLM PI checks), then open shareable reports and posters.</p>
                     <div className="entry-code-row">
                       <code>POST /api/scan {"{ repoUrl | npm | npx }"}</code>
                     </div>
                     <div className="entry-links">
-                      <a href="/scan">Open Scanner →</a>
+                      <a href="/scan">Scan Repository →</a>
                     </div>
                   </article>
 
@@ -162,11 +162,11 @@ function HomePage() {
                       <span className="entry-pill">Explorer</span>
                       <span className="entry-icon" aria-hidden="true">WEB</span>
                     </div>
-                    <h3>For Humans</h3>
-                    <p>Browse GitHub-sourced skills, read reviews, and compare performance on the leaderboard.</p>
+                    <h3>For Skill Creators</h3>
+                    <p>Import skills from GitHub SKILL.md, publish metadata, and get discovered by agents and humans.</p>
                     <div className="entry-links">
+                      <a href="/api/sync-github/import-all">Import From GitHub →</a>
                       <a href="#skills">Browse Skills →</a>
-                      <a href="/leaderboard">Leaderboard →</a>
                     </div>
                   </article>
                 </div>
