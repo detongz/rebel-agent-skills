@@ -111,69 +111,95 @@ function HomePage() {
                 </div>
               </section>
 
-              {/* Three Ways to Use - Combined with Value Props */}
-              <section className="py-12 px-6">
-                <div className="max-w-6xl mx-auto">
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* MCP Server */}
-                    <div className="bg-gradient-to-br from-purple-900/50 to-purple-950/30 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="text-3xl">🤖</span>
-                        <div>
-                          <h3 className="text-lg font-bold text-white">For AI Agents</h3>
-                          <span className="text-purple-400 text-xs">MCP Server</span>
-                        </div>
-                      </div>
-                      <div className="bg-black/30 rounded-lg p-3 mb-4 font-mono">
-                        <code className="text-purple-400 text-sm">npx @myskills/mcp-server</code>
-                      </div>
-                      <p className="text-gray-400 text-sm mb-3">
-                        Connect Claude Desktop or any MCP-compatible AI agent to discover and use skills autonomously.
-                      </p>
-                      <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 text-sm">
-                        Setup Guide →
-                      </a>
-                    </div>
+              {/* Product Entry Points */}
+              <section className="px-6 py-12">
+                <div className="mx-auto max-w-6xl">
+                  <header className="mb-7">
+                    <p className="text-xs uppercase tracking-[0.28em] text-cyan-300/80">Start Here</p>
+                    <h2 className="mt-2 text-3xl font-semibold text-white md:text-4xl">Choose the Workflow That Fits You</h2>
+                    <p className="mt-3 max-w-3xl text-sm text-slate-300 md:text-base">
+                      Agent-first by default, human-friendly when needed. Discover real skills from GitHub, run a security check, then
+                      decide with confidence.
+                    </p>
+                  </header>
 
-                    {/* Security Scanner */}
-                    <div className="bg-gradient-to-br from-red-900/50 to-red-950/30 border border-red-500/30 rounded-xl p-6 hover:border-red-400/50 transition-all">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="text-3xl">🛡️</span>
+                  <div className="grid gap-5 md:grid-cols-5">
+                    <article className="relative overflow-hidden rounded-2xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/15 via-slate-900 to-slate-950 p-6 md:col-span-3">
+                      <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-cyan-400/20 blur-2xl" aria-hidden="true" />
+                      <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className="text-lg font-bold text-white">Security Scanner</h3>
-                          <span className="text-red-400 text-xs">Free API</span>
+                          <span className="inline-flex rounded-full border border-cyan-300/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200">
+                            Recommended
+                          </span>
+                          <h3 className="mt-3 text-2xl font-semibold text-white">For AI Agents</h3>
+                          <p className="mt-2 text-sm text-slate-300">
+                            Use MCP Server, OpenClaw plugin, or npx commands. Let agents discover, evaluate, and call skills directly.
+                          </p>
                         </div>
+                        <span className="text-3xl" aria-hidden="true">🤖</span>
                       </div>
-                      <div className="bg-black/30 rounded-lg p-3 mb-4 font-mono">
-                        <code className="text-red-400 text-sm">POST /api/scan {"{ url }"}</code>
+                      <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                        <code className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-cyan-200">npx @myskills/mcp-server</code>
+                        <code className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-cyan-200">openclaw myskills list</code>
+                        <code className="rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-cyan-200">npx myskills search</code>
                       </div>
-                      <p className="text-gray-400 text-sm mb-3">
-                        Scan any skill repository for malicious code, secrets, and vulnerabilities before using it.
-                      </p>
-                      <a href="/scan" className="text-red-400 hover:text-red-300 text-sm">
-                        Try Scanner →
-                      </a>
-                    </div>
+                      <div className="mt-5 flex flex-wrap gap-4 text-sm">
+                        <a
+                          href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-cyan-300 hover:text-cyan-200"
+                        >
+                          Setup Guide →
+                        </a>
+                        <a
+                          href="/docs"
+                          className="font-medium text-cyan-300/90 hover:text-cyan-200"
+                        >
+                          Docs →
+                        </a>
+                      </div>
+                    </article>
 
-                    {/* Web Interface */}
-                    <div className="bg-gradient-to-br from-green-900/50 to-green-950/30 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="text-3xl">🌐</span>
+                    <article className="rounded-2xl border border-red-400/30 bg-gradient-to-br from-red-500/15 to-slate-950 p-6 md:col-span-2">
+                      <div className="flex items-start justify-between gap-4">
                         <div>
-                          <h3 className="text-lg font-bold text-white">For Humans</h3>
-                          <span className="text-green-400 text-xs">Web Interface</span>
+                          <span className="inline-flex rounded-full border border-red-300/30 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-red-200">
+                            Free Core Scan
+                          </span>
+                          <h3 className="mt-3 text-xl font-semibold text-white">Security Scanner</h3>
+                        </div>
+                        <span className="text-3xl" aria-hidden="true">🛡️</span>
+                      </div>
+                      <p className="mt-3 text-sm text-slate-300">
+                        Submit a GitHub URL or npm/npx package to generate a report and shareable poster.
+                      </p>
+                      <code className="mt-4 block rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-xs text-red-200">
+                        POST /api/scan {"{ repoUrl | npm | npx }"}
+                      </code>
+                      <a href="/scan" className="mt-5 inline-block text-sm font-medium text-red-300 hover:text-red-200">
+                        Open Scanner →
+                      </a>
+                    </article>
+
+                    <article className="rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 to-slate-950 p-6 md:col-span-5">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                        <div className="min-w-0">
+                          <h3 className="text-xl font-semibold text-white">For Humans: Directory, Reviews, Leaderboard</h3>
+                          <p className="mt-2 text-sm text-slate-300">
+                            Search real GitHub-based skills, read community reviews, and compare momentum on the leaderboard.
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                          <a href="#skills" className="rounded-lg border border-emerald-300/35 px-4 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-400/10">
+                            Browse Skills
+                          </a>
+                          <a href="/leaderboard" className="rounded-lg border border-white/25 px-4 py-2 text-sm font-medium text-white hover:bg-white/10">
+                            View Leaderboard
+                          </a>
                         </div>
                       </div>
-                      <div className="bg-black/30 rounded-lg p-3 mb-4 font-mono">
-                        <code className="text-green-400 text-sm">myskills.info</code>
-                      </div>
-                      <p className="text-gray-400 text-sm mb-3">
-                        Browse skills, view security reports, read reviews, connect wallet, and support creators.
-                      </p>
-                      <a href="#skills" className="text-green-400 hover:text-green-300 text-sm">
-                        Browse Skills →
-                      </a>
-                    </div>
+                    </article>
                   </div>
                 </div>
               </section>
