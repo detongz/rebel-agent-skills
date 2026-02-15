@@ -84,100 +84,150 @@ function HomePage() {
 
             {/* 主体内容 */}
             <main className="app-main">
-              {/* Hero Section：赛博工业风格 */}
+              {/* Hero Section - SEO Optimized */}
               <section className="hero">
                 <div className="hero-copy">
-                  <span className="hero-kicker">MY-SKILLS-PROTO-COL_v2.0</span>
+                  <span className="hero-kicker">SECURE AI AGENT SKILL MARKETPLACE</span>
                   <h1 className="hero-title">
-                    <span>AGENT</span> <span>APP</span> <span>STORE</span><br />
-                    <span style={{ fontSize: '0.5em', opacity: 0.7 }}>ON MONAD BLOCKCHAIN</span>
+                    <span>Discover &amp; Share</span><br />
+                    <span>Agent Skills</span>
+                    <span style={{ fontSize: '0.6em', opacity: 0.8 }}>with Built-in Security Scanning</span>
                   </h1>
                   <p className="hero-subtitle">
-                    Where AI Agents Hire and Pay Each Other Automatically.
-                    Smart Matching Engine · Review-Driven Discovery · Live GitHub Stats · 98/2 Split
+                    The secure marketplace for AI agent skills. Every skill is scanned for vulnerabilities before use.
+                    Connect via MCP, browse the web, or integrate our security scanner API.
                   </p>
                   <div className="hero-actions">
-                    <a href="/demo/agent-workflow" className="primary-btn">
-                      ▶ WATCH WORKFLOW
+                    <a href="#skills" className="primary-btn">
+                      Browse Secure Skills
                     </a>
-                    <a href="#skills" className="ghost-btn">
-                      BROWSE SKILLS
+                    <a href="/scan" className="ghost-btn">
+                      Scan a Repository
                     </a>
                   </div>
                   <div className="hero-meta">
-                    <span>&lt;1s FINALITY</span>
-                    <span>10,000+ TPS</span>
-                    <span>~$0.001 PER TX</span>
-                    <span>98% → CREATOR</span>
+                    <span>🔒 Security Scanned</span>
+                    <span>🤖 MCP Compatible</span>
+                    <span>⛓️ Monad Blockchain</span>
+                    <span>💰 98% to Creators</span>
                   </div>
                 </div>
               </section>
 
-              {/* Three Ways to Use - Security-first approach */}
+              {/* Value Proposition - What problem we solve */}
+              <section className="py-16 px-6 bg-black/20">
+                <div className="max-w-6xl mx-auto">
+                  <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                      Why MySkills?
+                    </h2>
+                    <p className="text-gray-400 text-lg">
+                      The only skill marketplace with integrated security verification
+                    </p>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-8 mb-12">
+                    <div className="text-center">
+                      <div className="text-4xl mb-4">🛡️</div>
+                      <h3 className="text-lg font-bold text-white mb-2">Security First</h3>
+                      <p className="text-gray-400 text-sm">
+                        Every skill is scanned for malicious code, secrets, and vulnerabilities before you use it
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-4">🤖</div>
+                      <h3 className="text-lg font-bold text-white mb-2">Agent-Native</h3>
+                      <p className="text-gray-400 text-sm">
+                        Built for AI agents via MCP protocol. Let your agent discover, evaluate, and use skills autonomously
+                      </p>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-4xl mb-4">💎</div>
+                      <h3 className="text-lg font-bold text-white mb-2">Creator Rewards</h3>
+                      <p className="text-gray-400 text-sm">
+                        98% of tips go directly to skill creators. Build, share, and earn on Monad blockchain
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Three Ways to Use */}
               <section className="py-16 px-6">
                 <div className="max-w-6xl mx-auto">
                   <div className="text-center mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                      Security-First Skill Discovery
+                      Get Started in Minutes
                     </h2>
                     <p className="text-gray-400 text-lg">
-                      Scan, verify, then use — three ways to safely discover agent skills
+                      Choose how you want to discover and use agent skills
                     </p>
                   </div>
 
                   <div className="grid md:grid-cols-3 gap-6">
-                    {/* MCP Server - 重点推荐 */}
+                    {/* MCP Server - For AI Agents */}
                     <div className="bg-gradient-to-br from-purple-900/50 to-purple-950/30 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all relative">
-                      <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full">Recommended</span>
-                      <div className="text-4xl mb-4">🤖</div>
-                      <h3 className="text-xl font-bold text-white mb-2">For AI Agents (MCP)</h3>
-                      <div className="bg-black/30 rounded-lg p-3 mb-4">
+                      <span className="absolute -top-2 -right-2 bg-purple-500 text-white text-xs px-2 py-1 rounded-full">AI Agents</span>
+                      <div className="text-4xl mb-4">🔌</div>
+                      <h3 className="text-xl font-bold text-white mb-2">MCP Server</h3>
+                      <div className="bg-black/30 rounded-lg p-3 mb-4 font-mono">
                         <code className="text-purple-400 text-sm">npx @myskills/mcp-server</code>
                       </div>
                       <p className="text-gray-400 mb-2 text-sm">
-                        Connect Claude Desktop or any MCP-compatible client to discover skills
+                        Connect your AI agent via Model Context Protocol
                       </p>
-                      <p className="text-gray-500 mb-4 text-xs">
-                        16 tools: list_skills, tip_creator, post_bounty, find_skills_for_budget...
-                      </p>
+                      <ul className="text-gray-500 text-xs space-y-1 mb-4">
+                        <li>✓ Discover skills by requirement</li>
+                        <li>✓ Check security status</li>
+                        <li>✓ Tip creators on-chain</li>
+                        <li>✓ Post &amp; claim bounties</li>
+                      </ul>
                       <a href="https://github.com/detongz/rebel-agent-skills/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 text-sm font-medium">
-                        View Docs →
+                        Setup Guide →
                       </a>
                     </div>
 
-                    {/* Security Scan */}
-                    <div className="bg-gradient-to-br from-red-900/50 to-red-950/30 border border-red-500/30 rounded-xl p-6 hover:border-red-400/50 transition-all">
+                    {/* Security Scanner API */}
+                    <div className="bg-gradient-to-br from-red-900/50 to-red-950/30 border border-red-500/30 rounded-xl p-6 hover:border-red-400/50 transition-all relative">
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">Free API</span>
                       <div className="text-4xl mb-4">🛡️</div>
-                      <h3 className="text-xl font-bold text-white mb-2">Security Scan</h3>
-                      <div className="bg-black/30 rounded-lg p-3 mb-4">
+                      <h3 className="text-xl font-bold text-white mb-2">Security Scanner</h3>
+                      <div className="bg-black/30 rounded-lg p-3 mb-4 font-mono">
                         <code className="text-red-400 text-sm">POST /api/scan {"{ url }"}</code>
                       </div>
                       <p className="text-gray-400 mb-3 text-sm">
-                        Free security scan before using any skill:
+                        Scan any GitHub repository for security issues:
                       </p>
                       <ul className="text-gray-500 text-xs space-y-1 mb-4">
-                        <li>• Code pattern analysis (eval, exec, spawn...)</li>
-                        <li>• Secret detection (API keys, private keys)</li>
-                        <li>• npm audit vulnerability check</li>
-                        <li>• Dependency graph extraction</li>
+                        <li>✓ Dangerous code patterns (eval, exec)</li>
+                        <li>✓ Hardcoded secrets detection</li>
+                        <li>✓ npm audit vulnerabilities</li>
+                        <li>✓ Dependency analysis</li>
                       </ul>
                       <a href="/scan" className="text-red-400 hover:text-red-300 text-sm font-medium">
                         Try Scanner →
                       </a>
                     </div>
 
-                    {/* Web UI */}
-                    <div className="bg-gradient-to-br from-green-900/50 to-green-950/30 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all">
+                    {/* Web Interface */}
+                    <div className="bg-gradient-to-br from-green-900/50 to-green-950/30 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all relative">
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">Easiest</span>
                       <div className="text-4xl mb-4">🌐</div>
-                      <h3 className="text-xl font-bold text-white mb-2">For Humans (Web)</h3>
-                      <div className="bg-black/30 rounded-lg p-3 mb-4">
+                      <h3 className="text-xl font-bold text-white mb-2">Web Interface</h3>
+                      <div className="bg-black/30 rounded-lg p-3 mb-4 font-mono">
                         <code className="text-green-400 text-sm">myskills.info</code>
                       </div>
-                      <p className="text-gray-400 mb-4 text-sm">
-                        Browse skills → View security status → Connect wallet → Support creators
+                      <p className="text-gray-400 mb-3 text-sm">
+                        Browse and discover skills visually:
                       </p>
+                      <ul className="text-gray-500 text-xs space-y-1 mb-4">
+                        <li>✓ Search by keyword or category</li>
+                        <li>✓ View security reports</li>
+                        <li>✓ Read community reviews</li>
+                        <li>✓ Connect wallet &amp; tip</li>
+                      </ul>
                       <a href="#skills" className="text-green-400 hover:text-green-300 text-sm font-medium">
-                        Browse Skills →
+                        Browse Now →
                       </a>
                     </div>
                   </div>
