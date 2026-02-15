@@ -78,10 +78,21 @@ jobs:
           # Setup SSH
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$DEPLOY_KEY" | tr -d '\r' > ~/.ssh/deploy_key
+          # DEPLOY_SSH_KEY may be stored as:
+          # 1) multi-line private key
+          # 2) single-line string with escaped newlines (\n)
+          if printf '%s' "$DEPLOY_KEY" | grep -q 'BEGIN .* PRIVATE KEY'; then
+            printf '%s' "$DEPLOY_KEY" | sed 's/\\n/\n/g' | tr -d '\r' > ~/.ssh/deploy_key
+          else
+            echo "❌ DEPLOY_SSH_KEY does not look like a valid private key (missing BEGIN ... PRIVATE KEY header)."
+            exit 1
+          fi
           chmod 600 ~/.ssh/deploy_key
           # Validate key format early to avoid opaque ssh exit 255 errors
-          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null
+          ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null || {
+            echo "❌ DEPLOY_SSH_KEY could not be parsed. Re-save secret with full private key content and preserved newlines."
+            exit 1
+          }
           ssh-keyscan -p "$SSH_PORT" -H "$HOST_FOR_SCAN" >> ~/.ssh/known_hosts 2>/dev/null || true
 
           # Verify SSH connectivity early with a clear error
