@@ -173,7 +173,7 @@ export default function ScanEntryPage() {
           <div className={`glass-card ${styles.freeSpecWrap}`}>
             <div className={styles.freeSpec}>
               <div className={styles.freeSpecHead}>
-                <h2>Free Scan v0.2.3: What Runs Today</h2>
+                <h2>Free Scan: What Runs Today</h2>
                 <span>Production Ready</span>
               </div>
               <div className={styles.freeSpecGrid}>
@@ -184,9 +184,9 @@ export default function ScanEntryPage() {
                   <small>If CLI is missing, scan continues with graceful degradation.</small>
                 </article>
                 <article className={styles.freeSpecCard}>
-                  <h3>Prompt Injection API</h3>
-                  <p>Z.AI API via OpenAI-compatible <code>/chat/completions</code>.</p>
-                  <small>Env: <code>ZAI_API_KEY</code>, <code>ZAI_API_BASE_URL</code>, <code>ZAI_PI_MODEL</code>.</small>
+                  <h3>LLM Prompt Injection Detection</h3>
+                  <p>Semantic prompt-injection detection with an LLM layer.</p>
+                  <small>Falls back to local PI rules when the external model is unavailable.</small>
                 </article>
                 <article className={styles.freeSpecCard}>
                   <h3>Built-In Local Rules</h3>
@@ -195,7 +195,7 @@ export default function ScanEntryPage() {
                 </article>
                 <article className={styles.freeSpecCard}>
                   <h3>Execution Priority</h3>
-                  <p>1) Semgrep+Gitleaks (parallel) → 2) Z.AI PI → 3) Local rules fallback</p>
+                  <p>1) Semgrep+Gitleaks (parallel) → 2) LLM prompt injection detection → 3) Local rules fallback</p>
                   <small>Ensures stable output even when external tools are partially unavailable.</small>
                 </article>
               </div>
