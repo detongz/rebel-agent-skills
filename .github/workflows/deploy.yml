@@ -92,25 +92,32 @@ jobs:
           # 2) single-line with escaped "\n"
           # 3) base64 encoded key
           printf '%s' "$DEPLOY_KEY" > ~/.ssh/deploy_key.raw
+          printf '%s' "$DEPLOY_KEY" | sed 's/\\n/\n/g' > ~/.ssh/deploy_key.literal_n
           printf '%b' "$DEPLOY_KEY" > ~/.ssh/deploy_key.escaped
           printf '%s' "$DEPLOY_KEY" | base64 -d > ~/.ssh/deploy_key.b64 2>/dev/null || true
+          for f in ~/.ssh/deploy_key.raw ~/.ssh/deploy_key.literal_n ~/.ssh/deploy_key.escaped ~/.ssh/deploy_key.b64; do
+            tr -d '\r' < "$f" > "$f.norm" || true
+            mv "$f.norm" "$f" || true
+          done
 
-          if grep -q 'BEGIN .* PRIVATE KEY' ~/.ssh/deploy_key.raw; then
-            cp ~/.ssh/deploy_key.raw ~/.ssh/deploy_key
-            echo "ℹ️ SSH key format: raw"
-          elif grep -q 'BEGIN .* PRIVATE KEY' ~/.ssh/deploy_key.escaped; then
-            cp ~/.ssh/deploy_key.escaped ~/.ssh/deploy_key
-            echo "ℹ️ SSH key format: escaped-newline"
-          elif grep -q 'BEGIN .* PRIVATE KEY' ~/.ssh/deploy_key.b64; then
-            cp ~/.ssh/deploy_key.b64 ~/.ssh/deploy_key
-            echo "ℹ️ SSH key format: base64"
-          else
-            echo "❌ DEPLOY_SSH_KEY parse failed. Save full private key content in GitHub Secret DEPLOY_SSH_KEY."
+          KEY_FORMAT=""
+          for candidate in raw literal_n escaped b64; do
+            f="$HOME/.ssh/deploy_key.$candidate"
+            if [ -s "$f" ] && grep -q 'BEGIN .* PRIVATE KEY' "$f"; then
+              cp "$f" ~/.ssh/deploy_key
+              chmod 600 ~/.ssh/deploy_key
+              if ssh-keygen -y -f ~/.ssh/deploy_key >/dev/null 2>&1; then
+                KEY_FORMAT="$candidate"
+                break
+              fi
+            fi
+          done
+
+          if [ -z "$KEY_FORMAT" ]; then
+            echo "❌ DEPLOY_SSH_KEY parse failed after trying raw/literal_n/escaped/base64."
             exit 1
           fi
-          tr -d '\r' < ~/.ssh/deploy_key > ~/.ssh/deploy_key.norm
-          mv ~/.ssh/deploy_key.norm ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
+          echo "ℹ️ SSH key format: $KEY_FORMAT"
           ssh-keyscan -p "$SSH_PORT" -H "$HOST_FOR_SCAN" >> ~/.ssh/known_hosts 2>/dev/null || true
 
           # Verify SSH connectivity early with a clear error
