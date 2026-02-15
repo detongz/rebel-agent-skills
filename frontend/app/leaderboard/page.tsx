@@ -23,7 +23,6 @@ function LeaderboardPage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(6);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     fetchSkills();
@@ -48,8 +47,6 @@ function LeaderboardPage() {
       const data = await res.json();
       setSkills(data.skills || data.data || []);
       const pages = Number(data?.pagination?.totalPages || 1);
-      const total = Number(data?.pagination?.total || data?.count || 0);
-      setTotalCount(total);
       setTotalPages(Math.max(pages, 1));
     } catch (error) {
       console.error('Failed to fetch skills:', error);
@@ -108,7 +105,6 @@ function LeaderboardPage() {
                             : 'downloads'
                 }
               </p>
-              <p className="skills-subtitle">{totalCount} skills</p>
             </div>
             <div className="skills-filters">
               <form
@@ -228,7 +224,7 @@ function LeaderboardPage() {
               )})}
             </div>
           )}
-          {!loading && (
+          {!loading && totalPages > 1 && (
             <div className="pagination-bar">
               <button
                 className="filter-btn"

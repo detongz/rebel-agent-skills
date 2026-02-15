@@ -250,27 +250,29 @@ function HomePage() {
                         <SkillCard key={skill.id} skill={skill} onTipped={fetchSkills} />
                       ))}
                     </div>
-                    <div className="pagination-bar">
-                      <button
-                        className="filter-btn"
-                        type="button"
-                        disabled={page <= 1 || loading}
-                        onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                      >
-                        Prev
-                      </button>
-                      <span className="pagination-text">
-                        Page {page} / {totalPages}
-                      </span>
-                      <button
-                        className="filter-btn"
-                        type="button"
-                        disabled={page >= totalPages || loading}
-                        onClick={() => setPage((prev) => prev + 1)}
-                      >
-                        Next
-                      </button>
-                    </div>
+                    {totalPages > 1 && (
+                      <div className="pagination-bar">
+                        <button
+                          className="filter-btn"
+                          type="button"
+                          disabled={page <= 1 || loading}
+                          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                        >
+                          Prev
+                        </button>
+                        <span className="pagination-text">
+                          Page {page} / {totalPages}
+                        </span>
+                        <button
+                          className="filter-btn"
+                          type="button"
+                          disabled={page >= totalPages || loading}
+                          onClick={() => setPage((prev) => prev + 1)}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    )}
                   </>
                 )}
               </section>
